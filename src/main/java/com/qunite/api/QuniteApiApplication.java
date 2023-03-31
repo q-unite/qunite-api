@@ -1,5 +1,6 @@
 package com.qunite.api;
 
+import java.time.Instant;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
