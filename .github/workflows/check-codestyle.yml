@@ -1,13 +1,13 @@
 name: Check codestyle
-on: [pull_request]
+
+on: [ push, pull_request ]
+
 jobs:
-  checkstyle:
-    name: runner / checkstyle
+
+  formatting:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - uses: dbelyaev/action-checkstyle@v0.7.4
+      - uses: actions/checkout@v3 # v2 minimum required
+      - uses: axel-op/googlejavaformat-action@v3
         with:
-          github_token: ${{ secrets.github_token }}
-          reporter: github-pr-review
-          level: error
+          args: "--set-exit-if-changed"
