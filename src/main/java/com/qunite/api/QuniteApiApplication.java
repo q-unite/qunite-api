@@ -8,7 +8,16 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 public class QuniteApiApplication {
 
     public static void main(String[] args) {
+
+
+
+
         SpringApplication.run(QuniteApiApplication.class, args);
+
+
+
+
+
     }
 
 }
