@@ -13,8 +13,8 @@ jobs:
         uses: nikitasavinov/checkstyle-action@master
         with:
           github_token: ${{ secrets.PTA }}
-          #reporter: 'github-pr-review'
-          reporter: 'github-pr-check'
+          reporter: 'github-pr-review'
+          #reporter: 'github-pr-check'
           #checkstyle_config: google_checks.xml
           level: 'warning'
   build:
