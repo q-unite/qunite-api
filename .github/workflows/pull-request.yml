@@ -12,7 +12,7 @@ jobs:
       - name: Run check style
         uses: nikitasavinov/checkstyle-action@master
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
+          github_token: ${{ secrets.PTA }}
           #reporter: 'github-pr-review'
           reporter: 'github-pr-check'
           #checkstyle_config: google_checks.xml
