@@ -1,4 +1,4 @@
-package com.qunite.api.repository;
+package com.qunite.api.data;
 
 import com.qunite.api.domain.User;
 import org.springframework.data.jpa.repository.JpaRepository;

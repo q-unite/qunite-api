@@ -24,14 +24,14 @@ public class Entry {
     Long id;
 
     @ManyToOne
-    @JoinColumn(name = "user_id", nullable = false)
-    User user;
+    @JoinColumn(name = "member_id")
+    User member;
 
     @ManyToOne
-    @JoinColumn(name = "queue_id", nullable = false)
+    @JoinColumn(name = "queue_id")
     Queue queue;
 
-    @Column(name = "created_at", nullable = false)
+    @Column(name = "created_at")
     Instant createdAt = Instant.now();
 
     @Override

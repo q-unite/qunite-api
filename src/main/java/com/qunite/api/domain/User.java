@@ -25,12 +25,12 @@ public class User {
 
     @Getter
     @Setter
-    @Column(name = "first_name", nullable = false)
+    @Column(name = "first_name")
     String firstName;
 
     @Getter
     @Setter
-    @Column(name = "last_name", nullable = false)
+    @Column(name = "last_name")
     String lastName;
 
     @Access(AccessType.FIELD)
@@ -42,16 +42,13 @@ public class User {
     @Access(AccessType.FIELD)
     @ToString.Exclude
     @OrderBy("id asc")
-    @ManyToMany
-    @JoinTable(name = "QUEUES_MANAGERS",
-            joinColumns = @JoinColumn(name = "user_id"),
-            inverseJoinColumns = @JoinColumn(name = "queue_id"))
+    @ManyToMany(mappedBy = "managers")
     List<Queue> managedQueues = new ArrayList<>();
 
     @Access(AccessType.FIELD)
     @ToString.Exclude
     @OrderBy("id asc")
-    @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE)
+    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
     List<Entry> entries = new ArrayList<>();
 
     public void addCreatedQueue(Queue queue) {
@@ -76,14 +73,12 @@ public class User {
 
     public void addEntry(Entry entry) {
         entries.add(entry);
-        entry.setUser(this);
+        entry.setMember(this);
     }
 
     public void removeEntry(Entry entry) {
         entries.remove(entry);
-        entry.queue.entries.remove(entry);
-        entry.setUser(null);
-        entry.setQueue(null);
+        entry.setMember(null);
     }
 
     public List<Queue> getCreatedQueues() {

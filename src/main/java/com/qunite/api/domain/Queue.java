@@ -25,14 +25,14 @@ public class Queue {
 
     @Getter
     @Setter
-    @Column(nullable = false)
+    @Column
     String name;
 
     @Getter
     @Setter
     @ToString.Exclude
     @ManyToOne
-    @JoinColumn(name = "creator_id", nullable = false)
+    @JoinColumn(name = "creator_id")
     User creator;
 
     @Access(AccessType.FIELD)
@@ -41,7 +41,7 @@ public class Queue {
     @ManyToMany(cascade = CascadeType.REMOVE)
     @JoinTable(name = "QUEUES_MANAGERS",
             joinColumns = @JoinColumn(name = "queue_id"),
-            inverseJoinColumns = @JoinColumn(name = "user_id"))
+            inverseJoinColumns = @JoinColumn(name = "manager_id"))
     List<User> managers = new ArrayList<>();
 
     @Access(AccessType.FIELD)
@@ -51,7 +51,7 @@ public class Queue {
     List<Entry> entries = new ArrayList<>();
 
     @Getter
-    @Column(name = "created_at", nullable = false)
+    @Column(name = "created_at")
     Instant createdAt = Instant.now();
 
     public void addManager(User manager) {
@@ -71,8 +71,8 @@ public class Queue {
 
     public void removeEntry(Entry entry) {
         entries.remove(entry);
-        entry.user.entries.remove(entry);
-        entry.setUser(null);
+        entry.member.entries.remove(entry);
+        entry.setMember(null);
         entry.setQueue(null);
     }
 
