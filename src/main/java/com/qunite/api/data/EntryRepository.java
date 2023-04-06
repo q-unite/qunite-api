@@ -9,9 +9,9 @@ import java.util.List;
 
 @Repository
 public interface EntryRepository extends JpaRepository<Entry, Long> {
-    long countByMemberId(Long id);
+    boolean existsByMemberId(Long id);
 
-    long countByQueueId(Long id);
+    boolean existsByQueueId(Long id);
 
     @Query("SELECT e.id FROM Entry e where e.queue.id = :queueId")
     List<Long> findEntriesIdByQueueId(Long queueId);

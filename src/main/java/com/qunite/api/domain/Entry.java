@@ -1,6 +1,13 @@
 package com.qunite.api.domain;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -10,27 +17,31 @@ import org.hibernate.Hibernate;
 import java.time.Instant;
 import java.util.Objects;
 
-
 @Entity
 @Table(name = "ENTRIES")
 @ToString
-@Getter
-@Setter
 @NoArgsConstructor
 public class Entry {
 
     @Id
+    @Getter
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long id;
 
+    @Getter
+    @Setter
     @ManyToOne
     @JoinColumn(name = "member_id")
     User member;
 
+    @Getter
+    @Setter
     @ManyToOne
     @JoinColumn(name = "queue_id")
     Queue queue;
 
+    @Getter
+    @Setter
     @Column(name = "created_at")
     Instant createdAt = Instant.now();
 
