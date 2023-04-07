@@ -6,5 +6,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface QueueRepository extends JpaRepository<Queue, Long> {
-    boolean existsByCreatorId(Long id);
+  boolean existsByCreatorId(Long id);
 }

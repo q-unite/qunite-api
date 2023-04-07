@@ -12,4 +12,6 @@ jobs:
       - name: Run check style
         uses: nikitasavinov/checkstyle-action@master
         with:
-          level: 'warning'
+          checkstyle_version: 10.9.3
+          checkstyle_config: config/checkstyle.xml
+          level: warning
