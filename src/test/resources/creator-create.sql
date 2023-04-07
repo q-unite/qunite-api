@@ -1,1 +1,1 @@
-INSERT INTO users values (1, 'Creator', 'Creator');
+INSERT INTO users VALUES (1, 'Creator', 'Creator');

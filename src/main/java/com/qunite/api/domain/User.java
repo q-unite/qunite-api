@@ -12,16 +12,15 @@ import jakarta.persistence.ManyToMany;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OrderBy;
 import jakarta.persistence.Table;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Objects;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import org.hibernate.Hibernate;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
 
 @Entity
 @Table(name = "USERS")
@@ -29,91 +28,95 @@ import java.util.Objects;
 @NoArgsConstructor
 public class User {
 
-    @Id
-    @Getter
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    Long id;
+  @Id
+  @Getter
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  Long id;
 
-    @Getter
-    @Setter
-    @Column(name = "first_name")
-    String firstName;
+  @Getter
+  @Setter
+  @Column(name = "first_name")
+  String firstName;
 
-    @Getter
-    @Setter
-    @Column(name = "last_name")
-    String lastName;
+  @Getter
+  @Setter
+  @Column(name = "last_name")
+  String lastName;
 
-    @Access(AccessType.FIELD)
-    @ToString.Exclude
-    @OrderBy("id asc")
-    @OneToMany(mappedBy = "creator", cascade = CascadeType.ALL, orphanRemoval = true)
-    List<Queue> createdQueues = new ArrayList<>();
+  @Access(AccessType.FIELD)
+  @ToString.Exclude
+  @OrderBy("id asc")
+  @OneToMany(mappedBy = "creator", cascade = CascadeType.ALL, orphanRemoval = true)
+  List<Queue> createdQueues = new ArrayList<>();
 
-    @Access(AccessType.FIELD)
-    @ToString.Exclude
-    @OrderBy("id asc")
-    @ManyToMany(mappedBy = "managers")
-    List<Queue> managedQueues = new ArrayList<>();
+  @Access(AccessType.FIELD)
+  @ToString.Exclude
+  @OrderBy("id asc")
+  @ManyToMany(mappedBy = "managers")
+  List<Queue> managedQueues = new ArrayList<>();
 
-    @Access(AccessType.FIELD)
-    @ToString.Exclude
-    @OrderBy("id asc")
-    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
-    List<Entry> entries = new ArrayList<>();
+  @Access(AccessType.FIELD)
+  @ToString.Exclude
+  @OrderBy("id asc")
+  @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
+  List<Entry> entries = new ArrayList<>();
 
-    public void addCreatedQueue(Queue queue) {
-        createdQueues.add(queue);
-        queue.setCreator(this);
+  public void addCreatedQueue(Queue queue) {
+    createdQueues.add(queue);
+    queue.setCreator(this);
+  }
+
+  public void removeCreatedQueue(Queue queue) {
+    createdQueues.remove(queue);
+    queue.setCreator(null);
+  }
+
+  public void addManagedQueue(Queue queue) {
+    managedQueues.add(queue);
+    queue.managers.add(this);
+  }
+
+  public void removeManagedQueue(Queue queue) {
+    managedQueues.remove(queue);
+    queue.managers.remove(this);
+  }
+
+  public void addEntry(Entry entry) {
+    entries.add(entry);
+    entry.setMember(this);
+  }
+
+  public void removeEntry(Entry entry) {
+    entries.remove(entry);
+    entry.setMember(null);
+  }
+
+  public List<Queue> getCreatedQueues() {
+    return Collections.unmodifiableList(createdQueues);
+  }
+
+  public List<Queue> getManagedQueues() {
+    return Collections.unmodifiableList(managedQueues);
+  }
+
+  public List<Entry> getEntries() {
+    return Collections.unmodifiableList(entries);
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
     }
-
-    public void removeCreatedQueue(Queue queue) {
-        createdQueues.remove(queue);
-        queue.setCreator(null);
+    if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) {
+      return false;
     }
+    User user = (User) o;
+    return getId() != null && Objects.equals(getId(), user.getId());
+  }
 
-    public void addManagedQueue(Queue queue) {
-        managedQueues.add(queue);
-        queue.managers.add(this);
-    }
-
-    public void removeManagedQueue(Queue queue) {
-        managedQueues.remove(queue);
-        queue.managers.remove(this);
-    }
-
-    public void addEntry(Entry entry) {
-        entries.add(entry);
-        entry.setMember(this);
-    }
-
-    public void removeEntry(Entry entry) {
-        entries.remove(entry);
-        entry.setMember(null);
-    }
-
-    public List<Queue> getCreatedQueues() {
-        return Collections.unmodifiableList(createdQueues);
-    }
-
-    public List<Queue> getManagedQueues() {
-        return Collections.unmodifiableList(managedQueues);
-    }
-
-    public List<Entry> getEntries() {
-        return Collections.unmodifiableList(entries);
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) return false;
-        User user = (User) o;
-        return getId() != null && Objects.equals(getId(), user.getId());
-    }
-
-    @Override
-    public int hashCode() {
-        return getClass().hashCode();
-    }
+  @Override
+  public int hashCode() {
+    return getClass().hashCode();
+  }
 }
