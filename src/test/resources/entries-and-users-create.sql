@@ -13,4 +13,3 @@ VALUES (27, 2, 1, now()),
        (19, 4, 1, now() + interval '2 minutes'),
        (14, 5, 1, now() + interval '3 minutes'),
        (1, 6, 1, now() + interval '4 minutes')
-

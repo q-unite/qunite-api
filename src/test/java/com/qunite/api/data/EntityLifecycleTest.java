@@ -1,5 +1,12 @@
 package com.qunite.api.data;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import com.qunite.api.domain.Queue;
+import com.qunite.api.domain.User;
+import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
@@ -7,183 +14,184 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.test.context.jdbc.Sql;
 
-import java.util.List;
-
-import static org.junit.jupiter.api.Assertions.*;
-
 @DataJpaTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 class EntityLifecycleTest {
 
-    @Autowired
-    private QueueRepository queueRepository;
-    @Autowired
-    private UserRepository userRepository;
-    @Autowired
-    private EntryRepository entryRepository;
+  @Autowired
+  private QueueRepository queueRepository;
+  @Autowired
+  private UserRepository userRepository;
+  @Autowired
+  private EntryRepository entryRepository;
 
-    @Test
-    @Sql(value = "/queue-create.sql")
-    void deleteQueueDoesNotDeleteCreator() {
-        queueRepository.deleteById(1L);
+  @Test
+  @Sql(value = "/queue-create.sql")
+  void deleteQueueDoesNotDeleteCreator() {
+    queueRepository.deleteById(1L);
 
-        assertFalse(queueRepository.existsById(1L));
-        assertTrue(userRepository.existsById(1L));
-    }
+    assertFalse(queueRepository.existsById(1L));
+    assertTrue(userRepository.existsById(1L));
+  }
 
-    @Test
-    @Sql(value = "/queue-create.sql")
-    void deleteUserDeletesCreatedQueues() {
-        userRepository.deleteById(1L);
+  @Test
+  @Sql(value = "/queue-create.sql")
+  void deleteUserDeletesCreatedQueues() {
+    userRepository.deleteById(1L);
 
-        assertEquals(0, queueRepository.count());
-    }
+    assertFalse(queueRepository.existsById(1L));
+  }
 
-    @Test
-    @Sql(value = "/queue-create.sql")
-    void deleteQueueDeletesCreatedQueueInCreator() {
-        queueRepository.deleteById(1L);
+  @Test
+  @Sql(value = "/queue-create.sql")
+  void deleteQueueDeletesCreatedQueueInCreator() {
+    queueRepository.deleteById(1L);
 
-        assertEquals(0, queueRepository.countByCreatorId(1L));
-    }
+    assertFalse(queueRepository.existsByCreatorId(1L));
+  }
 
-    @Test
-    @Sql(value = "/queue-create.sql")
-    void addCreatedQueueInCreatorAddsQueue() {
-        assertEquals(1, queueRepository.count());
-    }
+  @Test
+  @Sql(value = "/creator-create.sql")
+  void addCreatedQueueInCreatorAddsQueue() {
+    var creator = findEntityById(1L, userRepository);
+    createQueue(creator);
 
-    @Test
-    @Sql(value = "/queue-create.sql")
-    void deleteCreatedQueueInCreatorDeletesQueue() {
-        var queue = findEntityByIdOrElseThrowException(1L, queueRepository);
-        var creator = findEntityByIdOrElseThrowException(1L, userRepository);
-        creator.removeCreatedQueue(queue);
+    assertTrue(queueRepository.existsById(1L));
+  }
 
-        assertEquals(0, queueRepository.count());
-    }
+  @Test
+  @Sql(value = "/queue-create.sql")
+  void deleteCreatedQueueInCreatorDeletesQueue() {
+    var queue = findEntityById(1L, queueRepository);
+    var creator = findEntityById(1L, userRepository);
+    creator.removeCreatedQueue(queue);
 
+    assertFalse(queueRepository.existsById(1L));
+  }
 
-    @Test
-    @Sql(value = "/entry-create.sql")
-    void deleteUserDeletesEntries() {
-        userRepository.deleteById(1L);
+  @Test
+  @Sql(value = "/entry-create.sql")
+  void deleteUserDeletesEntries() {
+    userRepository.deleteById(1L);
 
-        assertEquals(0, entryRepository.count());
-    }
+    assertFalse(entryRepository.existsById(1L));
+  }
 
-    @Test
-    @Sql(value = "/entry-create.sql")
-    void addEntryInMemberAddsEntryInQueue() {
-        var member = findEntityByIdOrElseThrowException(1L, userRepository);
-        var entry = findEntityByIdOrElseThrowException(1L, entryRepository);
-        member.addEntry(entry);
+  @Test
+  @Sql(value = "/entry-create.sql")
+  void addEntryInMemberAddsEntryInQueue() {
+    var member = findEntityById(1L, userRepository);
+    var entry = findEntityById(1L, entryRepository);
+    member.addEntry(entry);
 
-        assertEquals(1, entryRepository.countByQueueId(1L));
-    }
+    assertTrue(entryRepository.existsByQueueId(1L));
+  }
 
+  @Test
+  @Sql(value = "/entry-create.sql")
+  void deleteMemberDeletesEntriesInQueue() {
+    userRepository.deleteById(1L);
 
+    assertFalse(entryRepository.existsByMemberId(1L));
+  }
 
-    @Test
-    @Sql(value = "/entry-create.sql")
-    void deleteMemberDeletesEntriesInQueue() {
-        userRepository.deleteById(1L);
+  @Test
+  @Sql(value = "/entry-create.sql")
+  void deleteEntryDeletesEntryInQueueAndMember() {
+    entryRepository.deleteById(1L);
 
-        assertEquals(0, entryRepository.countByMemberId(1L));
-    }
+    assertFalse(entryRepository.existsByMemberId(1L));
+    assertFalse(entryRepository.existsByQueueId(1L));
+  }
 
-    @Test
-    @Sql(value = "/entry-create.sql")
-    void deleteEntryDeletesEntryInQueueAndMember() {
-        entryRepository.deleteById(1L);
+  @Test
+  @Sql(value = "/entry-create.sql")
+  void deleteEntryInMemberDeletesEntryInQueue() {
+    var member = findEntityById(1L, userRepository);
+    var entry = findEntityById(1L, entryRepository);
+    member.removeEntry(entry);
 
-        assertEquals(0, entryRepository.countByMemberId(1L));
-        assertEquals(0, entryRepository.countByQueueId(1L));
-    }
+    assertFalse(entryRepository.existsByQueueId(1L));
+  }
 
-    @Test
-    @Sql(value = "/entry-create.sql")
-    void deleteEntryInMemberDeletesEntryInQueue() {
-        var member = findEntityByIdOrElseThrowException(1L, userRepository);
-        var entry = findEntityByIdOrElseThrowException(1L, entryRepository);
-        member.removeEntry(entry);
+  @Test
+  @Sql(value = "/entry-create.sql")
+  void deleteEntryInQueueDeletesEntryInMember() {
+    var queue = findEntityById(1L, queueRepository);
+    var entry = findEntityById(1L, entryRepository);
+    queue.removeEntry(entry);
 
-        assertEquals(0, entryRepository.countByQueueId(1L));
-    }
+    assertFalse(entryRepository.existsByMemberId(1L));
+  }
 
-    @Test
-    @Sql(value = "/entry-create.sql")
-    void deleteEntryInQueueDeletesEntryInMember() {
-        var queue = findEntityByIdOrElseThrowException(1L, queueRepository);
-        var entry = findEntityByIdOrElseThrowException(1L, entryRepository);
-        queue.removeEntry(entry);
+  @Test
+  @Sql(value = "/entry-create.sql")
+  void deleteEntryDoesNotDeleteQueueAndMember() {
+    entryRepository.deleteById(1L);
 
-        assertEquals(0, entryRepository.countByMemberId(1L));
-    }
+    assertEquals(1, queueRepository.count());
+    assertEquals(2, userRepository.count());
+  }
 
+  @Test
+  @Sql(value = "/manager-create.sql")
+  void addManagerInQueueAddsManagedQueueInManager() {
+    var queue = findEntityById(1L, queueRepository);
+    var manager = findEntityById(1L, userRepository);
+    queue.addManager(manager);
 
-    @Test
-    @Sql(value = "/entry-create.sql")
-    void deleteEntryDoesNotDeleteQueueAndMember() {
-        entryRepository.deleteById(1L);
+    assertEquals(1, manager.getManagedQueues().size());
+  }
 
-        assertEquals(1, queueRepository.count());
-        assertEquals(2, userRepository.count());
-    }
+  @Test
+  @Sql(value = "/manager-create.sql")
+  void addManagedQueueInManagerAddsManagerInQueue() {
+    var queue = findEntityById(1L, queueRepository);
+    var manager = findEntityById(1L, userRepository);
+    manager.addManagedQueue(queue);
 
-    @Test
-    @Sql(value = "/manager-create.sql")
-    void addManagerInQueueAddsManagedQueueInManager() {
-        var queue = findEntityByIdOrElseThrowException(1L, queueRepository);
-        var manager = findEntityByIdOrElseThrowException(1L, userRepository);
-        queue.addManager(manager);
+    assertEquals(1, queue.getManagers().size());
+  }
 
-        assertEquals(1, manager.getManagedQueues().size());
-    }
+  @Test
+  @Sql(value = "/manager-create.sql")
+  void deleteManagerInQueueDeletesManagedQueueInManager() {
+    var queue = findEntityById(1L, queueRepository);
+    var manager = findEntityById(1L, userRepository);
 
-    @Test
-    @Sql(value = "/manager-create.sql")
-    void addManagedQueueInManagerAddsManagerInQueue() {
-        var queue = findEntityByIdOrElseThrowException(1L, queueRepository);
-        var manager = findEntityByIdOrElseThrowException(1L, userRepository);
-        manager.addManagedQueue(queue);
+    queue.addManager(manager);
+    queue.removeManager(manager);
 
-        assertEquals(1, queue.getManagers().size());
-    }
+    assertEquals(0, manager.getManagedQueues().size());
+  }
 
-    @Test
-    @Sql(value = "/manager-create.sql")
-    void deleteManagerInQueueDeletesManagedQueueInManager() {
-        var queue = findEntityByIdOrElseThrowException(1L, queueRepository);
-        var manager = findEntityByIdOrElseThrowException(1L, userRepository);
+  @Test
+  @Sql(value = "/manager-create.sql")
+  void deleteManagedQueueInManagedDeletesManagerInQueue() {
+    var queue = findEntityById(1L, queueRepository);
+    var manager = findEntityById(1L, userRepository);
+    manager.removeManagedQueue(queue);
 
-        queue.addManager(manager);
-        queue.removeManager(manager);
+    assertEquals(0, queue.getManagers().size());
+  }
 
-        assertEquals(0, manager.getManagedQueues().size());
-    }
+  @Test
+  @Sql("/entries-and-users-create.sql")
+  void queueEntriesAreSortedByTimeAndId() {
+    var entries = entryRepository.findEntriesIdByQueueId(1L);
 
-    @Test
-    @Sql(value = "/manager-create.sql")
-    void deleteManagedQueueInManagedDeletesManagerInQueue() {
-        var queue = findEntityByIdOrElseThrowException(1L, queueRepository);
-        var manager = findEntityByIdOrElseThrowException(1L, userRepository);
-        manager.removeManagedQueue(queue);
+    assertEquals(List.of(27L, 22L, 19L, 14L, 1L), entries);
+  }
 
-        assertEquals(0, queue.getManagers().size());
-    }
+  private <T> T findEntityById(Long id, JpaRepository<T, Long> jpaRepository) {
+    return jpaRepository.findById(id).orElseThrow(AssertionError::new);
+  }
 
-    @Test
-    @Sql("/entries-and-users-create.sql")
-    void queueEntriesAreSortedByTimeAndId() {
-        var entries = entryRepository.findEntriesIdByQueueId(1L);
-
-        assertEquals(List.of(27L, 22L, 19L, 14L, 1L), entries);
-    }
-
-    private <T> T findEntityByIdOrElseThrowException(Long id, JpaRepository<T, Long> jpaRepository) {
-        return jpaRepository.findById(id).orElseThrow(AssertionError::new);
-    }
-
+  public Queue createQueue(User creator) {
+    var queue = new Queue();
+    queue.setName("Test Queue");
+    creator.addCreatedQueue(queue);
+    return queueRepository.save(queue);
+  }
 
 }
