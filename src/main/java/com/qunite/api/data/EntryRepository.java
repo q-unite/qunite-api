@@ -10,7 +10,10 @@ import org.springframework.stereotype.Repository;
 public interface EntryRepository extends JpaRepository<Entry, Long> {
   boolean existsByMemberId(Long id);
 
-  boolean existsByQueueId(Long id);
+  boolean existsByIdAndQueueId(Long entryId, Long queueId);
+
+  Entry findEntryByIdAndQueueId(Long entryId, Long queueId);
+
 
   @Query("SELECT e.id FROM Entry e where e.queue.id = :queueId")
   List<Long> findEntriesIdByQueueId(Long queueId);
