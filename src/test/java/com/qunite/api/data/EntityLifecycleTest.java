@@ -1,16 +1,17 @@
 package com.qunite.api.data;
 
+import static com.qunite.api.utils.JpaRepositoryUtils.findEntityById;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import com.qunite.api.domain.Queue;
+import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.test.context.jdbc.Sql;
-
-import java.util.List;
-
-import static com.qunite.api.utils.JpaRepositoryUtils.findEntityById;
-import static org.junit.jupiter.api.Assertions.*;
 
 @DataJpaTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
@@ -180,7 +181,6 @@ class EntityLifecycleTest {
 
     assertEquals(List.of(27L, 22L, 19L, 14L, 1L), entries);
   }
-
 
 
 }
