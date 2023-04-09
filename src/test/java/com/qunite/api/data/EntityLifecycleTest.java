@@ -6,16 +6,21 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.qunite.api.domain.Queue;
 import com.qunite.api.domain.User;
+import com.qunite.api.extension.PostgreSQLExtension;
 import java.util.List;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.jdbc.Sql;
 
 @DataJpaTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
+@ExtendWith(PostgreSQLExtension.class)
+@DirtiesContext
 class EntityLifecycleTest {
 
   @Autowired
