@@ -21,9 +21,9 @@ public class PostgreSQLExtension implements BeforeAllCallback, AfterAllCallback 
   public void beforeAll(ExtensionContext context) {
     PostgreSQLContainer<?> postgres = getConfiguredContainer();
     postgres.start();
-    System.setProperty("spring.datasource.url", postgres.getJdbcUrl());
-    System.setProperty("spring.datasource.username", postgres.getUsername());
-    System.setProperty("spring.datasource.password", postgres.getPassword());
+    System.setProperty("POSTGRES_URL", postgres.getJdbcUrl());
+    System.setProperty("POSTGRES_USER", postgres.getUsername());
+    System.setProperty("POSTGRES_PASSWORD", postgres.getPassword());
   }
 
   private static PostgreSQLContainer<?> getConfiguredContainer() {
