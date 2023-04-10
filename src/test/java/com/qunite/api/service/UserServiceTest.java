@@ -20,7 +20,6 @@ import static org.junit.jupiter.api.Assertions.*;
 @Transactional
 @ExtendWith(PostgreSQLExtension.class)
 public class UserServiceTest {
-
     @Autowired
     UserService userService;
 
