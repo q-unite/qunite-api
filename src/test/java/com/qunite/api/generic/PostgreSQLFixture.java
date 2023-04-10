@@ -1,11 +1,13 @@
 package com.qunite.api.generic;
 
+import com.qunite.api.annotation.IntegrationTest;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.testcontainers.containers.PostgreSQLContainer;
 
 @DirtiesContext
+@IntegrationTest
 public interface PostgreSQLFixture {
 
   PostgreSQLContainer<?> POSTGRE_SQL_CONTAINER = start();
