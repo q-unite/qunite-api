@@ -14,18 +14,23 @@ import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OrderBy;
+import jakarta.persistence.OrderColumn;
 import jakarta.persistence.Table;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import org.hibernate.Hibernate;
 
+@Getter
+@Setter
 @Entity
 @Table(name = "QUEUES")
 @ToString
@@ -33,17 +38,12 @@ import org.hibernate.Hibernate;
 public class Queue {
 
   @Id
-  @Getter
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   Long id;
 
-  @Getter
-  @Setter
   @Column
   String name;
 
-  @Getter
-  @Setter
   @ToString.Exclude
   @ManyToOne
   @JoinColumn(name = "creator_id")
@@ -56,15 +56,15 @@ public class Queue {
   @JoinTable(name = "QUEUES_MANAGERS",
       joinColumns = @JoinColumn(name = "queue_id"),
       inverseJoinColumns = @JoinColumn(name = "manager_id"))
-  List<User> managers = new ArrayList<>();
+  Set<User> managers = new LinkedHashSet<>();
 
   @Access(AccessType.FIELD)
-  @OrderBy("createdAt asc, id asc")
   @ToString.Exclude
-  @OneToMany(mappedBy = "queue", cascade = CascadeType.REMOVE)
+  @OneToMany(mappedBy = "queue", cascade = CascadeType.ALL, orphanRemoval = true)
+  @OrderColumn(name = "entry_index")
   List<Entry> entries = new ArrayList<>();
 
-  @Getter
+
   @Column(name = "created_at")
   Instant createdAt = Instant.now();
 
@@ -94,8 +94,8 @@ public class Queue {
     return Collections.unmodifiableList(entries);
   }
 
-  public List<User> getManagers() {
-    return Collections.unmodifiableList(managers);
+  public Set<User> getManagers() {
+    return Collections.unmodifiableSet(managers);
   }
 
   @Override

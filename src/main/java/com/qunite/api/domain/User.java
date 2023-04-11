@@ -14,14 +14,18 @@ import jakarta.persistence.OrderBy;
 import jakarta.persistence.Table;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import org.hibernate.Hibernate;
 
+@Getter
+@Setter
 @Entity
 @Table(name = "USERS")
 @ToString
@@ -29,17 +33,12 @@ import org.hibernate.Hibernate;
 public class User {
 
   @Id
-  @Getter
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   Long id;
 
-  @Getter
-  @Setter
   @Column(name = "first_name")
   String firstName;
 
-  @Getter
-  @Setter
   @Column(name = "last_name")
   String lastName;
 
@@ -53,7 +52,7 @@ public class User {
   @ToString.Exclude
   @OrderBy("id asc")
   @ManyToMany(mappedBy = "managers")
-  List<Queue> managedQueues = new ArrayList<>();
+  Set<Queue> managedQueues = new LinkedHashSet<>();
 
   @Access(AccessType.FIELD)
   @ToString.Exclude
@@ -95,8 +94,8 @@ public class User {
     return Collections.unmodifiableList(createdQueues);
   }
 
-  public List<Queue> getManagedQueues() {
-    return Collections.unmodifiableList(managedQueues);
+  public Set<Queue> getManagedQueues() {
+    return Collections.unmodifiableSet(managedQueues);
   }
 
   public List<Entry> getEntries() {
