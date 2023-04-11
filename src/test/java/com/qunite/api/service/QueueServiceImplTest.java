@@ -23,10 +23,10 @@ import org.springframework.test.context.jdbc.Sql;
 @DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)
 @SpringBootTest
 @ActiveProfiles("test")
-class QueueServiceTest implements PostgreSQLFixture {
+class QueueServiceImplTest implements PostgreSQLFixture {
 
   @Autowired
-  private QueueService queueService;
+  private QueueServiceImpl queueServiceImpl;
 
   @Autowired
   private UserRepository userRepository;
@@ -47,7 +47,7 @@ class QueueServiceTest implements PostgreSQLFixture {
   @Sql("/users-create.sql")
   @Test
   void testQueueCreation() {
-    var createdQueue = queueService.create(new Queue());
+    var createdQueue = queueServiceImpl.create(new Queue());
 
     assertThat(createdQueue).isNotNull();
     assertEquals(1L, createdQueue.getId());
@@ -56,7 +56,7 @@ class QueueServiceTest implements PostgreSQLFixture {
   @Sql({"/users-create.sql", "/queues-create.sql"})
   @Test
   void testEnrollingUserToQueue() {
-    queueService.enrollMemberToQueue(2L, 1L);
+    queueServiceImpl.enrollMemberToQueue(2L, 1L);
 
     assertTrue(entryRepository.existsById(new EntryId(2L, 1L)));
   }
@@ -64,7 +64,7 @@ class QueueServiceTest implements PostgreSQLFixture {
   @Sql({"/users-create.sql", "/queues-create.sql"})
   @Test
   void testDeletingQueue() {
-    queueService.deleteById(1L);
+    queueServiceImpl.deleteById(1L);
 
     assertFalse(queueRepository.existsById(1L));
   }
@@ -72,8 +72,8 @@ class QueueServiceTest implements PostgreSQLFixture {
   @Sql({"/users-create.sql", "/queues-create.sql", "/entries-create.sql"})
   @Test
   void testGettingMembersAmountInQueue() {
-    var amountOfExistingQueue = queueService.getMembersAmountInQueue(1L);
-    var amountOfAbsentQueue = queueService.getMembersAmountInQueue(4L);
+    var amountOfExistingQueue = queueServiceImpl.getMembersAmountInQueue(1L);
+    var amountOfAbsentQueue = queueServiceImpl.getMembersAmountInQueue(4L);
 
     assertThat(amountOfExistingQueue).hasValue(5);
     assertThat(amountOfAbsentQueue).isNotPresent();
@@ -82,7 +82,7 @@ class QueueServiceTest implements PostgreSQLFixture {
   @Sql({"/users-create.sql", "/queues-create.sql", "/entries-create.sql"})
   @Test
   void testGettingMemberPositionInQueue() {
-    var memberPosition = queueService.getMemberPositionInQueue(3L, 1L);
+    var memberPosition = queueServiceImpl.getMemberPositionInQueue(3L, 1L);
 
     assertThat(memberPosition).hasValue(5);
   }
