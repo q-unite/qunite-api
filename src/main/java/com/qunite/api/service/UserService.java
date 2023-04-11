@@ -2,9 +2,7 @@ package com.qunite.api.service;
 
 import com.qunite.api.domain.User;
 import java.util.Optional;
-import org.springframework.stereotype.Service;
 
-@Service
 public interface UserService {
   Optional<User> createUser(User user);
 
