@@ -3,26 +3,30 @@ package com.qunite.api.service;
 import com.qunite.api.data.UserRepository;
 import com.qunite.api.domain.User;
 import java.util.Optional;
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
 
-  private UserRepository userRepository;
+  private final UserRepository userRepository;
 
   @Override
-  public void createUser(User user) {
-    userRepository.save(user);
+  @Transactional
+  public User createUser(User user) {
+    return userRepository.save(user);
   }
 
   @Override
+  @Transactional
   public Optional<User> getUser(Long id) {
     return Optional.ofNullable(id).flatMap(userRepository::findById);
   }
 
   @Override
+  @Transactional
   public void deleteUser(Long id) {
     Optional.ofNullable(id).ifPresent(userRepository::deleteById);
   }

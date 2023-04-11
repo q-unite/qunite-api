@@ -1,5 +1,6 @@
 package com.qunite.api.service;
 
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -7,20 +8,16 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import com.qunite.api.data.QueueRepository;
 import com.qunite.api.data.UserRepository;
 import com.qunite.api.domain.User;
-import com.qunite.api.extension.PostgreSQLExtension;
-import java.util.Optional;
+import com.qunite.api.generic.PostgreSQLFixture;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.jdbc.Sql;
-import org.springframework.transaction.annotation.Transactional;
 
 
 @SpringBootTest
-@Transactional
-@ExtendWith(PostgreSQLExtension.class)
-public class UserServiceTest {
+public class UserServiceTest implements PostgreSQLFixture {
   @Autowired
   UserService userService;
 
@@ -29,6 +26,11 @@ public class UserServiceTest {
 
   @Autowired
   QueueRepository queueRepository;
+
+  @AfterEach
+  void clear() {
+    userRepository.deleteAll();
+  }
 
   @Test
   @Sql(value = "/users-create.sql")
@@ -42,10 +44,11 @@ public class UserServiceTest {
     user.setFirstName("Creator");
     user.setLastName("Creator");
 
-    userService.createUser(user);
+    User secondUser = userService.createUser(user);
 
+    assertEquals(secondUser, user);
     assertTrue(userRepository.existsById(1L));
-    assertEquals(userRepository.findById(user.getId()), Optional.of(user));
+    assertThat(userRepository.findById(user.getId())).hasValue(user);
 
   }
 
