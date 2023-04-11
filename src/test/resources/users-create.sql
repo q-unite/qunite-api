@@ -5,3 +5,4 @@ INSERT INTO users VALUES (1, 'First', 'User'),
                          (5, 'Fifth', 'User'),
                          (6, 'Sixth', 'User'),
                          (7, 'Seventh', 'User');
+

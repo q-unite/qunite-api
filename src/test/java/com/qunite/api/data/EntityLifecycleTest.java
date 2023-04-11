@@ -5,8 +5,11 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import com.qunite.api.domain.Entry;
+import com.qunite.api.domain.EntryId;
 import com.qunite.api.domain.Queue;
 import com.qunite.api.generic.PostgreSQLFixture;
+import java.util.ArrayList;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -58,7 +61,7 @@ class EntityLifecycleTest implements PostgreSQLFixture {
     var creator = findEntityById(1L, userRepository);
     creator.addCreatedQueue(new Queue());
 
-    assertTrue(queueRepository.existsById(1L));
+    assertFalse(queueRepository.findAll().isEmpty());
   }
 
   @Test
@@ -76,17 +79,7 @@ class EntityLifecycleTest implements PostgreSQLFixture {
   void deleteUserDeletesEntries() {
     userRepository.deleteById(1L);
 
-    assertFalse(entryRepository.existsById(1L));
-  }
-
-  @Test
-  @Sql({"/users-create.sql", "/queues-create.sql", "/entries-create.sql"})
-  void addEntryInMemberAddsEntryInQueue() {
-    var member = findEntityById(1L, userRepository);
-    var entry = findEntityById(1L, entryRepository);
-    member.addEntry(entry);
-
-    assertTrue(entryRepository.existsByIdAndQueueId(1L, 1L));
+    assertFalse(entryRepository.existsById(new EntryId(1L, 1L)));
   }
 
   @Test
@@ -100,36 +93,36 @@ class EntityLifecycleTest implements PostgreSQLFixture {
   @Test
   @Sql({"/users-create.sql", "/queues-create.sql", "/entries-create.sql"})
   void deleteEntryDeletesEntryInQueueAndMember() {
-    entryRepository.deleteById(1L);
+    entryRepository.deleteById(new EntryId(3L, 1L));
 
-    assertFalse(entryRepository.existsByMemberId(1L));
-    assertFalse(entryRepository.existsByIdAndQueueId(1L, 1L));
+    assertFalse(entryRepository.existsByMemberId(3L));
+    assertFalse(entryRepository.existsById(new EntryId(3L, 1L)));
   }
 
   @Test
   @Sql({"/users-create.sql", "/queues-create.sql", "/entries-create.sql"})
   void deleteEntryInMemberDeletesEntryInQueue() {
     var member = findEntityById(3L, userRepository);
-    var entry = findEntityById(1L, entryRepository);
+    var entry = findEntityById(new EntryId(3L, 1L), entryRepository);
     member.removeEntry(entry);
 
-    assertFalse(entryRepository.existsByIdAndQueueId(1L, 1L));
+    assertFalse(entryRepository.existsById(new EntryId(3L, 1L)));
   }
 
   @Test
   @Sql({"/users-create.sql", "/queues-create.sql", "/entries-create.sql"})
   void deleteEntryInQueueDeletesEntryInMember() {
     var queue = findEntityById(1L, queueRepository);
-    var entry = findEntityById(1L, entryRepository);
+    var entry = findEntityById(new EntryId(3L, 1L), entryRepository);
     queue.removeEntry(entry);
 
-    assertFalse(entryRepository.existsByMemberId(1L));
+    assertFalse(entryRepository.existsByMemberId(3L));
   }
 
   @Test
   @Sql({"/users-create.sql", "/queues-create.sql", "/entries-create.sql"})
   void deleteEntryDoesNotDeleteQueueAndMember() {
-    entryRepository.deleteById(1L);
+    entryRepository.deleteById(new EntryId(3L, 1L));
 
     assertEquals(3, queueRepository.count());
     assertEquals(7, userRepository.count());
@@ -169,6 +162,33 @@ class EntityLifecycleTest implements PostgreSQLFixture {
 
   @Test
   @Sql({"/users-create.sql", "/queues-create.sql"})
+  void addEntryToQueueUpdatesQueueEntries() {
+    var queue = findEntityById(1L, queueRepository);
+    var member = findEntityById(3L, userRepository);
+    var entry = new Entry(member, queue);
+
+    queue.addEntry(entry);
+
+    assertEquals(1L, queue.getEntries().size());
+    assertTrue(entryRepository.existsById(new EntryId(3L, 1L)));
+  }
+
+  @Test
+  @Sql({"/users-create.sql", "/queues-create.sql"})
+  void addEntryToUserSetsMemberAndUpdatesUserEntries() {
+    var queue = findEntityById(1L, queueRepository);
+    var member = findEntityById(3L, userRepository);
+    var entry = new Entry();
+    entry.setQueue(queue);
+
+    member.addEntry(entry);
+
+    assertEquals(1L, member.getEntries().size());
+    assertTrue(entryRepository.existsById(new EntryId(3L, 1L)));
+  }
+
+  @Test
+  @Sql({"/users-create.sql", "/queues-create.sql"})
   void deleteManagedQueueInManagedDeletesManagerInQueue() {
     var queue = findEntityById(2L, queueRepository);
     var manager = findEntityById(2L, userRepository);
@@ -180,10 +200,14 @@ class EntityLifecycleTest implements PostgreSQLFixture {
   @Test
   @Sql({"/users-create.sql", "/queues-create.sql", "/entries-create.sql"})
   void queueEntriesAreSortedByTimeAndId() {
-    var entries = entryRepository.findEntriesIdByQueueId(1L);
-
-    assertEquals(List.of(27L, 22L, 19L, 14L, 1L), entries);
+    var actualEntryIdList = entryRepository.findEntriesIdsByQueueId(1L);
+    var expectedEntryIdList = new ArrayList<>(List.of(
+        new EntryId(7L, 1L),
+        new EntryId(6L, 1L),
+        new EntryId(5L, 1L),
+        new EntryId(4L, 1L),
+        new EntryId(3L, 1L)
+    ));
+    assertEquals(expectedEntryIdList, actualEntryIdList);
   }
-
-
 }
