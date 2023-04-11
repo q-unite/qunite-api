@@ -16,9 +16,7 @@ on:
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
-
     steps:
       - uses: actions/checkout@v3
       - name: Set up JDK 17
@@ -29,3 +27,5 @@ jobs:
           cache: maven
       - name: Build with Maven
         run: mvn -B install --file pom.xml -Pintegration-test
+        env:
+          TESTCONTAINERS_REUSE_ENABLED: true
