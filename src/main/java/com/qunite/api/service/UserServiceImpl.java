@@ -15,8 +15,8 @@ public class UserServiceImpl implements UserService {
 
   @Override
   @Transactional
-  public User createUser(User user) {
-    return userRepository.save(user);
+  public Optional<User> createUser(User user) {
+    return Optional.of(userRepository.save(user));
   }
 
   @Override

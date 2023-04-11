@@ -5,27 +5,27 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import com.qunite.api.data.QueueRepository;
 import com.qunite.api.data.UserRepository;
 import com.qunite.api.domain.User;
 import com.qunite.api.generic.PostgreSQLFixture;
+import java.util.Optional;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.jdbc.Sql;
 
 
 @SpringBootTest
+@ActiveProfiles("test")
 public class UserServiceTest implements PostgreSQLFixture {
   @Autowired
-  UserService userService;
+  private UserService userService;
 
   @Autowired
-  UserRepository userRepository;
+  private UserRepository userRepository;
 
-  @Autowired
-  QueueRepository queueRepository;
 
   @AfterEach
   void clear() {
@@ -44,9 +44,9 @@ public class UserServiceTest implements PostgreSQLFixture {
     user.setFirstName("Creator");
     user.setLastName("Creator");
 
-    User secondUser = userService.createUser(user);
+    Optional<User> secondUser = userService.createUser(user);
 
-    assertEquals(secondUser, user);
+    assertThat(secondUser).hasValue(user);
     assertTrue(userRepository.existsById(1L));
     assertThat(userRepository.findById(user.getId())).hasValue(user);
 
