@@ -9,7 +9,6 @@ import org.testcontainers.containers.PostgreSQLContainer;
 @DirtiesContext
 @IntegrationTest
 public interface PostgreSQLFixture {
-
   PostgreSQLContainer<?> POSTGRE_SQL_CONTAINER = start();
 
   private static PostgreSQLContainer<?> start() {

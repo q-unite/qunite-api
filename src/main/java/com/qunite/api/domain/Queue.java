@@ -36,7 +36,6 @@ import org.hibernate.Hibernate;
 @ToString
 @NoArgsConstructor
 public class Queue {
-
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   Long id;

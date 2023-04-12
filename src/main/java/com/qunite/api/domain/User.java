@@ -31,7 +31,6 @@ import org.hibernate.Hibernate;
 @ToString
 @NoArgsConstructor
 public class User {
-
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   Long id;
