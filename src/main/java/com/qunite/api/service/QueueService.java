@@ -1,9 +1,15 @@
 package com.qunite.api.service;
 
 import com.qunite.api.domain.Queue;
+import java.util.List;
 import java.util.Optional;
 
 public interface QueueService {
+
+  List<Queue> findAll();
+
+  Optional<Queue> findById(Long id);
+
   Queue create(Queue queue);
 
   void enrollMemberToQueue(Long memberId, Long queueId);

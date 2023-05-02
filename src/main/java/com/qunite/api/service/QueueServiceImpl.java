@@ -6,20 +6,24 @@ import com.qunite.api.data.UserRepository;
 import com.qunite.api.domain.Entry;
 import com.qunite.api.domain.EntryId;
 import com.qunite.api.domain.Queue;
+import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 @RequiredArgsConstructor
 @Service
+@Slf4j
 public class QueueServiceImpl implements QueueService {
   private final QueueRepository queueRepository;
   private final UserRepository userRepository;
   private final EntryRepository entryRepository;
 
   @Override
-  @Transactional
+  @Transactional(propagation = Propagation.REQUIRES_NEW)
   public Queue create(Queue queue) {
     return queueRepository.save(queue);
   }
@@ -54,6 +58,12 @@ public class QueueServiceImpl implements QueueService {
     Optional.ofNullable(queueId).ifPresent(queueRepository::deleteById);
   }
 
+  @Override
+  public List<Queue> findAll() {
+    return queueRepository.findAll();
+  }
+
+  @Override
   public Optional<Queue> findById(Long queueId) {
     return Optional.ofNullable(queueId).flatMap(queueRepository::findById);
   }
