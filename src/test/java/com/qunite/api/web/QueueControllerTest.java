@@ -19,12 +19,15 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import com.qunite.api.data.EntryRepository;
+import com.qunite.api.data.UserRepository;
 import com.qunite.api.domain.Entry;
 import com.qunite.api.domain.EntryId;
 import com.qunite.api.domain.Queue;
 import com.qunite.api.domain.User;
 import com.qunite.api.service.QueueService;
 import com.qunite.api.web.mapper.QueueMapper;
+import com.qunite.api.web.mapper.QueueMapperImpl;
 import com.toedter.spring.hateoas.jsonapi.MediaTypes;
 import java.util.List;
 import java.util.Optional;
@@ -35,9 +38,14 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
+import org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfiguration;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.boot.test.mock.mockito.MockBeans;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -48,6 +56,10 @@ import org.testcontainers.shaded.com.fasterxml.jackson.databind.ObjectMapper;
 
 @AutoConfigureMockMvc
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@EnableAutoConfiguration(exclude = {DataSourceAutoConfiguration.class,
+    HibernateJpaAutoConfiguration.class})
+@Import(QueueMapperImpl.class)
+@MockBeans({@MockBean(UserRepository.class), @MockBean(EntryRepository.class)})
 @ActiveProfiles("test")
 class QueueControllerTest {
 
