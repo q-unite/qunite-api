@@ -6,6 +6,7 @@ import com.qunite.api.data.UserRepository;
 import com.qunite.api.domain.Entry;
 import com.qunite.api.domain.EntryId;
 import com.qunite.api.domain.Queue;
+import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -27,9 +28,9 @@ public class QueueServiceImpl implements QueueService {
   @Override
   @Transactional
   public void enrollMemberToQueue(Long memberId, Long queueId) {
-    Optional.ofNullable(memberId)
+    Optional.of(memberId)
         .flatMap(userRepository::findById)
-        .flatMap(user -> Optional.ofNullable(queueId)
+        .flatMap(user -> Optional.of(queueId)
             .flatMap(queueRepository::findById)
             .map(queue -> new Entry(user, queue)))
         .ifPresent(entry -> entry.getQueue().addEntry(entry));
@@ -51,10 +52,16 @@ public class QueueServiceImpl implements QueueService {
   @Override
   @Transactional
   public void deleteById(Long queueId) {
-    Optional.ofNullable(queueId).ifPresent(queueRepository::deleteById);
+    Optional.of(queueId).ifPresent(queueRepository::deleteById);
   }
 
+  @Override
+  public List<Queue> findAll() {
+    return queueRepository.findAll();
+  }
+
+  @Override
   public Optional<Queue> findById(Long queueId) {
-    return Optional.ofNullable(queueId).flatMap(queueRepository::findById);
+    return Optional.of(queueId).flatMap(queueRepository::findById);
   }
 }

@@ -5,12 +5,14 @@ import jakarta.persistence.Embeddable;
 import java.io.Serializable;
 import java.util.Objects;
 import lombok.AllArgsConstructor;
+import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.Hibernate;
 
 @NoArgsConstructor
 @AllArgsConstructor
 @Embeddable
+@Data
 public class EntryId implements Serializable {
   @Column(name = "member_id")
   Long memberId;
