@@ -9,21 +9,18 @@ import com.qunite.api.domain.Queue;
 import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 @RequiredArgsConstructor
 @Service
-@Slf4j
 public class QueueServiceImpl implements QueueService {
   private final QueueRepository queueRepository;
   private final UserRepository userRepository;
   private final EntryRepository entryRepository;
 
   @Override
-  @Transactional(propagation = Propagation.REQUIRES_NEW)
+  @Transactional
   public Queue create(Queue queue) {
     return queueRepository.save(queue);
   }
