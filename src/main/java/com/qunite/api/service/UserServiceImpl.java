@@ -23,13 +23,13 @@ public class UserServiceImpl implements UserService {
   @Override
   @Transactional
   public Optional<User> getUser(Long id) {
-    return Optional.ofNullable(id).flatMap(userRepository::findById);
+    return Optional.of(id).flatMap(userRepository::findById);
   }
 
   @Override
   @Transactional
   public void deleteUser(Long id) {
-    Optional.ofNullable(id).ifPresent(userRepository::deleteById);
+    Optional.of(id).ifPresent(userRepository::deleteById);
   }
 
   @Override
@@ -39,7 +39,7 @@ public class UserServiceImpl implements UserService {
 
   @Override
   public Optional<User> findById(Long id) {
-    return Optional.ofNullable(id).flatMap(userRepository::findById);
+    return Optional.of(id).flatMap(userRepository::findById);
   }
 
 }
