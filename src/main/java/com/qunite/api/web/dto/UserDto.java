@@ -1,11 +1,9 @@
 package com.qunite.api.web.dto;
 
-import com.toedter.spring.hateoas.jsonapi.JsonApiId;
-import com.toedter.spring.hateoas.jsonapi.JsonApiTypeForClass;
+import jakarta.persistence.Id;
 import java.io.Serializable;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import org.springframework.hateoas.RepresentationModel;
 
 /**
  * A DTO for the {@link com.qunite.api.domain.User} entity
@@ -13,9 +11,8 @@ import org.springframework.hateoas.RepresentationModel;
 
 @AllArgsConstructor
 @Getter
-@JsonApiTypeForClass("users")
-public class UserDto extends RepresentationModel<UserDto> implements Serializable {
-  @JsonApiId
+public class UserDto implements Serializable {
+  @Id
   private final Long id;
   private final String firstName;
   private final String lastName;
