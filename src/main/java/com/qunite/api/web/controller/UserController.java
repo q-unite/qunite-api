@@ -12,10 +12,9 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-// TODO: 03.05.2023 implement user controller 
 @CrossOrigin
 @RequiredArgsConstructor
-@RequestMapping(path = "/api/v1/users", produces = MediaType.APPLICATION_JSON_VALUE)
+@RequestMapping(path = "users", produces = MediaType.APPLICATION_JSON_VALUE)
 @RestController
 public class UserController {
   private final UserRepository userRepository;

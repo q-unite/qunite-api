@@ -26,7 +26,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @CrossOrigin
 @RequiredArgsConstructor
-@RequestMapping(path = "/api/v1/queues", produces = MediaType.APPLICATION_JSON_VALUE)
+@RequestMapping(path = "queues", produces = MediaType.APPLICATION_JSON_VALUE)
 @RestController
 public class QueueController {
   private final QueueMapper queueMapper;
@@ -43,53 +43,44 @@ public class QueueController {
 
   @GetMapping("/{id}")
   public ResponseEntity<QueueDto> getById(@PathVariable Long id) {
-    return queueService.findById(id).map(queueMapper::toDto)
-        .map(ResponseEntity::ok)
-        .orElse(ResponseEntity.notFound().build());
+    return ResponseEntity.of(queueService.findById(id).map(queueMapper::toDto));
   }
 
   @GetMapping("/{id}/members-amount")
   public ResponseEntity<Integer> membersAmount(@PathVariable Long id) {
-    return queueService.getMembersAmountInQueue(id).map(ResponseEntity::ok)
-        .orElse(ResponseEntity.notFound().build());
+    return ResponseEntity.of(queueService.getMembersAmountInQueue(id));
   }
 
   @GetMapping("/{id}/members/{member-id}")
   public ResponseEntity<Integer> memberPosition(@PathVariable(value = "id") Long queueId,
                                                 @PathVariable(value = "member-id") Long memberId) {
-    return queueService.getMemberPositionInQueue(memberId, queueId).map(ResponseEntity::ok)
-        .orElse(ResponseEntity.notFound().build());
+    return ResponseEntity.of(queueService.getMemberPositionInQueue(memberId, queueId));
   }
 
-  // TODO: 24.04.2023 replace RepresentationModel map() when UserConverter will be implemented
   @GetMapping("/{id}/creator")
   public ResponseEntity<UserDto> getQueueCreator(@PathVariable Long id) {
-    return queueService.findById(id)
-        .map(Queue::getCreator)
-        .map(userMapper::toDto)
-        .map(ResponseEntity::ok)
-        .orElse(ResponseEntity.notFound().build());
+    return ResponseEntity.of(
+        queueService.findById(id).map(Queue::getCreator).map(userMapper::toDto)
+    );
   }
 
-  // TODO: 24.04.2023 replace RepresentationModel map() when UserConverter will be implemented
   @GetMapping("/{id}/managers")
   public ResponseEntity<List<UserDto>> getQueueManagers(@PathVariable Long id) {
-    return queueService.findById(id)
-        .map(queue -> queue.getManagers().stream().map(userMapper::toDto).toList())
-        .map(ResponseEntity::ok)
-        .orElse(ResponseEntity.notFound().build());
+    return ResponseEntity.of(
+        queueService.findById(id)
+            .map(queue -> queue.getManagers().stream().map(userMapper::toDto).toList())
+    );
   }
 
-  // TODO: 24.04.2023 replace RepresentationModel map() when EntryConverter will be implemented
   @GetMapping("/{id}/entries")
   public ResponseEntity<List<EntryDto>> getQueueEntries(@PathVariable Long id) {
-    return queueService.findById(id)
-        .map(queue -> queue.getEntries().stream().map(entryMapper::toDto).toList())
-        .map(ResponseEntity::ok)
-        .orElse(ResponseEntity.notFound().build());
+    return ResponseEntity.of(
+        queueService.findById(id)
+            .map(queue -> queue.getEntries().stream().map(entryMapper::toDto).toList())
+    );
   }
 
-  @PostMapping("/")
+  @PostMapping
   public ResponseEntity<QueueDto> createQueue(@Valid @RequestBody QueueDto queueDto) {
     var created = queueService.create(queueMapper.toEntity(queueDto));
     return new ResponseEntity<>(queueMapper.toDto(created), HttpStatus.CREATED);
