@@ -69,7 +69,8 @@ public class QueueController {
   // TODO: 24.04.2023 replace RepresentationModel map() when UserConverter will be implemented
   @GetMapping("/{id}/creator")
   public ResponseEntity<RepresentationModel<UserDto>> getQueueCreator(@PathVariable Long id) {
-    return queueService.getCreator(id)
+    return queueService.findById(id)
+        .map(Queue::getCreator)
         .map(userMapper::toDto)
         .map(dto ->
             (RepresentationModel<UserDto>) JsonApiModelBuilder.jsonApiModel().model(dto).build())
@@ -79,7 +80,8 @@ public class QueueController {
   // TODO: 24.04.2023 replace RepresentationModel map() when UserConverter will be implemented
   @GetMapping("/{id}/managers")
   public ResponseEntity<RepresentationModel<UserDto>> getQueueManagers(@PathVariable Long id) {
-    return queueService.getManagers(id)
+    return queueService.findById(id)
+        .map(queue -> queue.getManagers().stream().map(userMapper::toDto).toList())
         .map(userDtos -> (RepresentationModel<UserDto>) JsonApiModelBuilder.jsonApiModel()
             .model(CollectionModel.of(userDtos)).build()).map(ResponseEntity::ok)
         .orElse(ResponseEntity.notFound().build());
