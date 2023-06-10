@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.Optional;
 
 public interface UserService {
-  Optional<User> createUser(User user);
+  User createUser(User user);
 
   Optional<User> getUser(Long id);
 
