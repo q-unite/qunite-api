@@ -26,7 +26,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @CrossOrigin
 @RequiredArgsConstructor
-@RequestMapping(path = "queues", produces = MediaType.APPLICATION_JSON_VALUE)
+@RequestMapping(path = "/queues", produces = MediaType.APPLICATION_JSON_VALUE)
 @RestController
 public class QueueController {
   private final QueueMapper queueMapper;
@@ -80,7 +80,7 @@ public class QueueController {
     );
   }
 
-  @PostMapping
+  @PostMapping("/")
   public ResponseEntity<QueueDto> createQueue(@Valid @RequestBody QueueDto queueDto) {
     var created = queueService.create(queueMapper.toEntity(queueDto));
     return new ResponseEntity<>(queueMapper.toDto(created), HttpStatus.CREATED);

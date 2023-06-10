@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @CrossOrigin
 @RequiredArgsConstructor
-@RequestMapping(path = "users", produces = MediaType.APPLICATION_JSON_VALUE)
+@RequestMapping(path = "/users", produces = MediaType.APPLICATION_JSON_VALUE)
 @RestController
 public class UserController {
   private final UserRepository userRepository;

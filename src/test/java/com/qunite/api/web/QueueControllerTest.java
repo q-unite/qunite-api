@@ -5,7 +5,6 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.hamcrest.CoreMatchers.allOf;
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.Matchers.hasSize;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
@@ -34,7 +33,6 @@ import java.util.Random;
 import java.util.Set;
 import java.util.stream.IntStream;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -61,7 +59,6 @@ import org.testcontainers.shaded.com.fasterxml.jackson.databind.ObjectMapper;
 @Import(QueueMapperImpl.class)
 @MockBeans({@MockBean(UserRepository.class), @MockBean(EntryRepository.class)})
 @ActiveProfiles("test")
-@Disabled("TODO: refactor from hateoas to rpc")
 class QueueControllerTest {
 
   @Value(value = "${local.server.port}")
@@ -78,28 +75,24 @@ class QueueControllerTest {
   @Autowired
   private QueueMapper queueMapper;
 
+  @Value("${server.servlet.context-path}")
+  private String contextPath;
+
 
   @BeforeEach
   void initUrl() {
-    url = "http://localhost:" + port + "/api/v1/queues";
+    url = "http://localhost:" + port + contextPath +"/queues";
   }
 
   @Test
   void retrieveByIdWhenExists() throws Exception {
     var queue = queue(1L);
     given(queueService.findById(anyLong())).willReturn(Optional.of(queue));
-
     var resultActions = mockMvc.perform(get(url + "/" + queue.getId())
         .accept(MediaType.APPLICATION_JSON_VALUE));
     resultActions.andExpect(status().isOk())
         .andExpect(header().string(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE))
-        .andExpect(jsonPath("links.self.meta.affordances", notNullValue()))
-        .andExpect(jsonPath("links.self.href", is(url + "/" + queue.getId())))
-        .andExpect(jsonPath("data.id", is(queue.getId().toString())))
-        .andExpect(jsonPath("data.type", is("queues")))
-        .andExpect(jsonPath("data.relationships", notNullValue()))
-        .andExpect(jsonPath("data.relationships.creator.links.related",
-            is(url + "/" + queue.getId() + "/creator")));
+        .andExpect(jsonPath("id", is(queue.getId().toString())));
   }
 
   @Test
@@ -206,8 +199,7 @@ class QueueControllerTest {
     resultActions.andExpect(status().isCreated())
         .andExpect(header().string(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE))
         .andExpect(content().string(allOf(
-            containsString("\"id\":\"1\""),
-            containsString("\"type\":\"queues\"")
+            containsString("\"id\":1")
         )));
   }
 
