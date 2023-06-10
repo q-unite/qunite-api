@@ -28,11 +28,10 @@ public class QueueServiceImpl implements QueueService {
   @Override
   @Transactional
   public void enrollMemberToQueue(Long memberId, Long queueId) {
-    Optional.of(memberId)
-        .flatMap(userRepository::findById)
-        .flatMap(user -> Optional.of(queueId)
-            .flatMap(queueRepository::findById)
-            .map(queue -> new Entry(user, queue)))
+    userRepository.findById(memberId)
+        .flatMap(user ->
+            queueRepository.findById(queueId)
+                .map(queue -> new Entry(user, queue)))
         .ifPresent(entry -> entry.getQueue().addEntry(entry));
   }
 
@@ -49,10 +48,11 @@ public class QueueServiceImpl implements QueueService {
         .map(entry -> entry.getEntryIndex() + 1);
   }
 
+
   @Override
   @Transactional
   public void deleteById(Long queueId) {
-    Optional.of(queueId).ifPresent(queueRepository::deleteById);
+    queueRepository.deleteById(queueId);
   }
 
   @Override
@@ -62,6 +62,6 @@ public class QueueServiceImpl implements QueueService {
 
   @Override
   public Optional<Queue> findById(Long queueId) {
-    return Optional.of(queueId).flatMap(queueRepository::findById);
+    return queueRepository.findById(queueId);
   }
 }
