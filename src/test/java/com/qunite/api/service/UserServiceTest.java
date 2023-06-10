@@ -44,9 +44,8 @@ public class UserServiceTest implements PostgreSQLFixture {
     user.setFirstName("Creator");
     user.setLastName("Creator");
 
-    Optional<User> secondUser = userService.createUser(user);
+    userService.createUser(user);
 
-    assertThat(secondUser).hasValue(user);
     assertTrue(userRepository.existsById(1L));
     assertThat(userRepository.findById(user.getId())).hasValue(user);
 
