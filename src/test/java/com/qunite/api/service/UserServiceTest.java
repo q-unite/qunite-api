@@ -5,21 +5,19 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import com.qunite.api.annotation.IntegrationTest;
 import com.qunite.api.data.UserRepository;
 import com.qunite.api.domain.User;
-import com.qunite.api.generic.PostgreSQLFixture;
-import java.util.Optional;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.jdbc.Sql;
 
 
-@SpringBootTest
-@ActiveProfiles("test")
-public class UserServiceTest implements PostgreSQLFixture {
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.NONE)
+@IntegrationTest
+class UserServiceTest {
   @Autowired
   private UserService userService;
 

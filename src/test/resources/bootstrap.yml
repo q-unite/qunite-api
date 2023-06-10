@@ -1,0 +1,6 @@
+embedded:
+  postgresql:
+    enabled: true
+    reuseContainer: true
+    docker-image: postgres:15-alpine
+    startupLogCheckRegex: .*database system is ready to accept connections.*
