@@ -1,6 +1,10 @@
 name: Codestyle check
 
-on: pull_request
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
 
 jobs:
   checkstyle_job:
@@ -14,4 +18,4 @@ jobs:
         with:
           checkstyle_version: 10.9.3
           checkstyle_config: config/checkstyle.xml
-          level: warning
+          level: error
