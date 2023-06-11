@@ -1,7 +1,5 @@
 embedded:
   postgresql:
     enabled: true
-# TODO: 06.11.2023 Add the field below when the tests are patched to the shared database for all tests
-#    reuseContainer: true
     docker-image: postgres:15-alpine
     startupLogCheckRegex: .*database system is ready to accept connections.*

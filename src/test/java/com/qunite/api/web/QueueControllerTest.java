@@ -19,7 +19,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import com.qunite.api.annotation.IntegrationTest;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.qunite.api.data.EntryRepository;
 import com.qunite.api.data.UserRepository;
 import com.qunite.api.domain.Entry;
@@ -50,9 +50,7 @@ import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
-import org.testcontainers.shaded.com.fasterxml.jackson.databind.ObjectMapper;
 
 
 @AutoConfigureMockMvc

@@ -43,10 +43,7 @@ class QueueServiceTest {
   @Sql("/users-create.sql")
   @Test
   void testQueueCreation() {
-    Queue queue = new Queue();
-    queue.setId(1L);
-
-    var createdQueue = queueService.create(queue);
+    var createdQueue = queueService.create(new Queue());
 
     assertThat(createdQueue).isNotNull();
     assertEquals(1L, createdQueue.getId());

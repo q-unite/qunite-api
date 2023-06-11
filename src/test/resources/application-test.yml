@@ -11,3 +11,4 @@ spring:
   # Flyway
   flyway:
     enabled: true
+    connect-retries: 3
