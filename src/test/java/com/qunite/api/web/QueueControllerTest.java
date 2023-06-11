@@ -20,6 +20,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.qunite.api.data.EntryRepository;
+import com.qunite.api.data.QueueRepository;
 import com.qunite.api.data.UserRepository;
 import com.qunite.api.domain.Entry;
 import com.qunite.api.domain.EntryId;
@@ -59,7 +60,7 @@ import org.testcontainers.shaded.com.fasterxml.jackson.databind.ObjectMapper;
 @EnableAutoConfiguration(exclude = {DataSourceAutoConfiguration.class,
     HibernateJpaAutoConfiguration.class})
 @Import(QueueMapperImpl.class)
-@MockBeans({@MockBean(UserRepository.class), @MockBean(EntryRepository.class)})
+@MockBeans({@MockBean(UserRepository.class), @MockBean(QueueRepository.class), @MockBean(EntryRepository.class)})
 @ActiveProfiles("test")
 class QueueControllerTest {
 

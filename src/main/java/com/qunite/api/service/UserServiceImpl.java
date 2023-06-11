@@ -1,5 +1,6 @@
 package com.qunite.api.service;
 
+import com.qunite.api.data.QueueRepository;
 import com.qunite.api.data.UserRepository;
 import com.qunite.api.domain.User;
 import java.util.List;
@@ -13,7 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class UserServiceImpl implements UserService {
 
   private final UserRepository userRepository;
-
+  private final QueueRepository queueRepository;
   @Override
   @Transactional
   public User createUser(User user) {
