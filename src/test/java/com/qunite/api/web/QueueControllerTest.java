@@ -25,22 +25,19 @@ import com.qunite.api.domain.EntryId;
 import com.qunite.api.domain.Queue;
 import com.qunite.api.domain.User;
 import com.qunite.api.service.QueueService;
+import com.qunite.api.web.controller.QueueController;
+import com.qunite.api.web.mapper.EntryMapperImpl;
 import com.qunite.api.web.mapper.QueueMapper;
 import com.qunite.api.web.mapper.QueueMapperImpl;
+import com.qunite.api.web.mapper.UserMapperImpl;
 import java.util.List;
 import java.util.Optional;
 import java.util.Random;
 import java.util.Set;
 import java.util.stream.IntStream;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
-import org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfiguration;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.MockBeans;
 import org.springframework.context.annotation.Import;
@@ -51,20 +48,13 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.testcontainers.shaded.com.fasterxml.jackson.databind.ObjectMapper;
 
-
-@AutoConfigureMockMvc
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@EnableAutoConfiguration(exclude = {DataSourceAutoConfiguration.class,
-    HibernateJpaAutoConfiguration.class})
-@Import(QueueMapperImpl.class)
+@WebMvcTest(controllers = QueueController.class)
+@Import({QueueMapperImpl.class, UserMapperImpl.class, EntryMapperImpl.class})
 @MockBeans({@MockBean(UserRepository.class), @MockBean(EntryRepository.class)})
 @ActiveProfiles("test")
 class QueueControllerTest {
 
-  @Value(value = "${local.server.port}")
-  private Integer port;
-
-  private String url;
+  private final String url = "/queues";
 
   @Autowired
   private MockMvc mockMvc;
@@ -74,15 +64,6 @@ class QueueControllerTest {
 
   @Autowired
   private QueueMapper queueMapper;
-
-  @Value("${server.servlet.context-path}")
-  private String contextPath;
-
-
-  @BeforeEach
-  void initUrl() {
-    url = "http://localhost:" + port + contextPath +"/queues";
-  }
 
   @Test
   void retrieveByIdWhenExists() throws Exception {
