@@ -6,6 +6,8 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.qunite.api.annotation.IntegrationTest;
+import com.qunite.api.data.EntryRepository;
+import com.qunite.api.data.QueueRepository;
 import com.qunite.api.data.UserRepository;
 import com.qunite.api.domain.User;
 import org.junit.jupiter.api.AfterEach;
@@ -24,10 +26,17 @@ class UserServiceTest {
   @Autowired
   private UserRepository userRepository;
 
+  @Autowired
+  private EntryRepository entryRepository;
+
+  @Autowired
+  private QueueRepository queueRepository;
 
   @AfterEach
-  void clear() {
+  void cleanAll() {
     userRepository.deleteAll();
+    entryRepository.deleteAll();
+    queueRepository.deleteAll();
   }
 
   @Test
@@ -36,6 +45,7 @@ class UserServiceTest {
     assertEquals(userService.getUser(1L), userRepository.findById(1L));
   }
 
+  // TODO: 06.11.2023 After completing the test fix task, change the configuration in boostrap.yml
   @Test
   void createUserCreatesNewUser() {
     User user = new User();
@@ -46,17 +56,14 @@ class UserServiceTest {
 
     assertTrue(userRepository.existsById(1L));
     assertThat(userRepository.findById(user.getId())).hasValue(user);
-
   }
 
   @Test
   @Sql(value = "/users-create.sql")
   void deleteUserDeletesUser() {
-
     userService.deleteUser(1L);
 
     assertFalse(userRepository.existsById(1L));
-
   }
 
 }

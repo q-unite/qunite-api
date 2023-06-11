@@ -39,10 +39,14 @@ class QueueServiceTest {
     queueRepository.deleteAll();
   }
 
+  // TODO: 06.11.2023 After completing the test fix task, change the configuration in boostrap.yml
   @Sql("/users-create.sql")
   @Test
   void testQueueCreation() {
-    var createdQueue = queueService.create(new Queue());
+    Queue queue = new Queue();
+    queue.setId(1L);
+
+    var createdQueue = queueService.create(queue);
 
     assertThat(createdQueue).isNotNull();
     assertEquals(1L, createdQueue.getId());

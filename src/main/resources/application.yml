@@ -2,15 +2,8 @@ spring:
   # JPA properties
   jpa:
     generate-ddl: true
-    properties:
-      hibernate:
-        jdbc:
-          lob:
-            non_contextual_creation: true
-        current_session_context_class: thread
-        format_sql: true
-    show-sql: true
     hibernate:
       ddl-auto: create-drop
+  # Flyway
   flyway:
     enabled: false

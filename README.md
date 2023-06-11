@@ -15,7 +15,7 @@ To run checkstyle, execute `mvn clean verify -P checkstyle`
 Application has other [configuration](src/test/resources/application-test.properties) for testing.\
 To use this config, mark all test classes with `@ActiveProfiles("test")`
 
-To write **integration** tests, use `@IntegrationTest`. There are two options:
+To write **integration** tests, use `@IntegrationTest` (includes `@ActiveProfiles("test")`). There are two options:
 - mark test class with this annotation
 - make test class implement interface or extend class, marked with this annotation.
 
