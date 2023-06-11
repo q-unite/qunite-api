@@ -69,11 +69,12 @@ class QueueControllerTest {
   void retrieveByIdWhenExists() throws Exception {
     var queue = queue(1L);
     given(queueService.findById(anyLong())).willReturn(Optional.of(queue));
+
     var resultActions = mockMvc.perform(get(url + "/" + queue.getId())
         .accept(MediaType.APPLICATION_JSON_VALUE));
     resultActions.andExpect(status().isOk())
         .andExpect(header().string(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE))
-        .andExpect(jsonPath("id", is(queue.getId().toString())));
+        .andExpect(jsonPath("id", is(queue.getId().intValue())));
   }
 
   @Test
@@ -83,13 +84,12 @@ class QueueControllerTest {
 
     var resultActions = mockMvc.perform(get(url).accept(MediaType.APPLICATION_JSON_VALUE));
     resultActions.andExpect(status().isOk())
-        .andExpect(jsonPath("data", hasSize(queues.size())))
+        .andExpect(jsonPath("$", hasSize(queues.size())))
         .andExpect(header().string(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE))
-        .andExpect(jsonPath("links.self", is(url)))
         .andExpect(content().string(allOf(
-            containsString("\"id\":\"1\""),
-            containsString("\"id\":\"2\""),
-            containsString("\"id\":\"3\""))));
+            containsString("\"id\":1,"),
+            containsString("\"id\":2,"),
+            containsString("\"id\":3,"))));
   }
 
   @Test
@@ -128,8 +128,7 @@ class QueueControllerTest {
         .accept(MediaType.APPLICATION_JSON_VALUE));
     resultActions.andExpect(status().isOk())
         .andExpect(header().string(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE))
-        .andExpect(jsonPath("data.id", is(queue.getCreator().getId().toString())))
-        .andExpect(jsonPath("data.type", is("users")));
+        .andExpect(jsonPath("id", is(queue.getCreator().getId())));
   }
 
   @Test
@@ -141,12 +140,12 @@ class QueueControllerTest {
     var resultActions = mockMvc.perform(get(url + "/" + queue.getId() + "/managers")
         .accept(MediaType.APPLICATION_JSON_VALUE));
     resultActions.andExpect(status().isOk())
-        .andExpect(jsonPath("data", hasSize(queue.getManagers().size())))
+        .andExpect(jsonPath("$", hasSize(queue.getManagers().size())))
         .andExpect(header().string(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE))
         .andExpect(content().string(allOf(
-            containsString("\"id\":\"1\""),
-            containsString("\"id\":\"2\""),
-            containsString("\"id\":\"3\""))));
+            containsString("\"id\":1,"),
+            containsString("\"id\":2,"),
+            containsString("\"id\":3,"))));
   }
 
   @Test
@@ -159,12 +158,12 @@ class QueueControllerTest {
     var resultActions = mockMvc.perform(get(url + "/" + queue.getId() + "/entries")
         .accept(MediaType.APPLICATION_JSON_VALUE));
     resultActions.andExpect(status().isOk())
-        .andExpect(jsonPath("data", hasSize(queue.getEntries().size())))
+        .andExpect(jsonPath("$", hasSize(queue.getEntries().size())))
         .andExpect(header().string(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE))
         .andExpect(content().string(allOf(
-            containsString("\"id\":\"1\""),
-            containsString("\"id\":\"2\""),
-            containsString("\"id\":\"3\""))));
+            containsString("\"memberId\":1,\"queueId\":1"),
+            containsString("\"memberId\":2,\"queueId\":1"),
+            containsString("\"memberId\":3,\"queueId\":1"))));
   }
 
   @Test
@@ -174,13 +173,13 @@ class QueueControllerTest {
     var json = new ObjectMapper().writeValueAsString(dto);
 
     given(queueService.create(any(Queue.class))).willReturn(queue);
-    var resultActions = mockMvc.perform(post(url + "/")
+    var resultActions = mockMvc.perform(post(url)
         .contentType(MediaType.APPLICATION_JSON)
         .content(json));
     resultActions.andExpect(status().isCreated())
         .andExpect(header().string(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE))
         .andExpect(content().string(allOf(
-            containsString("\"id\":1")
+            containsString("\"id\":1,")
         )));
   }
 

@@ -8,7 +8,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import com.qunite.api.data.UserRepository;
 import com.qunite.api.domain.User;
 import com.qunite.api.generic.PostgreSQLFixture;
-import java.util.Optional;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

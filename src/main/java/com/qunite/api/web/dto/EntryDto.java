@@ -1,6 +1,5 @@
 package com.qunite.api.web.dto;
 
-import jakarta.persistence.Id;
 import java.io.Serializable;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -11,7 +10,6 @@ import lombok.Getter;
 @AllArgsConstructor
 @Getter
 public class EntryDto implements Serializable {
-  @Id
   private final Long memberId;
   private final Long queueId;
   private final String createdAt;

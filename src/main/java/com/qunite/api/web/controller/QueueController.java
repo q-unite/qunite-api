@@ -80,7 +80,7 @@ public class QueueController {
     );
   }
 
-  @PostMapping("/")
+  @PostMapping
   public ResponseEntity<QueueDto> createQueue(@Valid @RequestBody QueueDto queueDto) {
     var created = queueService.create(queueMapper.toEntity(queueDto));
     return new ResponseEntity<>(queueMapper.toDto(created), HttpStatus.CREATED);
