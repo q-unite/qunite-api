@@ -39,13 +39,11 @@ import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.testcontainers.shaded.com.fasterxml.jackson.databind.ObjectMapper;
 
 @WebMvcTest(controllers = QueueController.class)
 @Import({QueueMapperImpl.class, UserMapperImpl.class, EntryMapperImpl.class})
-@ActiveProfiles("test")
 class QueueControllerTest {
 
   private final String url = "/queues";
@@ -80,8 +78,8 @@ class QueueControllerTest {
     resultActions.andExpect(status().isOk())
         .andExpect(header().string(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE))
         .andExpect(jsonPath("$", hasSize(queues.size())))
-        .andExpect(
-            content().json("[{\"id\": 1},{\"id\": 2},{\"id\": 3}]")
+        .andExpect(content().json("""
+            [ {"id": 1}, {"id": 2}, {"id": 3} ]""")
         );
   }
 
@@ -133,10 +131,10 @@ class QueueControllerTest {
     var resultActions = mockMvc.perform(get(url + "/" + queue.getId() + "/managers")
         .accept(MediaType.APPLICATION_JSON));
     resultActions.andExpect(status().isOk())
-        .andExpect(jsonPath("$", hasSize(queue.getManagers().size())))
         .andExpect(header().string(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE))
-        .andExpect(
-            content().json("[{\"id\": 1},{\"id\": 2},{\"id\": 3}]")
+        .andExpect(jsonPath("$", hasSize(queue.getManagers().size())))
+        .andExpect(content().json("""
+            [ {"id": 1}, {"id": 2}, {"id": 3} ]""")
         );
   }
 
@@ -150,14 +148,14 @@ class QueueControllerTest {
     var resultActions = mockMvc.perform(get(url + "/" + queue.getId() + "/entries")
         .accept(MediaType.APPLICATION_JSON));
     resultActions.andExpect(status().isOk())
-        .andExpect(jsonPath("$", hasSize(queue.getEntries().size())))
         .andExpect(header().string(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE))
-        .andExpectAll(content().json("""
-                [
-                  {"memberId":1,"queueId":1},
-                  {"memberId":2,"queueId":1},
-                  {"memberId":3,"queueId":1}
-                ]""")
+        .andExpect(jsonPath("$", hasSize(queue.getEntries().size())))
+        .andExpect(content().json("""
+            [
+              {"memberId":1,"queueId":1},
+              {"memberId":2,"queueId":1},
+              {"memberId":3,"queueId":1}
+            ]""")
         );
   }
 
@@ -173,7 +171,8 @@ class QueueControllerTest {
         .content(json));
     resultActions.andExpect(status().isCreated())
         .andExpect(header().string(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE))
-        .andExpect(content().json("{\"id\": 1}"));
+        .andExpect(content().json("""
+            {"id": 1}"""));
   }
 
   @Test
@@ -181,7 +180,6 @@ class QueueControllerTest {
     doNothing().when(queueService).deleteById(anyLong());
     mockMvc.perform(delete(url + "/1"))
         .andExpect(status().isOk());
-
   }
 
 
