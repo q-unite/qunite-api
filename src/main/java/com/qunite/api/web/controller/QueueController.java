@@ -34,7 +34,7 @@ public class QueueController {
   private final EntryMapper entryMapper;
   private final QueueService queueService;
 
-  @GetMapping
+  @GetMapping({"", "/"})
   public ResponseEntity<List<QueueDto>> all() {
     return queueService.findAll().stream().map(queueMapper::toDto).collect(
         Collectors.collectingAndThen(Collectors.toList(), ResponseEntity::ok)
@@ -80,7 +80,7 @@ public class QueueController {
     );
   }
 
-  @PostMapping
+  @PostMapping({"", "/"})
   public ResponseEntity<QueueDto> createQueue(@Valid @RequestBody QueueDto queueDto) {
     var created = queueService.create(queueMapper.toEntity(queueDto));
     return new ResponseEntity<>(queueMapper.toDto(created), HttpStatus.CREATED);
