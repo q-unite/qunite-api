@@ -6,7 +6,6 @@ import com.qunite.api.web.dto.QueueDto;
 import com.qunite.api.web.dto.UserDto;
 import com.qunite.api.web.mapper.QueueMapper;
 import com.qunite.api.web.mapper.UserMapper;
-
 import jakarta.validation.Valid;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
