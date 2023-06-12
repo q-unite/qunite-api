@@ -69,7 +69,7 @@ class QueueServiceTest {
   @Test
   void testGettingMembersAmountInQueue() {
     var amountOfExistingQueue = queueService.getMembersAmountInQueue(1L);
-    var amountOfAbsentQueue = queueService.getMembersAmountInQueue(4L);
+    var amountOfAbsentQueue = queueService.getMembersAmountInQueue(100L);
 
     assertThat(amountOfExistingQueue).hasValue(5);
     assertThat(amountOfAbsentQueue).isNotPresent();

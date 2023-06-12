@@ -45,7 +45,9 @@ class UserServiceTest {
   @Test
   @Sql(value = "/users-create.sql")
   void testGettingByExistingIdShouldReturnUser() {
-    assertEquals(userService.findOne(1L), userRepository.findById(1L));
+    var user = userService.findOne(1L);
+    assertThat(user).isPresent();
+    assertEquals(user, userRepository.findById(1L));
   }
 
   // TODO: 06.11.2023 After completing the test fix task, change the configuration in boostrap.yml
