@@ -61,7 +61,7 @@ public class UserControllerTest {
     given(userService.findOne(anyLong())).willReturn(Optional.of(user));
 
     var resultActions = mockMvc.perform(get(url).accept(
-        MediaType.JSON_AP));
+        MediaType.APPLICATION_JSON_VALUE));
     resultActions
         .andExpect(status().isOk());
   }

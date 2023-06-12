@@ -6,12 +6,11 @@ import com.qunite.api.web.dto.QueueDto;
 import com.qunite.api.web.dto.UserDto;
 import com.qunite.api.web.mapper.QueueMapper;
 import com.qunite.api.web.mapper.UserMapper;
-import com.toedter.spring.hateoas.jsonapi.MediaTypes;
 import jakarta.validation.Valid;
 import java.util.List;
-import java.util.Queue;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -22,10 +21,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-// TODO: 03.05.2023 implement user controller
+
 @CrossOrigin
 @RequiredArgsConstructor
-@RequestMapping(path = "/api/v1/users", produces = MediaTypes.JSON_API_VALUE)
+@RequestMapping(path = "/users", produces = MediaType.APPLICATION_JSON_VALUE)
 @RestController
 public class UserController {
   private final UserService userService;
@@ -42,19 +41,22 @@ public class UserController {
   public ResponseEntity<UserDto> getById(@PathVariable Long id) {
     return ResponseEntity.of(userService.findOne(id).map(userMapper::toDto));
   }
+
   @GetMapping("/{id}/managed")
   public ResponseEntity<List<QueueDto>> getManagedQueues(@PathVariable Long id) {
     return ResponseEntity.of(userService.getManagedQueues(id)
         .map(list -> list.stream()
             .map(queueMapper::toDto).toList()));
   }
+
   @GetMapping("/{id}/created")
-  public ResponseEntity<List<QueueDto>> getCreatedQueues(@PathVariable Long id){
+  public ResponseEntity<List<QueueDto>> getCreatedQueues(@PathVariable Long id) {
     return ResponseEntity.of(
         userService.getCreatedQueues(id)
             .map(list -> list.stream()
                 .map(queueMapper::toDto).toList()));
   }
+
   @PostMapping("/")
   public ResponseEntity<UserDto> createQueue(@Valid @RequestBody UserDto userDto) {
     var created = userService.createOne(userMapper.toEntity(userDto));
@@ -66,4 +68,5 @@ public class UserController {
     userService.deleteOne(id);
     return ResponseEntity.ok().build();
   }
+
 }

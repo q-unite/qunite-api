@@ -11,7 +11,6 @@ import com.qunite.api.domain.Queue;
 import com.qunite.api.domain.User;
 import com.qunite.api.generic.PostgreSQLFixture;
 import java.util.List;
-import java.util.Optional;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
