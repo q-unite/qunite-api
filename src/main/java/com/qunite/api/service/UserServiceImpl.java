@@ -1,7 +1,7 @@
 package com.qunite.api.service;
 
-import com.qunite.api.data.QueueRepository;
 import com.qunite.api.data.UserRepository;
+import com.qunite.api.domain.Queue;
 import com.qunite.api.domain.User;
 import java.util.List;
 import java.util.Optional;
@@ -14,28 +14,40 @@ import org.springframework.transaction.annotation.Transactional;
 public class UserServiceImpl implements UserService {
 
   private final UserRepository userRepository;
-  private final QueueRepository queueRepository;
+
   @Override
   @Transactional
-  public User createUser(User user) {
+  public User createOne(User user) {
     return userRepository.save(user);
   }
 
   @Override
   @Transactional
-  public Optional<User> getUser(Long userId) {
+  public Optional<User> findOne(Long userId) {
     return userRepository.findById(userId);
   }
 
   @Override
   @Transactional
-  public void deleteUser(Long userId) {
+  public void deleteOne(Long userId) {
     userRepository.deleteById(userId);
   }
 
   @Override
   public List<User> findAll() {
     return userRepository.findAll();
+  }
+
+  @Override
+  @Transactional
+  public Optional<List<Queue>> getCreatedQueues(Long userid) {
+    return userRepository.findById(userid).map(User::getCreatedQueues).map(List::copyOf);
+  }
+
+  @Override
+  @Transactional
+  public Optional<List<Queue>> getManagedQueues(Long userid) {
+    return userRepository.findById(userid).map(User::getManagedQueues).map(List::copyOf);
   }
 
 }

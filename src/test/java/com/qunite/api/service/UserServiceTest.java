@@ -5,9 +5,12 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import com.qunite.api.data.QueueRepository;
 import com.qunite.api.data.UserRepository;
+import com.qunite.api.domain.Queue;
 import com.qunite.api.domain.User;
 import com.qunite.api.generic.PostgreSQLFixture;
+import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
@@ -25,17 +28,39 @@ public class UserServiceTest implements PostgreSQLFixture {
 
   @Autowired
   private UserRepository userRepository;
+  @Autowired
+  private QueueRepository queueRepository;
+  @Autowired
+  private QueueService queueService;
 
 
   @AfterEach
   void clear() {
     userRepository.deleteAll();
+    queueRepository.deleteAll();
+
   }
 
   @Test
   @Sql(value = "/users-create.sql")
   void getUserReturnsActualUser() {
-    assertEquals(userService.getUser(1L), userRepository.findById(1L));
+    assertEquals(userService.findOne(1L), userRepository.findById(1L));
+  }
+
+  @Test
+  @Sql(value = {"/users-create.sql", "/queues-create.sql", "/queues-managers-create.sql"})
+  void testGettingManagedQueues() {
+    var queues = userService.getManagedQueues(1L);
+    List<Queue> expectedQueues = List.of(queueService.findById(1L).get(), queueService.findById(3L).get());
+    assertThat(queues).hasValue(expectedQueues);
+  }
+
+  @Test
+  @Sql(value = {"/users-create.sql", "/queues-create.sql"})
+  void testGettingCreatedQueues() {
+    var queues = userService.getCreatedQueues(1L);
+    List<Queue> expectedQueues = List.of(queueService.findById(1L).get(), queueService.findById(4L).get());
+    assertThat(queues).hasValue(expectedQueues);
   }
 
   @Test
@@ -44,7 +69,7 @@ public class UserServiceTest implements PostgreSQLFixture {
     user.setFirstName("Creator");
     user.setLastName("Creator");
 
-    userService.createUser(user);
+    userService.createOne(user);
 
     assertTrue(userRepository.existsById(1L));
     assertThat(userRepository.findById(user.getId())).hasValue(user);
@@ -55,7 +80,7 @@ public class UserServiceTest implements PostgreSQLFixture {
   @Sql(value = "/users-create.sql")
   void deleteUserDeletesUser() {
 
-    userService.deleteUser(1L);
+    userService.deleteOne(1L);
 
     assertFalse(userRepository.existsById(1L));
 
