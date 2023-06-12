@@ -40,14 +40,14 @@ public class UserController {
     return ResponseEntity.of(userService.findOne(id).map(userMapper::toDto));
   }
 
-  @GetMapping("/{id}/managed")
+  @GetMapping("/{id}/managed-queues")
   public ResponseEntity<List<QueueDto>> getManagedQueues(@PathVariable Long id) {
     return ResponseEntity.of(userService.getManagedQueues(id)
         .map(list -> list.stream()
             .map(queueMapper::toDto).toList()));
   }
 
-  @GetMapping("/{id}/created")
+  @GetMapping("/{id}/created-queues")
   public ResponseEntity<List<QueueDto>> getCreatedQueues(@PathVariable Long id) {
     return ResponseEntity.of(
         userService.getCreatedQueues(id)

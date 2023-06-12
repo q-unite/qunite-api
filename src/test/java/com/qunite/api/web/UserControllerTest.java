@@ -77,7 +77,7 @@ public class UserControllerTest {
     given(userService.getManagedQueues(anyLong())).willReturn(Optional.of(queues));
 
     var resultActions =
-        mockMvc.perform(get(url + "/" + userId + "/managed").accept(MediaType.APPLICATION_JSON));
+        mockMvc.perform(get(url + "/" + userId + "/managed-queues").accept(MediaType.APPLICATION_JSON));
 
     resultActions.andExpect(status().isOk())
         .andExpect(header().string(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE))
@@ -92,7 +92,7 @@ public class UserControllerTest {
     given(userService.getCreatedQueues(anyLong())).willReturn(Optional.of(queues));
 
     var resultActions =
-        mockMvc.perform(get(url + "/" + userId + "/created").accept(MediaType.APPLICATION_JSON));
+        mockMvc.perform(get(url + "/" + userId + "/created-queues").accept(MediaType.APPLICATION_JSON));
 
     resultActions.andExpect(status().isOk())
         .andExpect(header().string(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE))
