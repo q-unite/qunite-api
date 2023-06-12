@@ -5,23 +5,23 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import com.qunite.api.annotation.IntegrationTest;
+import com.qunite.api.data.EntryRepository;
 import com.qunite.api.data.QueueRepository;
 import com.qunite.api.data.UserRepository;
 import com.qunite.api.domain.Queue;
 import com.qunite.api.domain.User;
-import com.qunite.api.generic.PostgreSQLFixture;
 import java.util.List;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.jdbc.Sql;
 
 
-@SpringBootTest
-@ActiveProfiles("test")
-public class UserServiceTest implements PostgreSQLFixture {
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.NONE)
+@IntegrationTest
+class UserServiceTest {
   @Autowired
   private UserService userService;
 
@@ -32,12 +32,14 @@ public class UserServiceTest implements PostgreSQLFixture {
   @Autowired
   private QueueService queueService;
 
+  @Autowired
+  private EntryRepository entryRepository;
 
   @AfterEach
-  void clear() {
+  void cleanAll() {
     userRepository.deleteAll();
     queueRepository.deleteAll();
-
+    entryRepository.deleteAll();
   }
 
   @Test
@@ -46,6 +48,7 @@ public class UserServiceTest implements PostgreSQLFixture {
     assertEquals(userService.findOne(1L), userRepository.findById(1L));
   }
 
+  // TODO: 06.11.2023 After completing the test fix task, change the configuration in boostrap.yml
   @Test
   @Sql(value = "/users-create.sql")
   void testGettingByNotExistingIdShouldReturnUser() {
@@ -80,7 +83,6 @@ public class UserServiceTest implements PostgreSQLFixture {
 
     assertTrue(userRepository.existsById(1L));
     assertThat(userRepository.findById(user.getId())).hasValue(user);
-
   }
 
   @Test
@@ -89,7 +91,6 @@ public class UserServiceTest implements PostgreSQLFixture {
     userService.deleteOne(1L);
 
     assertFalse(userRepository.existsById(1L));
-
   }
 
 

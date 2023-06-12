@@ -6,6 +6,7 @@ import com.qunite.api.web.dto.QueueDto;
 import com.qunite.api.web.dto.UserDto;
 import com.qunite.api.web.mapper.QueueMapper;
 import com.qunite.api.web.mapper.UserMapper;
+
 import jakarta.validation.Valid;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -21,7 +22,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-
 @CrossOrigin
 @RequiredArgsConstructor
 @RequestMapping(path = "/users", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -30,7 +30,6 @@ public class UserController {
   private final UserService userService;
   private final UserMapper userMapper;
   private final QueueMapper queueMapper;
-
 
   @GetMapping
   public ResponseEntity<List<UserDto>> all() {
@@ -68,5 +67,4 @@ public class UserController {
     userService.deleteOne(id);
     return ResponseEntity.noContent().build();
   }
-
 }

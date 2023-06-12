@@ -2,7 +2,6 @@ package com.qunite.api.web;
 
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
-import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.Matchers.hasSize;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
@@ -16,6 +15,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.qunite.api.domain.Entry;
 import com.qunite.api.domain.EntryId;
 import com.qunite.api.domain.Queue;
@@ -28,7 +28,6 @@ import com.qunite.api.web.mapper.QueueMapperImpl;
 import com.qunite.api.web.mapper.UserMapperImpl;
 import java.util.List;
 import java.util.Optional;
-import java.util.Random;
 import java.util.Set;
 import java.util.stream.IntStream;
 import org.junit.jupiter.api.Test;
@@ -40,7 +39,6 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
-import org.testcontainers.shaded.com.fasterxml.jackson.databind.ObjectMapper;
 
 @WebMvcTest(controllers = QueueController.class)
 @Import({QueueMapperImpl.class, UserMapperImpl.class, EntryMapperImpl.class})
@@ -66,7 +64,7 @@ class QueueControllerTest {
         .accept(MediaType.APPLICATION_JSON));
     resultActions.andExpect(status().isOk())
         .andExpect(header().string(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE))
-        .andExpect(jsonPath("id", is(queue.getId().intValue())));
+        .andExpect(content().json("{id: 1}"));
   }
 
   @Test
@@ -78,9 +76,7 @@ class QueueControllerTest {
     resultActions.andExpect(status().isOk())
         .andExpect(header().string(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE))
         .andExpect(jsonPath("$", hasSize(queues.size())))
-        .andExpect(content().json("""
-            [ {"id": 1}, {"id": 2}, {"id": 3} ]""")
-        );
+        .andExpect(content().json("[ {id: 1}, {id: 2}, {id: 3} ]"));
   }
 
   @Test
@@ -119,7 +115,7 @@ class QueueControllerTest {
         .accept(MediaType.APPLICATION_JSON));
     resultActions.andExpect(status().isOk())
         .andExpect(header().string(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE))
-        .andExpect(jsonPath("id", is(queue.getCreator().getId())));
+        .andExpect(content().json("{id: 2}"));
   }
 
   @Test
@@ -133,9 +129,7 @@ class QueueControllerTest {
     resultActions.andExpect(status().isOk())
         .andExpect(header().string(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE))
         .andExpect(jsonPath("$", hasSize(queue.getManagers().size())))
-        .andExpect(content().json("""
-            [ {"id": 1}, {"id": 2}, {"id": 3} ]""")
-        );
+        .andExpect(content().json("[ {id: 1}, {id: 2}, {id: 3} ]"));
   }
 
   @Test
@@ -152,9 +146,9 @@ class QueueControllerTest {
         .andExpect(jsonPath("$", hasSize(queue.getEntries().size())))
         .andExpect(content().json("""
             [
-              {"memberId":1,"queueId":1},
-              {"memberId":2,"queueId":1},
-              {"memberId":3,"queueId":1}
+              {memberId:1, queueId:1},
+              {memberId:2, queueId:1},
+              {memberId:3, queueId:1}
             ]""")
         );
   }
@@ -171,22 +165,21 @@ class QueueControllerTest {
         .content(json));
     resultActions.andExpect(status().isCreated())
         .andExpect(header().string(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE))
-        .andExpect(content().json("""
-            {"id": 1}"""));
+        .andExpect(content().json("{id: 1}"));
   }
 
   @Test
   void deleteQueue() throws Exception {
     doNothing().when(queueService).deleteById(anyLong());
     mockMvc.perform(delete(url + "/1"))
-        .andExpect(status().isOk());
+        .andExpect(status().isNoContent());
   }
 
 
   private Queue queue(Long id) {
     var queue = new Queue();
     queue.setId(id);
-    queue.setCreator(user(new Random().nextLong()));
+    queue.setCreator(user(2L));
     return queue;
   }
 
