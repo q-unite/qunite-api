@@ -7,3 +7,7 @@ spring:
   # Flyway
   flyway:
     enabled: false
+
+server:
+  servlet:
+    context-path: "/api/v1"

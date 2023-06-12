@@ -12,7 +12,7 @@ To run checkstyle, execute `mvn clean verify -P checkstyle`
 
 ## Testing
 
-Application has other [configuration](src/test/resources/application-test.properties) for testing.\
+Application has other [configuration](src/test/resources/application-test.yml) for testing.\
 To use this config, mark all test classes with `@ActiveProfiles("test")`
 
 To write **integration** tests, use `@IntegrationTest` (includes `@ActiveProfiles("test")`). There are two options:
