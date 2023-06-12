@@ -2,7 +2,6 @@ package com.qunite.api.web;
 
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
-import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.Matchers.hasSize;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
@@ -173,7 +172,7 @@ class QueueControllerTest {
   void deleteQueue() throws Exception {
     doNothing().when(queueService).deleteById(anyLong());
     mockMvc.perform(delete(url + "/1"))
-        .andExpect(status().isOk());
+        .andExpect(status().isNoContent());
   }
 
 

@@ -89,6 +89,6 @@ public class QueueController {
   @DeleteMapping("/{id}")
   public ResponseEntity<Void> deleteById(@PathVariable Long id) {
     queueService.deleteById(id);
-    return ResponseEntity.ok().build();
+    return ResponseEntity.noContent().build();
   }
 }
