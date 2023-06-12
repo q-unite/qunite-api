@@ -57,7 +57,7 @@ public class UserController {
                 .map(queueMapper::toDto).toList()));
   }
 
-  @PostMapping("/")
+  @PostMapping
   public ResponseEntity<UserDto> createQueue(@Valid @RequestBody UserDto userDto) {
     var created = userService.createOne(userMapper.toEntity(userDto));
     return new ResponseEntity<>(userMapper.toDto(created), HttpStatus.CREATED);
@@ -66,7 +66,7 @@ public class UserController {
   @DeleteMapping("/{id}")
   public ResponseEntity<Void> deleteById(@PathVariable Long id) {
     userService.deleteOne(id);
-    return ResponseEntity.ok().build();
+    return ResponseEntity.noContent().build();
   }
 
 }

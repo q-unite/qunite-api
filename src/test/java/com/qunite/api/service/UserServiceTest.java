@@ -42,28 +42,36 @@ public class UserServiceTest implements PostgreSQLFixture {
 
   @Test
   @Sql(value = "/users-create.sql")
-  void getUserReturnsActualUser() {
+  void testGettingByExistingIdShouldReturnUser() {
     assertEquals(userService.findOne(1L), userRepository.findById(1L));
   }
 
   @Test
+  @Sql(value = "/users-create.sql")
+  void testGettingByNotExistingIdShouldReturnUser() {
+    assertThat(userService.findOne(100L)).isEmpty();
+  }
+
+  @Test
   @Sql(value = {"/users-create.sql", "/queues-create.sql", "/queues-managers-create.sql"})
-  void testGettingManagedQueues() {
+  void testGettingManagedQueuesReturnsManagedQueues() {
     var queues = userService.getManagedQueues(1L);
-    List<Queue> expectedQueues = List.of(queueService.findById(1L).get(), queueService.findById(3L).get());
+    List<Queue> expectedQueues =
+        List.of(queueService.findById(1L).get(), queueService.findById(3L).get());
     assertThat(queues).hasValue(expectedQueues);
   }
 
   @Test
   @Sql(value = {"/users-create.sql", "/queues-create.sql"})
-  void testGettingCreatedQueues() {
+  void testGettingCreatedQueuesCreatesQueue() {
     var queues = userService.getCreatedQueues(1L);
-    List<Queue> expectedQueues = List.of(queueService.findById(1L).get(), queueService.findById(4L).get());
+    List<Queue> expectedQueues =
+        List.of(queueService.findById(1L).get(), queueService.findById(4L).get());
     assertThat(queues).hasValue(expectedQueues);
   }
 
   @Test
-  void createUserCreatesNewUser() {
+  void testCreatingUserCreatesNewUser() {
     User user = new User();
     user.setFirstName("Creator");
     user.setLastName("Creator");
@@ -77,12 +85,12 @@ public class UserServiceTest implements PostgreSQLFixture {
 
   @Test
   @Sql(value = "/users-create.sql")
-  void deleteUserDeletesUser() {
-
+  void testDeletingExistingUserDeletesUser() {
     userService.deleteOne(1L);
 
     assertFalse(userRepository.existsById(1L));
 
   }
+
 
 }

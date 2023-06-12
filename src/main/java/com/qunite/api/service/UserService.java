@@ -13,6 +13,8 @@ public interface UserService {
   void deleteOne(Long id);
 
   List<User> findAll();
+
   Optional<List<Queue>> getCreatedQueues(Long userid);
+
   Optional<List<Queue>> getManagedQueues(Long userid);
 }
