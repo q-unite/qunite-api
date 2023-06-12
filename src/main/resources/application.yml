@@ -1,0 +1,9 @@
+spring:
+  # JPA properties
+  jpa:
+    generate-ddl: true
+    hibernate:
+      ddl-auto: create-drop
+  # Flyway
+  flyway:
+    enabled: false

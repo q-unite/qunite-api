@@ -5,22 +5,21 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import com.qunite.api.annotation.IntegrationTest;
 import com.qunite.api.data.EntryRepository;
 import com.qunite.api.data.QueueRepository;
 import com.qunite.api.data.UserRepository;
 import com.qunite.api.domain.EntryId;
 import com.qunite.api.domain.Queue;
-import com.qunite.api.generic.PostgreSQLFixture;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.jdbc.Sql;
 
-@SpringBootTest
-@ActiveProfiles("test")
-class QueueServiceTest implements PostgreSQLFixture {
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.NONE)
+@IntegrationTest
+class QueueServiceTest {
   @Autowired
   private QueueService queueService;
 
@@ -40,6 +39,7 @@ class QueueServiceTest implements PostgreSQLFixture {
     queueRepository.deleteAll();
   }
 
+  // TODO: 06.11.2023 After completing the test fix task, change the configuration in boostrap.yml
   @Sql("/users-create.sql")
   @Test
   void testQueueCreation() {
