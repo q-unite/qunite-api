@@ -28,7 +28,6 @@ import com.qunite.api.web.mapper.QueueMapperImpl;
 import com.qunite.api.web.mapper.UserMapperImpl;
 import java.util.List;
 import java.util.Optional;
-import java.util.Random;
 import java.util.Set;
 import java.util.stream.IntStream;
 import org.junit.jupiter.api.Test;
@@ -66,7 +65,7 @@ class QueueControllerTest {
         .accept(MediaType.APPLICATION_JSON));
     resultActions.andExpect(status().isOk())
         .andExpect(header().string(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE))
-        .andExpect(jsonPath("id", is(queue.getId().intValue())));
+        .andExpect(content().json("{id: 1}"));
   }
 
   @Test
@@ -78,9 +77,7 @@ class QueueControllerTest {
     resultActions.andExpect(status().isOk())
         .andExpect(header().string(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE))
         .andExpect(jsonPath("$", hasSize(queues.size())))
-        .andExpect(content().json("""
-            [ {"id": 1}, {"id": 2}, {"id": 3} ]""")
-        );
+        .andExpect(content().json("[ {id: 1}, {id: 2}, {id: 3} ]"));
   }
 
   @Test
@@ -119,7 +116,7 @@ class QueueControllerTest {
         .accept(MediaType.APPLICATION_JSON));
     resultActions.andExpect(status().isOk())
         .andExpect(header().string(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE))
-        .andExpect(jsonPath("id", is(queue.getCreator().getId())));
+        .andExpect(content().json("{id: 2}"));
   }
 
   @Test
@@ -133,9 +130,7 @@ class QueueControllerTest {
     resultActions.andExpect(status().isOk())
         .andExpect(header().string(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE))
         .andExpect(jsonPath("$", hasSize(queue.getManagers().size())))
-        .andExpect(content().json("""
-            [ {"id": 1}, {"id": 2}, {"id": 3} ]""")
-        );
+        .andExpect(content().json("[ {id: 1}, {id: 2}, {id: 3} ]"));
   }
 
   @Test
@@ -152,9 +147,9 @@ class QueueControllerTest {
         .andExpect(jsonPath("$", hasSize(queue.getEntries().size())))
         .andExpect(content().json("""
             [
-              {"memberId":1,"queueId":1},
-              {"memberId":2,"queueId":1},
-              {"memberId":3,"queueId":1}
+              {memberId:1, queueId:1},
+              {memberId:2, queueId:1},
+              {memberId:3, queueId:1}
             ]""")
         );
   }
@@ -171,8 +166,7 @@ class QueueControllerTest {
         .content(json));
     resultActions.andExpect(status().isCreated())
         .andExpect(header().string(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE))
-        .andExpect(content().json("""
-            {"id": 1}"""));
+        .andExpect(content().json("{id: 1}"));
   }
 
   @Test
@@ -186,7 +180,7 @@ class QueueControllerTest {
   private Queue queue(Long id) {
     var queue = new Queue();
     queue.setId(id);
-    queue.setCreator(user(new Random().nextLong()));
+    queue.setCreator(user(2L));
     return queue;
   }
 
