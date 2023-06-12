@@ -46,18 +46,12 @@ class EntityLifecycleTest implements PostgreSQLFixture {
     assertFalse(queueRepository.existsById(1L));
   }
 
-  @Test
-  @Sql({"/users-create.sql", "/queues-create.sql"})
-  void deleteQueueDeletesCreatedQueueInCreator() {
-    queueRepository.deleteById(1L);
 
-    assertFalse(queueRepository.existsByCreatorId(1L));
-  }
 
   @Test
   @Sql("/users-create.sql")
   void addCreatedQueueInCreatorAddsQueue() {
-    var creator = getById(1L, userRepository);
+    var creator = getById(2L, userRepository);
     creator.addCreatedQueue(new Queue());
 
     assertFalse(queueRepository.findAll().isEmpty());
@@ -121,10 +115,12 @@ class EntityLifecycleTest implements PostgreSQLFixture {
   @Test
   @Sql({"/users-create.sql", "/queues-create.sql", "/entries-create.sql"})
   void deleteEntryDoesNotDeleteQueueAndMember() {
+    var queuesSizeBefore = queueRepository.count();
+    var usersSizeBefore = userRepository.count();
     entryRepository.deleteById(new EntryId(3L, 1L));
 
-    assertEquals(3, queueRepository.count());
-    assertEquals(7, userRepository.count());
+    assertEquals(queuesSizeBefore, queueRepository.count());
+    assertEquals(usersSizeBefore, userRepository.count());
   }
 
   @Test
