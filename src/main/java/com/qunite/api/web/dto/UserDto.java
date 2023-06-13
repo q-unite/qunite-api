@@ -1,7 +1,6 @@
 package com.qunite.api.web.dto;
 
 import com.fasterxml.jackson.annotation.JsonView;
-import com.qunite.api.web.jsonviews.Views;
 import java.io.Serializable;
 import lombok.AllArgsConstructor;
 import lombok.Getter;

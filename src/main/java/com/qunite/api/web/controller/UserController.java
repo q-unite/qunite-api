@@ -6,7 +6,7 @@ import com.qunite.api.domain.User;
 import com.qunite.api.service.UserService;
 import com.qunite.api.web.dto.QueueDto;
 import com.qunite.api.web.dto.UserDto;
-import com.qunite.api.web.jsonviews.Views;
+import com.qunite.api.web.dto.Views;
 import com.qunite.api.web.mapper.QueueMapper;
 import com.qunite.api.web.mapper.UserMapper;
 import jakarta.validation.Valid;
@@ -60,7 +60,8 @@ public class UserController {
   }
 
   @PostMapping
-  public ResponseEntity<UserDto> createUser(@Valid @RequestBody UserDto userDto) {
+  public ResponseEntity<UserDto> createUser(
+      @JsonView(Views.Post.class) @Valid @RequestBody UserDto userDto) {
     var created = userService.createOne(userMapper.toEntity(userDto));
     return new ResponseEntity<>(userMapper.toDto(created), HttpStatus.CREATED);
   }

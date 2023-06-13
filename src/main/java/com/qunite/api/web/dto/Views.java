@@ -1,4 +1,4 @@
-package com.qunite.api.web.jsonviews;
+package com.qunite.api.web.dto;
 
 public class Views {
   public static class Post extends Patch{}
