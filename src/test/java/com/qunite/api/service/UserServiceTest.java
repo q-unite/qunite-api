@@ -43,7 +43,7 @@ class UserServiceTest {
   }
 
   @Test
-  @Sql(value = "/users-create.sql")
+  @Sql("/users-create.sql")
   void testGettingByExistingIdShouldReturnUser() {
     var user = userService.findOne(1L);
     assertThat(user).isPresent();
@@ -52,13 +52,13 @@ class UserServiceTest {
 
   // TODO: 06.11.2023 After completing the test fix task, change the configuration in boostrap.yml
   @Test
-  @Sql(value = "/users-create.sql")
+  @Sql("/users-create.sql")
   void testGettingByNotExistingIdShouldReturnUser() {
     assertThat(userService.findOne(100L)).isEmpty();
   }
 
   @Test
-  @Sql(value = {"/users-create.sql", "/queues-create.sql", "/queues-managers-create.sql"})
+  @Sql({"/users-create.sql", "/queues-create.sql", "/queues-managers-create.sql"})
   void testGettingManagedQueuesReturnsManagedQueues() {
     var queues = userService.getManagedQueues(1L);
     List<Queue> expectedQueues =
@@ -67,7 +67,7 @@ class UserServiceTest {
   }
 
   @Test
-  @Sql(value = {"/users-create.sql", "/queues-create.sql"})
+  @Sql({"/users-create.sql", "/queues-create.sql"})
   void testGettingCreatedQueuesCreatesQueue() {
     var queues = userService.getCreatedQueues(1L);
     List<Queue> expectedQueues =
@@ -95,5 +95,33 @@ class UserServiceTest {
     assertFalse(userRepository.existsById(1L));
   }
 
+  @Test
+  @Sql(value = "/users-create.sql")
+  void testUpdatingEntityUpdatesEntity() {
+    final var oldUser = userService.findOne(1L).get();
+    var newData = new User();
+    newData.setFirstName("NewName");
+    newData.setLastName("NewLastName");
+    var newUser = userService.updateOne(1L, newData);
+    assertThat(newUser).isPresent();
+    assertThat(newUser.get().getFirstName()).isNotEqualTo(oldUser.getFirstName());
+    assertThat(newUser.get().getLastName()).isNotEqualTo(oldUser.getLastName());
+
+  }
+
+  @Test
+  @Sql(value = "/users-create.sql")
+  void testUpdatingEntityWithIdShouldNotChangeId() {
+    final var oldUser = userService.findOne(1L).get();
+    var newData = new User();
+    newData.setId(50L);
+    newData.setFirstName("NewName");
+    newData.setLastName("NewLastName");
+    var newUser = userService.updateOne(1L, newData);
+    assertThat(newUser).isPresent();
+    assertThat(newUser.get().getId()).isEqualTo(1L);
+    assertThat(newUser.get().getFirstName()).isNotEqualTo(oldUser.getFirstName());
+    assertThat(newUser.get().getLastName()).isNotEqualTo(oldUser.getLastName());
+  }
 
 }

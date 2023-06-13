@@ -5,12 +5,14 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.qunite.api.domain.Queue;
 import com.qunite.api.domain.User;
@@ -93,7 +95,7 @@ public class UserControllerTest {
     given(userService.getCreatedQueues(anyLong())).willReturn(Optional.of(queues));
 
     var resultActions =
-        mockMvc.perform(get(url + "/" +userId + "/created-queues")
+        mockMvc.perform(get(url + "/" + userId + "/created-queues")
             .accept(MediaType.APPLICATION_JSON));
 
     resultActions.andExpect(status().isOk())
@@ -115,6 +117,26 @@ public class UserControllerTest {
         .andExpect(header().string(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE))
         .andExpect(content().json("""
             {"id": 1}"""));
+  }
+
+  @Test
+  void updateUser() throws Exception {
+    var user = user(1L);
+    user.setFirstName("John");
+    var dto = userMapper.toDto(user);
+    var json = new ObjectMapper().writeValueAsString(dto);
+    var expectedUser = user(1L);
+    expectedUser.setFirstName("Mark");
+
+    given(userService.updateOne(anyLong(), any(User.class))).willReturn(Optional.of(expectedUser));
+
+    var resultActions =
+        mockMvc.perform(patch(url + "/1").contentType(MediaType.APPLICATION_JSON).content(json));
+    resultActions.andExpect(status().isOk())
+        .andExpect(header().string(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE))
+        .andExpect(content().json("""
+            {"firstName": "Mark"}"""));
+
   }
 
 

@@ -1,9 +1,12 @@
 package com.qunite.api.web.controller;
 
 
+import com.fasterxml.jackson.annotation.JsonView;
+import com.qunite.api.domain.User;
 import com.qunite.api.service.UserService;
 import com.qunite.api.web.dto.QueueDto;
 import com.qunite.api.web.dto.UserDto;
+import com.qunite.api.web.jsonviews.Views;
 import com.qunite.api.web.mapper.QueueMapper;
 import com.qunite.api.web.mapper.UserMapper;
 import jakarta.validation.Valid;
@@ -15,6 +18,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -56,7 +60,7 @@ public class UserController {
   }
 
   @PostMapping
-  public ResponseEntity<UserDto> createQueue(@Valid @RequestBody UserDto userDto) {
+  public ResponseEntity<UserDto> createUser(@Valid @RequestBody UserDto userDto) {
     var created = userService.createOne(userMapper.toEntity(userDto));
     return new ResponseEntity<>(userMapper.toDto(created), HttpStatus.CREATED);
   }
@@ -65,5 +69,15 @@ public class UserController {
   public ResponseEntity<Void> deleteById(@PathVariable Long id) {
     userService.deleteOne(id);
     return ResponseEntity.noContent().build();
+  }
+
+  @JsonView(Views.Patch.class)
+  @PatchMapping("/{id}")
+  public ResponseEntity<UserDto> updateUser(@PathVariable Long id,
+                                            @Valid @RequestBody UserDto userDto) {
+    return ResponseEntity.of(
+        userService.updateOne(id, userMapper.partialUpdate(userDto, new User()))
+            .map(userMapper::toDto));
+
   }
 }
