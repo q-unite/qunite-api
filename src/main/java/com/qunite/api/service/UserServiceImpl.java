@@ -1,6 +1,7 @@
 package com.qunite.api.service;
 
 import com.qunite.api.data.UserRepository;
+import com.qunite.api.domain.Queue;
 import com.qunite.api.domain.User;
 import java.util.List;
 import java.util.Optional;
@@ -16,19 +17,19 @@ public class UserServiceImpl implements UserService {
 
   @Override
   @Transactional
-  public User createUser(User user) {
+  public User createOne(User user) {
     return userRepository.save(user);
   }
 
   @Override
   @Transactional
-  public Optional<User> getUser(Long userId) {
+  public Optional<User> findOne(Long userId) {
     return userRepository.findById(userId);
   }
 
   @Override
   @Transactional
-  public void deleteUser(Long userId) {
+  public void deleteOne(Long userId) {
     userRepository.deleteById(userId);
   }
 
@@ -38,8 +39,16 @@ public class UserServiceImpl implements UserService {
   }
 
   @Override
-  public Optional<User> findById(Long userId) {
-    return userRepository.findById(userId);
+  @Transactional
+  public Optional<List<Queue>> getCreatedQueues(Long userId) {
+    return userRepository.findById(userId).map(User::getCreatedQueues).map(List::copyOf);
   }
+
+  @Override
+  @Transactional
+  public Optional<List<Queue>> getManagedQueues(Long userId) {
+    return userRepository.findById(userId).map(User::getManagedQueues).map(List::copyOf);
+  }
+
 
 }

@@ -1,5 +1,6 @@
 package com.qunite.api.web.dto;
 
+import com.fasterxml.jackson.annotation.JsonView;
 import java.io.Serializable;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -12,6 +13,8 @@ import lombok.Getter;
 @Getter
 public class UserDto implements Serializable {
   private final Long id;
+  @JsonView(Views.Patch.class)
   private final String firstName;
+  @JsonView(Views.Patch.class)
   private final String lastName;
 }
