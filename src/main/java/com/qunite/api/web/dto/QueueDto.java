@@ -14,7 +14,6 @@ public class QueueDto implements Serializable {
   private Long id;
   @JsonView(Views.Patch.class)
   private String name;
-  @JsonView(Views.Patch.class)
   private Long creatorId;
   private String createdAt;
 }
