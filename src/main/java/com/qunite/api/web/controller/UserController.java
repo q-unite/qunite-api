@@ -2,7 +2,6 @@ package com.qunite.api.web.controller;
 
 
 import com.fasterxml.jackson.annotation.JsonView;
-import com.qunite.api.domain.User;
 import com.qunite.api.service.UserService;
 import com.qunite.api.web.dto.QueueDto;
 import com.qunite.api.web.dto.UserDto;
