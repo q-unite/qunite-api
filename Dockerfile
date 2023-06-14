@@ -1,11 +1,9 @@
-FROM eclipse-temurin:17-jdk-alpine as build
+FROM maven:3.9.2-eclipse-temurin-17-alpine AS build
 WORKDIR /workspace/app
 
-COPY mvnw .
-COPY .mvn .mvn
 COPY pom.xml .
 COPY src src
-RUN ./mvnw install -DskipTests
+RUN mvn install -DskipTests
 
 ARG JAR_FILE=target/*.jar
 COPY ${JAR_FILE} target/application.jar
