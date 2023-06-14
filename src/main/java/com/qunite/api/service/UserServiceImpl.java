@@ -40,24 +40,15 @@ public class UserServiceImpl implements UserService {
 
   @Override
   @Transactional
-  public Optional<List<Queue>> getCreatedQueues(Long userid) {
-    return userRepository.findById(userid).map(User::getCreatedQueues).map(List::copyOf);
+  public Optional<List<Queue>> getCreatedQueues(Long userId) {
+    return userRepository.findById(userId).map(User::getCreatedQueues).map(List::copyOf);
   }
 
   @Override
   @Transactional
-  public Optional<List<Queue>> getManagedQueues(Long userid) {
-    return userRepository.findById(userid).map(User::getManagedQueues).map(List::copyOf);
+  public Optional<List<Queue>> getManagedQueues(Long userId) {
+    return userRepository.findById(userId).map(User::getManagedQueues).map(List::copyOf);
   }
 
-  @Transactional
-  @Override
-  public Optional<User> updateOne(Long id, User newData) {
-    return userRepository.findById(id).map(user -> {
-      user.setFirstName(newData.getFirstName());
-      user.setLastName(newData.getLastName());
-      return user;
-    });
-  }
 
 }

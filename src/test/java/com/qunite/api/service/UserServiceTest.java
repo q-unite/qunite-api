@@ -94,33 +94,4 @@ class UserServiceTest {
     assertFalse(userRepository.existsById(1L));
   }
 
-  @Test
-  @Sql(value = "/users-create.sql")
-  void testUpdatingEntityUpdatesEntity() {
-    final var oldUser = userService.findOne(1L).get();
-    var newData = new User();
-    newData.setFirstName("NewName");
-    newData.setLastName("NewLastName");
-    var newUser = userService.updateOne(1L, newData);
-    assertThat(newUser).isPresent();
-    assertThat(newUser.get().getFirstName()).isNotEqualTo(oldUser.getFirstName());
-    assertThat(newUser.get().getLastName()).isNotEqualTo(oldUser.getLastName());
-
-  }
-
-  @Test
-  @Sql(value = "/users-create.sql")
-  void testUpdatingEntityWithIdShouldNotChangeId() {
-    final var oldUser = userService.findOne(1L).get();
-    var newData = new User();
-    newData.setId(50L);
-    newData.setFirstName("NewName");
-    newData.setLastName("NewLastName");
-    var newUser = userService.updateOne(1L, newData);
-    assertThat(newUser).isPresent();
-    assertThat(newUser.get().getId()).isEqualTo(1L);
-    assertThat(newUser.get().getFirstName()).isNotEqualTo(oldUser.getFirstName());
-    assertThat(newUser.get().getLastName()).isNotEqualTo(oldUser.getLastName());
-  }
-
 }

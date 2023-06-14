@@ -14,10 +14,8 @@ public interface UserService {
 
   List<User> findAll();
 
-  Optional<List<Queue>> getCreatedQueues(Long userid);
+  Optional<List<Queue>> getCreatedQueues(Long userId);
 
-  Optional<List<Queue>> getManagedQueues(Long userid);
-
-  Optional<User> updateOne(Long id, User user);
+  Optional<List<Queue>> getManagedQueues(Long userId);
 
 }

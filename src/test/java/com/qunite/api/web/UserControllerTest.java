@@ -100,7 +100,8 @@ public class UserControllerTest {
 
     resultActions.andExpect(status().isOk())
         .andExpect(header().string(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE))
-        .andExpect(jsonPath("$", hasSize(queues.size()))).andExpect(content().json("""
+        .andExpect(jsonPath("$", hasSize(queues.size())))
+        .andExpect(content().json("""
             [ {"id": 1}, {"id": 2}, {"id": 3} , {"id": 4} ]"""));
   }
 
@@ -121,14 +122,15 @@ public class UserControllerTest {
 
   @Test
   void updateUser() throws Exception {
-    var user = user(1L);
+    final var user = user(1L);
     user.setFirstName("John");
-    var dto = userMapper.toDto(user);
-    var json = new ObjectMapper().writeValueAsString(dto);
+    final var dto = userMapper.toDto(user);
+    final var json = new ObjectMapper().writeValueAsString(dto);
     var expectedUser = user(1L);
     expectedUser.setFirstName("Mark");
 
-    given(userService.updateOne(anyLong(), any(User.class))).willReturn(Optional.of(expectedUser));
+    given(userService.findOne(anyLong())).willReturn(Optional.of(user));
+    given(userService.createOne(any(User.class))).willReturn(expectedUser);
 
     var resultActions =
         mockMvc.perform(patch(url + "/1").contentType(MediaType.APPLICATION_JSON).content(json));

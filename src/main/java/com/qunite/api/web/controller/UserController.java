@@ -76,9 +76,11 @@ public class UserController {
   public ResponseEntity<UserDto> updateUser(@PathVariable Long id,
                                             @JsonView(Views.Patch.class) @Valid @RequestBody
                                             UserDto userDto) {
-    return ResponseEntity.of(
-        userService.updateOne(id, userMapper.partialUpdate(userDto, new User()))
-            .map(userMapper::toDto));
+    return ResponseEntity.of(userService.findOne(id)
+        .map(user -> userMapper.partialUpdate(userDto, user))
+        .map(userService::createOne)
+        .map(userMapper::toDto)
+    );
 
   }
 }
