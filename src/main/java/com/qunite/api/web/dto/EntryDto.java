@@ -2,16 +2,16 @@ package com.qunite.api.web.dto;
 
 import java.io.Serializable;
 import lombok.AllArgsConstructor;
-import lombok.Getter;
+import lombok.Data;
 
 /**
  * A DTO for the {@link com.qunite.api.domain.Entry} entity
  */
 @AllArgsConstructor
-@Getter
+@Data
 public class EntryDto implements Serializable {
-  private final Long memberId;
-  private final Long queueId;
-  private final String createdAt;
-  private final Integer entryIndex;
+  private Long memberId;
+  private Long queueId;
+  private String createdAt;
+  private Integer entryIndex;
 }
