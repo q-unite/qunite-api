@@ -3,18 +3,18 @@ package com.qunite.api.web.dto;
 import com.fasterxml.jackson.annotation.JsonView;
 import java.io.Serializable;
 import lombok.AllArgsConstructor;
-import lombok.Getter;
+import lombok.Data;
 
 /**
  * A DTO for the {@link com.qunite.api.domain.User} entity
  */
 
+@Data
 @AllArgsConstructor
-@Getter
 public class UserDto implements Serializable {
-  private final Long id;
+  private Long id;
   @JsonView(Views.Patch.class)
-  private final String firstName;
+  private String firstName;
   @JsonView(Views.Patch.class)
-  private final String lastName;
+  private String lastName;
 }
