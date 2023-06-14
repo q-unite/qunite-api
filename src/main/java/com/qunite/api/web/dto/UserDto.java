@@ -12,7 +12,6 @@ import lombok.Getter;
 @AllArgsConstructor
 @Getter
 public class UserDto implements Serializable {
-  @JsonView(Views.Post.class)
   private final Long id;
   @JsonView(Views.Patch.class)
   private final String firstName;
