@@ -22,3 +22,7 @@ To write **integration** tests, use `@IntegrationTest` (includes `@ActiveProfile
 To run **integration** tests, follow next steps:
 1. install and run Docker on your local machine
 2. execute `mvn clean verify -P integration-test`
+
+## Swagger(OpenAPI 3)
+
+After deployment, the Swagger UI page is available at http://localhost:8080/swagger-ui.html
