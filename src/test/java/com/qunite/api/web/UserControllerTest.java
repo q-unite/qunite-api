@@ -57,7 +57,8 @@ public class UserControllerTest {
         mockMvc.perform(get(url + "/" + user.getId()).accept(MediaType.APPLICATION_JSON_VALUE));
     resultActions.andExpect(status().isOk())
         .andExpect(header().string(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE))
-        .andExpect(jsonPath("id").value(user.getId().intValue()));
+        .andExpect(content().json("""
+        {"id": 1}"""));
   }
 
   @Test
