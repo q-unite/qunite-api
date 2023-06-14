@@ -10,11 +10,8 @@ import lombok.Data;
 @AllArgsConstructor
 @Data
 public class EntryDto implements Serializable {
-
   private Long memberId;
-
   private Long queueId;
   private String createdAt;
-
   private Integer entryIndex;
 }
