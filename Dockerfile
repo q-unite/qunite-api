@@ -1,11 +1,21 @@
-FROM eclipse-temurin:17-jre-alpine as builder
+FROM eclipse-temurin:17-jdk-alpine as build
+WORKDIR /workspace/app
+
+COPY mvnw .
+COPY .mvn .mvn
+COPY pom.xml .
+COPY src src
+RUN ./mvnw install -DskipTests
+
 ARG JAR_FILE=target/*.jar
-COPY ${JAR_FILE} application.jar
-RUN java -Djarmode=layertools -jar application.jar extract
+COPY ${JAR_FILE} target/application.jar
+RUN java -Djarmode=layertools -jar target/application.jar extract --destination target/extracted
 
 FROM eclipse-temurin:17-jre-alpine
-COPY --from=builder dependencies/ ./
-COPY --from=builder snapshot-dependencies/ ./
-COPY --from=builder spring-boot-loader/ ./
-COPY --from=builder application/ ./
-ENTRYPOINT ["java", "org.springframework.boot.loader.JarLauncher"]
+ARG EXTRACTED=/workspace/app/target/extracted
+WORKDIR application
+COPY --from=build ${EXTRACTED}/dependencies/ ./
+COPY --from=build ${EXTRACTED}/snapshot-dependencies/ ./
+COPY --from=build ${EXTRACTED}/spring-boot-loader/ ./
+COPY --from=build ${EXTRACTED}/application/ ./
+ENTRYPOINT ["java","-noverify","org.springframework.boot.loader.JarLauncher"]

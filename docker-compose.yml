@@ -1,0 +1,23 @@
+version: '3.8'
+services:
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: api
+    environment:
+      - SPRING_DATASOURCE_URL=${POSTGRES_JDBC_DRIVER}:${POSTGRES_OUTER_PORT}/${POSTGRES_DB}
+      - SPRING_DATASOURCE_USERNAME=${POSTGRES_USER}
+      - SPRING_DATASOURCE_PASSWORD=${POSTGRES_PASSWORD}
+    ports:
+      - '${API_OUTER_PORT}:8080'
+    depends_on:
+      - postgres_db
+  postgres_db:
+    image: "postgres:${POSTGRES_VERSION}"
+    environment:
+      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+    ports:
+      - '${POSTGRES_OUTER_PORT}:5432'
