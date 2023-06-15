@@ -10,4 +10,4 @@ jobs:
       - name: Trigger Build Job
         uses: ./maven-build.yml
         with:
-          branch: dockerfile
+          branch: 'dockerfile'
