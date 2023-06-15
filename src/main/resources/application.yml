@@ -7,11 +7,7 @@ spring:
   # Flyway
   flyway:
     enabled: false
-  # Datasource
-  datasource:
-    username: ${POSTGRES_USER}
-    password: ${POSTGRES_PASSWORD}
-    url: ${POSTGRES_URL}
+
 # Swagger path
 springdoc:
   api-docs:

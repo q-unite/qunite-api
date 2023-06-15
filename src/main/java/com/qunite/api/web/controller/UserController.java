@@ -1,11 +1,11 @@
 package com.qunite.api.web.controller;
 
 
-import com.fasterxml.jackson.annotation.JsonView;
 import com.qunite.api.service.UserService;
-import com.qunite.api.web.dto.QueueDto;
-import com.qunite.api.web.dto.UserDto;
-import com.qunite.api.web.dto.Views;
+import com.qunite.api.web.dto.queue.QueueDto;
+import com.qunite.api.web.dto.user.UserCreationDTO;
+import com.qunite.api.web.dto.user.UserDto;
+import com.qunite.api.web.dto.user.UserUpdateDto;
 import com.qunite.api.web.mapper.QueueMapper;
 import com.qunite.api.web.mapper.UserMapper;
 import io.swagger.v3.oas.annotations.Operation;
@@ -80,9 +80,8 @@ public class UserController {
   @PostMapping//todo id
   @Operation(summary = "Create user")
   @ResponseStatus(HttpStatus.CREATED)
-  public ResponseEntity<UserDto> createUser(
-      @JsonView(Views.Post.class) @Valid @RequestBody UserDto userDto) {
-    var created = userService.createOne(userMapper.toEntity(userDto));
+  public ResponseEntity<UserDto> createUser(@Valid @RequestBody UserCreationDTO userCreationDTO) {
+    var created = userService.createOne(userMapper.toEntity(userCreationDTO));
     return new ResponseEntity<>(userMapper.toDto(created), HttpStatus.CREATED);
   }
 
@@ -100,10 +99,9 @@ public class UserController {
       @ApiResponse(responseCode = "404", content = {@Content()})
   })
   public ResponseEntity<UserDto> updateUser(@PathVariable Long id,
-                                            @JsonView(Views.Patch.class) @Valid @RequestBody
-                                            UserDto userDto) {
+                                            @Valid @RequestBody UserUpdateDto userUpdateDto) {
     return ResponseEntity.of(userService.findOne(id)
-        .map(user -> userMapper.partialUpdate(userDto, user))
+        .map(user -> userMapper.partialUpdate(userUpdateDto, user))
         .map(userService::createOne)
         .map(userMapper::toDto)
     );

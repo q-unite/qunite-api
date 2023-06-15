@@ -2,9 +2,10 @@ package com.qunite.api.web.controller;
 
 import com.qunite.api.domain.Queue;
 import com.qunite.api.service.QueueService;
-import com.qunite.api.web.dto.EntryDto;
-import com.qunite.api.web.dto.QueueDto;
-import com.qunite.api.web.dto.UserDto;
+import com.qunite.api.web.dto.entry.EntryDto;
+import com.qunite.api.web.dto.queue.QueueCreationDto;
+import com.qunite.api.web.dto.queue.QueueDto;
+import com.qunite.api.web.dto.user.UserDto;
 import com.qunite.api.web.mapper.EntryMapper;
 import com.qunite.api.web.mapper.QueueMapper;
 import com.qunite.api.web.mapper.UserMapper;
@@ -114,8 +115,9 @@ public class QueueController {
   @PostMapping
   @Operation(summary = "Create queue")
   @ResponseStatus(HttpStatus.CREATED)
-  public ResponseEntity<QueueDto> createQueue(@Valid @RequestBody QueueDto queueDto) {
-    var created = queueService.create(queueMapper.toEntity(queueDto));
+  public ResponseEntity<QueueDto> createQueue(
+      @Valid @RequestBody QueueCreationDto queueCreationDto) {
+    var created = queueService.create(queueMapper.toEntity(queueCreationDto));
     return new ResponseEntity<>(queueMapper.toDto(created), HttpStatus.CREATED);
   }
 

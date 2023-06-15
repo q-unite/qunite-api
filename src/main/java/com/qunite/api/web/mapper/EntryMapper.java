@@ -1,7 +1,7 @@
 package com.qunite.api.web.mapper;
 
 import com.qunite.api.domain.Entry;
-import com.qunite.api.web.dto.EntryDto;
+import com.qunite.api.web.dto.entry.EntryDto;
 import org.mapstruct.BeanMapping;
 import org.mapstruct.InheritConfiguration;
 import org.mapstruct.InheritInverseConfiguration;
