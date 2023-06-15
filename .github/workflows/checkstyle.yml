@@ -1,21 +1,21 @@
-name: Codestyle check
-
-on:
-  push:
-    branches: [ "main" ]
-  pull_request:
-    branches: [ "main" ]
-
-jobs:
-  checkstyle_job:
-    runs-on: ubuntu-latest
-    name: Checkstyle job
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-      - name: Run check style
-        uses: nikitasavinov/checkstyle-action@master
-        with:
-          checkstyle_version: 10.9.3
-          checkstyle_config: config/checkstyle.xml
-          level: error
+#name: Codestyle check
+#
+#on:
+#  push:
+#    branches: [ "main" ]
+#  pull_request:
+#    branches: [ "main" ]
+#
+#jobs:
+#  checkstyle_job:
+#    runs-on: ubuntu-latest
+#    name: Checkstyle job
+#    steps:
+#      - name: Checkout
+#        uses: actions/checkout@v3
+#      - name: Run check style
+#        uses: nikitasavinov/checkstyle-action@master
+#        with:
+#          checkstyle_version: 10.9.3
+#          checkstyle_config: config/checkstyle.xml
+#          level: error

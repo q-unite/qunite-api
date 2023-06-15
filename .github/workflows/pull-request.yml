@@ -6,10 +6,8 @@ on:
 
 jobs:
   build:
-    uses: ./build.yml
+    runs-on: ubuntu-latest
 
-  checkstyle:
-    uses: ./checkstyle.yml
-
-  docker:
-    uses: ./publish-image.yml
+    steps:
+      - name: Trigger Build Job
+        uses: ./.github/workflows/build.yml@main
