@@ -1,0 +1,15 @@
+name: Pull Request Workflow
+
+on:
+  pull_request:
+    branches: [ $default-branch ]
+
+jobs:
+  build:
+    uses: ./build.yml
+
+  checkstyle:
+    uses: ./checkstyle.yml
+
+  docker:
+    uses: ./publish-image.yml
