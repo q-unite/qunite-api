@@ -77,7 +77,7 @@ public class UserController {
                 .map(queueMapper::toDto).toList()));
   }
 
-  @PostMapping//todo id
+  @PostMapping
   @Operation(summary = "Create user")
   @ResponseStatus(HttpStatus.CREATED)
   public ResponseEntity<UserDto> createUser(@Valid @RequestBody UserCreationDTO userCreationDTO) {
