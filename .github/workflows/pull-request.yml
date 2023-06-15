@@ -11,3 +11,5 @@ jobs:
     steps:
       - name: Trigger Build Job
         uses: ./.github/workflows/build.yml@main
+        with:
+          branch: ${{ github.event.pull_request.head.ref }}
