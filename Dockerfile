@@ -15,4 +15,4 @@ COPY --from=build ${EXTRACTED}/dependencies/ ./
 COPY --from=build ${EXTRACTED}/snapshot-dependencies/ ./
 COPY --from=build ${EXTRACTED}/spring-boot-loader/ ./
 COPY --from=build ${EXTRACTED}/application/ ./
-ENTRYPOINT ["java","-noverify","org.springframework.boot.loader.JarLauncher"]
+CMD ["java","-noverify","org.springframework.boot.loader.JarLauncher"]
