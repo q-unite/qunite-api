@@ -6,13 +6,8 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
-
       - name: Trigger Build Job
-        uses: ./.github/workflows/build.yml@dockerfile
+        uses: ./maven-build.yml
         with:
-          branch: ${{ github.event.pull_request.head.ref }}
+          branch: dockerfile
