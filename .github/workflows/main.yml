@@ -1,21 +1,21 @@
-#name: Main Workflow
-#
-#on:
-#  push:
-#    branches: [ $default-branch ]
-#
-#jobs:
-#  build:
-#    runs-on: ubuntu-latest
-#
-#    steps:
-#      - name: Trigger Build Job
-#        uses: ./.github/workflows/build-job.yml@main
-#        with:
-#          branch: ${{ github.event.pull_request.head.ref }}
-#
-#  checkstyle:
-#    uses: ./checkstyle.yml
-#
-#  docker:
-#    uses: ./publish-image.yml
+name: Main Workflow
+
+on:
+  push:
+    branches: [ $default-branch ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Trigger Build Job
+        uses: ./.github/workflows/build-job.yml@main
+        with:
+          branch: ${{ github.event.pull_request.head.ref }}
+
+  checkstyle:
+    uses: ./checkstyle.yml
+
+  docker:
+    uses: ./publish-image.yml

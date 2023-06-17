@@ -14,7 +14,7 @@ services:
     depends_on:
       - postgres_db
   postgres_db:
-    image: "postgres"
+    image: "postgres:15.3-alpine"
     environment:
       - POSTGRES_DB=localdb
       - POSTGRES_USER=localdb
