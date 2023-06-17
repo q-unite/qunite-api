@@ -7,3 +7,6 @@ spring:
   # Flyway
   flyway:
     enabled: false
+
+security:
+  secret:secret
