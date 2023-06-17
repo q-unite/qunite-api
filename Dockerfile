@@ -10,9 +10,11 @@ RUN java -Djarmode=layertools -jar target/application.jar extract --destination 
 
 FROM eclipse-temurin:17-jre-alpine
 ARG EXTRACTED=/workspace/app/target/extracted
-WORKDIR application
+WORKDIR /application
+
 COPY --from=build ${EXTRACTED}/dependencies/ ./
 COPY --from=build ${EXTRACTED}/snapshot-dependencies/ ./
 COPY --from=build ${EXTRACTED}/spring-boot-loader/ ./
 COPY --from=build ${EXTRACTED}/application/ ./
+
 CMD ["java","-noverify","org.springframework.boot.loader.JarLauncher"]
