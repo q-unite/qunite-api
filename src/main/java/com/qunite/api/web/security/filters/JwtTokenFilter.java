@@ -10,11 +10,14 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -39,7 +42,7 @@ public class JwtTokenFilter extends OncePerRequestFilter {
     String username = decodedJWT.getSubject();
 
     UsernamePasswordAuthenticationToken
-        authenticationToken = new UsernamePasswordAuthenticationToken(username, null);
+        authenticationToken = new UsernamePasswordAuthenticationToken(username, null, new ArrayList<SimpleGrantedAuthority>());
     SecurityContextHolder.getContext().setAuthentication(authenticationToken);
     filterChain.doFilter(request, response);
 
