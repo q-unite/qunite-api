@@ -76,8 +76,7 @@ class UserServiceTest {
   @Test
   void testCreatingUserCreatesNewUser() {
     User user = new User();
-    user.setFirstName("Creator");
-    user.setLastName("Creator");
+    user.setUsername("Creator");
 
     user = userService.createOne(user);
     var result = userService.findAll();

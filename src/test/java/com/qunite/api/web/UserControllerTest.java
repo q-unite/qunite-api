@@ -123,11 +123,11 @@ public class UserControllerTest {
   @Test
   void updateUser() throws Exception {
     final var user = user(1L);
-    user.setFirstName("John");
+    user.setUsername("John");
     final var dto = userMapper.toDto(user);
     final var json = new ObjectMapper().writeValueAsString(dto);
     var expectedUser = user(1L);
-    expectedUser.setFirstName("Mark");
+    expectedUser.setUsername("Mark");
 
     given(userService.findOne(anyLong())).willReturn(Optional.of(user));
     given(userService.createOne(any(User.class))).willReturn(expectedUser);
@@ -137,7 +137,7 @@ public class UserControllerTest {
     resultActions.andExpect(status().isOk())
         .andExpect(header().string(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE))
         .andExpect(content().json("""
-            {"firstName": "Mark"}"""));
+            {"username": "Mark"}"""));
 
   }
 

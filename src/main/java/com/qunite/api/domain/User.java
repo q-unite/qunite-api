@@ -35,11 +35,14 @@ public class User {
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   Long id;
 
-  @Column(name = "first_name")
-  String firstName;
+  @Column(nullable = false, unique = true)
+  String username;
 
-  @Column(name = "last_name")
-  String lastName;
+  @Column(nullable = false, unique = true)
+  String email;
+
+  @Column(nullable = false)
+  String password;
 
   @Access(AccessType.FIELD)
   @ToString.Exclude
