@@ -6,12 +6,14 @@ import com.qunite.api.domain.User;
 import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
-public class UserServiceImpl implements UserService {
+public class UserServiceImpl implements UserService, UserDetailsService {
 
   private final UserRepository userRepository;
 
@@ -51,4 +53,17 @@ public class UserServiceImpl implements UserService {
   }
 
 
+  @Override
+  public UserDetails loadUserByUsername(String loginData) {
+    //todo
+    User user = userRepository.findByUsernameOrEmail(loginData, loginData)
+        .orElseThrow(IllegalArgumentException::new);
+    String username;
+    username = loginData.equals(user.getUsername()) ? user.getUsername() : user.getPassword();
+
+    return org.springframework.security.core.userdetails.User.builder()
+        .username(username)
+        .password(user.getPassword())
+        .build();
+  }
 }
