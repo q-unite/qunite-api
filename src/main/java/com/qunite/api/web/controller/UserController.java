@@ -3,7 +3,7 @@ package com.qunite.api.web.controller;
 
 import com.qunite.api.service.UserService;
 import com.qunite.api.web.dto.queue.QueueDto;
-import com.qunite.api.web.dto.user.UserCreationDTO;
+import com.qunite.api.web.dto.user.UserCreationDto;
 import com.qunite.api.web.dto.user.UserDto;
 import com.qunite.api.web.dto.user.UserUpdateDto;
 import com.qunite.api.web.mapper.QueueMapper;
@@ -26,7 +26,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 @CrossOrigin
@@ -48,7 +47,7 @@ public class UserController {
   @GetMapping("/{id}")
   @Operation(summary = "Get user by id", responses = {
       @ApiResponse(responseCode = "200"),
-      @ApiResponse(responseCode = "404", content = {@Content()})
+      @ApiResponse(responseCode = "404", content = @Content())
   })
   public ResponseEntity<UserDto> getById(@PathVariable Long id) {
     return ResponseEntity.of(userService.findOne(id).map(userMapper::toDto));
@@ -57,7 +56,7 @@ public class UserController {
   @GetMapping("/{id}/managed-queues")
   @Operation(summary = "Get queues where user is manager", responses = {
       @ApiResponse(responseCode = "200"),
-      @ApiResponse(responseCode = "404", content = {@Content()})
+      @ApiResponse(responseCode = "404", content = @Content())
   })
   public ResponseEntity<List<QueueDto>> getManagedQueues(@PathVariable Long id) {
     return ResponseEntity.of(userService.getManagedQueues(id)
@@ -68,7 +67,7 @@ public class UserController {
   @GetMapping("/{id}/created-queues")
   @Operation(summary = "Get queues created by user", responses = {
       @ApiResponse(responseCode = "200"),
-      @ApiResponse(responseCode = "404", content = {@Content()})
+      @ApiResponse(responseCode = "404", content = @Content())
   })
   public ResponseEntity<List<QueueDto>> getCreatedQueues(@PathVariable Long id) {
     return ResponseEntity.of(
@@ -78,16 +77,14 @@ public class UserController {
   }
 
   @PostMapping
-  @Operation(summary = "Create user")
-  @ResponseStatus(HttpStatus.CREATED)
-  public ResponseEntity<UserDto> createUser(@Valid @RequestBody UserCreationDTO userCreationDTO) {
+  @Operation(summary = "Create user", responses = @ApiResponse(responseCode = "201"))
+  public ResponseEntity<UserDto> createUser(@Valid @RequestBody UserCreationDto userCreationDTO) {
     var created = userService.createOne(userMapper.toEntity(userCreationDTO));
     return new ResponseEntity<>(userMapper.toDto(created), HttpStatus.CREATED);
   }
 
   @DeleteMapping("/{id}")
-  @Operation(summary = "Delete user by id")
-  @ResponseStatus(HttpStatus.NO_CONTENT)
+  @Operation(summary = "Delete user by id", responses = @ApiResponse(responseCode = "204"))
   public ResponseEntity<Void> deleteById(@PathVariable Long id) {
     userService.deleteOne(id);
     return ResponseEntity.noContent().build();
@@ -96,7 +93,7 @@ public class UserController {
   @PatchMapping("/{id}")
   @Operation(summary = "Update user by id", responses = {
       @ApiResponse(responseCode = "200"),
-      @ApiResponse(responseCode = "404", content = {@Content()})
+      @ApiResponse(responseCode = "404", content = @Content())
   })
   public ResponseEntity<UserDto> updateUser(@PathVariable Long id,
                                             @Valid @RequestBody UserUpdateDto userUpdateDto) {
