@@ -6,9 +6,9 @@ services:
       dockerfile: Dockerfile
     container_name: api
     environment:
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres_db:5432/localdb
-      - SPRING_DATASOURCE_USERNAME=localdb
-      - SPRING_DATASOURCE_PASSWORD=localdb
+      SPRING_DATASOURCE_URL: "jdbc:postgresql://postgres_db:5432/localdb"
+      SPRING_DATASOURCE_USERNAME: "localdb"
+      SPRING_DATASOURCE_PASSWORD: "localdb"
     ports:
       - '8080:8080'
     depends_on:
@@ -16,8 +16,8 @@ services:
   postgres_db:
     image: "postgres:15.3-alpine"
     environment:
-      - POSTGRES_DB=localdb
-      - POSTGRES_USER=localdb
-      - POSTGRES_PASSWORD=localdb
+      POSTGRES_DB: "localdb"
+      POSTGRES_USER: "localdb"
+      POSTGRES_PASSWORD: "localdb"
     ports:
       - '5432:5432'
