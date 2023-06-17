@@ -48,4 +48,4 @@ jobs:
         uses: docker/build-push-action@v4
         with:
           push: true
-          tags: {{secrest.DOCKERHUB_USERNAME}}/qunite-api:latest
+          tags: kivanval/qunite-api:latest
