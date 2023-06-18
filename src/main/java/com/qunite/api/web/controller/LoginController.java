@@ -5,6 +5,7 @@ import com.qunite.api.web.dto.auth.LoginResponse;
 import com.qunite.api.web.security.JWTUtils;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -12,6 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -32,8 +34,8 @@ public class LoginController {
   public ResponseEntity<LoginResponse> login(@Valid @RequestBody LoginRequest request) {
     try {
       authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
-          request.getLoginData(), request.getPassword()
-      ));
+          request.getLoginData(), request.getPassword())
+      );
       String token = jwtUtils.create(request.getLoginData(), request.getPassword());
       return new ResponseEntity<>(new LoginResponse(token), HttpStatus.CREATED);
 

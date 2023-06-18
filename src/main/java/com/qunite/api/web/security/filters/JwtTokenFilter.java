@@ -36,13 +36,12 @@ public class JwtTokenFilter extends OncePerRequestFilter {
       filterChain.doFilter(request, response);
       return;
     }
-
     String token = header.substring(7).trim();
     DecodedJWT decodedJWT = jwtUtils.verify(token);
     String username = decodedJWT.getSubject();
 
     UsernamePasswordAuthenticationToken
-        authenticationToken = new UsernamePasswordAuthenticationToken(username, null, new ArrayList<SimpleGrantedAuthority>());
+        authenticationToken = new UsernamePasswordAuthenticationToken(username, null, List.of(new SimpleGrantedAuthority("user")));
     SecurityContextHolder.getContext().setAuthentication(authenticationToken);
     filterChain.doFilter(request, response);
 
