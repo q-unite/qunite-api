@@ -1,6 +1,7 @@
 package com.qunite.api.web.controller;
 
 
+import com.qunite.api.service.AuthorizationUtils;
 import com.qunite.api.service.UserService;
 import com.qunite.api.web.dto.queue.QueueDto;
 import com.qunite.api.web.dto.user.UserCreationDto;
@@ -13,6 +14,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import java.security.Principal;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -37,6 +39,7 @@ public class UserController {
   private final UserService userService;
   private final UserMapper userMapper;
   private final QueueMapper queueMapper;
+  private final AuthorizationUtils authorizationUtils;
 
   @GetMapping
   @Operation(summary = "Get all users")
@@ -49,7 +52,10 @@ public class UserController {
       @ApiResponse(responseCode = "200"),
       @ApiResponse(responseCode = "404", content = @Content())
   })
-  public ResponseEntity<UserDto> getById(@PathVariable Long id) {
+  public ResponseEntity<UserDto> getById(Principal principal, @PathVariable Long id) {
+    if (!authorizationUtils.authorizeUsersById(principal.getName(), id)) {
+      return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+    }
     return ResponseEntity.of(userService.findOne(id).map(userMapper::toDto));
   }
 
@@ -58,7 +64,10 @@ public class UserController {
       @ApiResponse(responseCode = "200"),
       @ApiResponse(responseCode = "404", content = @Content())
   })
-  public ResponseEntity<List<QueueDto>> getManagedQueues(@PathVariable Long id) {
+  public ResponseEntity<List<QueueDto>> getManagedQueues(Principal principal, @PathVariable Long id) {
+    if (!authorizationUtils.authorizeUsersById(principal.getName(), id)) {
+      return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+    }
     return ResponseEntity.of(userService.getManagedQueues(id)
         .map(list -> list.stream()
             .map(queueMapper::toDto).toList()));
@@ -69,7 +78,11 @@ public class UserController {
       @ApiResponse(responseCode = "200"),
       @ApiResponse(responseCode = "404", content = @Content())
   })
-  public ResponseEntity<List<QueueDto>> getCreatedQueues(@PathVariable Long id) {
+  public ResponseEntity<List<QueueDto>> getCreatedQueues(Principal principal,
+                                                         @PathVariable Long id) {
+    if (!authorizationUtils.authorizeUsersById(principal.getName(), id)) {
+      return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+    }
     return ResponseEntity.of(
         userService.getCreatedQueues(id)
             .map(list -> list.stream()
@@ -85,7 +98,10 @@ public class UserController {
 
   @DeleteMapping("/{id}")
   @Operation(summary = "Delete user by id", responses = @ApiResponse(responseCode = "204"))
-  public ResponseEntity<Void> deleteById(@PathVariable Long id) {
+  public ResponseEntity<Void> deleteById(Principal principal, @PathVariable Long id) {
+    if (!authorizationUtils.authorizeUsersById(principal.getName(), id)) {
+      return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+    }
     userService.deleteOne(id);
     return ResponseEntity.noContent().build();
   }
@@ -95,8 +111,11 @@ public class UserController {
       @ApiResponse(responseCode = "200"),
       @ApiResponse(responseCode = "404", content = @Content())
   })
-  public ResponseEntity<UserDto> updateUser(@PathVariable Long id,
+  public ResponseEntity<UserDto> updateUser(Principal principal, @PathVariable Long id,
                                             @Valid @RequestBody UserUpdateDto userUpdateDto) {
+    if (!authorizationUtils.authorizeUsersById(principal.getName(), id)) {
+      return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+    }
     return ResponseEntity.of(userService.findOne(id)
         .map(user -> userMapper.partialUpdate(userUpdateDto, user))
         .map(userService::createOne)

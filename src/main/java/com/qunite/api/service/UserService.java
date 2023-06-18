@@ -9,6 +9,7 @@ public interface UserService {
   User createOne(User user);
 
   Optional<User> findOne(Long id);
+  Optional<User> findByUsernameOrEmail(String loginData);
 
   void deleteOne(Long id);
 
