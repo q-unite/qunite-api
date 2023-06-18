@@ -33,6 +33,11 @@ public class UserServiceImpl implements UserService, UserDetailsService {
   }
 
   @Override
+  public Optional<User> findByUsernameOrEmail(String loginData) {
+    return userRepository.findByUsernameOrEmail(loginData, loginData);
+  }
+
+  @Override
   @Transactional
   public void deleteOne(Long userId) {
     userRepository.deleteById(userId);
@@ -59,7 +64,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
   @Override
   public UserDetails loadUserByUsername(String loginData) {
     //todo
-    User user = userRepository.findByUsernameOrEmail(loginData, loginData)
+    User user = findByUsernameOrEmail(loginData)
         .orElseThrow(IllegalArgumentException::new);
     String username;
     username = loginData.equals(user.getUsername()) ? user.getUsername() : user.getPassword();
