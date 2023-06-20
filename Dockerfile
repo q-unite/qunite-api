@@ -3,7 +3,7 @@ WORKDIR /workspace/app
 
 COPY pom.xml .
 COPY src src
-RUN mvn install -DskipTests
+RUN --mount=type=cache,target=/root/.m2 mvn install -DskipTests
 RUN mv target/*.jar target/application.jar
 
 RUN java -Djarmode=layertools -jar target/application.jar extract --destination target/extracted

@@ -105,6 +105,9 @@
             <plugin>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <configuration>
+                    <environmentVariables>
+                        <embedded.containers.enabled>false</embedded.containers.enabled>
+                    </environmentVariables>
                     <excludedGroups>integration</excludedGroups>
                 </configuration>
             </plugin>
