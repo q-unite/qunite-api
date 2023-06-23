@@ -1,23 +1,26 @@
 package com.qunite.api.service;
 
+import com.auth0.jwt.interfaces.DecodedJWT;
 import com.qunite.api.data.UserRepository;
 import com.qunite.api.domain.Queue;
 import com.qunite.api.domain.User;
+import com.qunite.api.security.JwtService;
 import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.http.HttpStatus;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 
 @Service
 @RequiredArgsConstructor
-public class UserServiceImpl implements UserService, UserDetailsService {
-
+public class UserServiceImpl implements UserService {
   private final UserRepository userRepository;
   private final PasswordEncoder passwordEncoder;
+  private final JwtService jwtService;
 
   @Override
   @Transactional
@@ -34,7 +37,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
   @Override
   public Optional<User> findByUsernameOrEmail(String loginData) {
-    return userRepository.findByUsernameOrEmail(loginData, loginData);
+    return userRepository.findByEmailOrUsername(loginData);
   }
 
   @Override
@@ -60,19 +63,35 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     return userRepository.findById(userId).map(User::getManagedQueues).map(List::copyOf);
   }
 
+  @Override
+  @Transactional
+  public User register(String username, String email, String password) {
+    if (!userRepository.existsByUsernameOrEmail(username, email)) {
+      return userRepository.save(new User(username, email, passwordEncoder.encode(password)));
+    } else {
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+          "User with such credentials already exists!");
+    }
+  }
 
   @Override
-  public UserDetails loadUserByUsername(String loginData) {
-    //todo
-    User user = findByUsernameOrEmail(loginData)
-        .orElseThrow(IllegalArgumentException::new);
-    String username;
-    username = loginData.equals(user.getUsername()) ? user.getUsername() : user.getPassword();
-
-    return org.springframework.security.core.userdetails.User.builder()
-        .username(username)
-        .password(user.getPassword())
-        .authorities("user")
-        .build();
+  @Transactional
+  public Optional<DecodedJWT> signIn(String loginData, String password) {
+    return jwtService.verifyAccessToken(
+        jwtService.createJwtToken(
+            userRepository.findByEmailOrUsername(loginData)
+                .filter(user -> passwordEncoder.matches(password, user.getPassword()))
+                .orElseThrow(() -> new UsernameNotFoundException(loginData))));
   }
+
+  @Override
+  @Transactional
+  public Optional<User> compareUserIdToLoginData(String loginData, Long id) {
+    return this.findOne(id)
+        .flatMap(founded -> this.findByUsernameOrEmail(loginData)
+            .map(founded::equals)
+            .flatMap(condition -> condition ? Optional.of(founded) : Optional.empty()));
+  }
+
+
 }

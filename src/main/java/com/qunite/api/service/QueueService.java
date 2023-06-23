@@ -19,4 +19,11 @@ public interface QueueService {
   Optional<Integer> getMemberPositionInQueue(Long memberId, Long queueId);
 
   void deleteById(Long queueId);
+
+  Optional<Queue> findByUserComparingBoth(Long queueId, String loginData);
+
+  Optional<Queue> findByUserComparingToQueueManagers(Long queueId, String loginData);
+
+  Optional<Queue> findByUserComparingToCreatorId(Long queueId, String loginData);
+
 }

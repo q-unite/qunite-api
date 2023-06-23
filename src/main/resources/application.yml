@@ -3,13 +3,11 @@ spring:
   jpa:
     generate-ddl: true
     hibernate:
-      ddl-auto: create-drop
+      ddl-auto: update
   # Flyway
   flyway:
     enabled: false
-  datasource:
-    password: admin
-    username: postgres
-    url: jdbc:postgresql://localhost:5432/queue
-security:
-  secret:secret
+
+jwt:
+  secret: "SOME-SECRET"
+  issuer: "SOME-ISSUER"
