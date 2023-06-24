@@ -1,9 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration>
-
-    <include resource="org/springframework/boot/logging/logback/defaults.xml"/>
-    <include resource="org/springframework/boot/logging/logback/console-appender.xml"/>
-    <include resource="org/springframework/boot/logging/logback/file-appender.xml"/>
+    <include resource="org/springframework/boot/logging/logback/base.xml"/>
     <property name="LOG_FILE" value="logs/application.log"/>
 
     <appender name="STASH" class="net.logstash.logback.appender.LogstashTcpSocketAppender">
@@ -32,30 +29,11 @@
     </appender>
 
     <springProfile name="dev">
-        <logger name="org" level="info">
+        <root level="info">
+            <appender-ref ref="CONSOLE"/>
             <appender-ref ref="FILE"/>
             <appender-ref ref="STASH"/>
-        </logger>
-
-        <logger name="com.qunite.api" level="debug">
-            <appender-ref ref="FILE"/>
-            <appender-ref ref="STASH"/>
-        </logger>
+        </root>
     </springProfile>
 
-    <springProfile name="prod">
-        <logger name="org" level="warn">
-            <appender-ref ref="FILE"/>
-            <appender-ref ref="STASH"/>
-        </logger>
-
-        <logger name="com.qunite.api" level="warn">
-            <appender-ref ref="FILE"/>
-            <appender-ref ref="STASH"/>
-        </logger>
-    </springProfile>
-
-    <root level="info">
-        <appender-ref ref="CONSOLE"/>
-    </root>
 </configuration>

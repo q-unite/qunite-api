@@ -7,6 +7,3 @@ spring:
   # Flyway
   flyway:
     enabled: false
-  # Logback profile
-  profiles:
-    active: dev

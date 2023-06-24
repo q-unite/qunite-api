@@ -5,10 +5,11 @@ services:
       context: .
       dockerfile: Dockerfile
     environment:
+      SPRING_APPLICATION_NAME: qunite-api
+      SPRING_PROFILES_ACTIVE: dev
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres_db:5432/localdb
       SPRING_DATASOURCE_USERNAME: localdb
       SPRING_DATASOURCE_PASSWORD: localdb
-      SPRING_APPLICATION_NAME: qunite
       LOGSTASH_URL: localhost:9600
     ports:
       - '8080:8080'
