@@ -2,15 +2,9 @@
 <configuration>
 
     <include resource="org/springframework/boot/logging/logback/defaults.xml"/>
+    <include resource="org/springframework/boot/logging/logback/console-appender.xml" />
     <include resource="org/springframework/boot/logging/logback/file-appender.xml"/>
     <property name="LOG_FILE" value="logs/application.log"/>
-
-    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
-        <encoder>
-            <pattern>${CONSOLE_LOG_PATTERN}</pattern>
-            <charset>utf8</charset>
-        </encoder>
-    </appender>
 
     <appender name="STASH" class="net.logstash.logback.appender.LogstashTcpSocketAppender">
         <destination>localhost:9600</destination>
