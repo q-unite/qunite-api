@@ -2,12 +2,12 @@
 <configuration>
 
     <include resource="org/springframework/boot/logging/logback/defaults.xml"/>
-    <include resource="org/springframework/boot/logging/logback/console-appender.xml" />
+    <include resource="org/springframework/boot/logging/logback/console-appender.xml"/>
     <include resource="org/springframework/boot/logging/logback/file-appender.xml"/>
     <property name="LOG_FILE" value="logs/application.log"/>
 
     <appender name="STASH" class="net.logstash.logback.appender.LogstashTcpSocketAppender">
-        <destination>localhost:9600</destination>
+        <destination>${LOGSTASH_URL}</destination>
         <encoder class="net.logstash.logback.encoder.LoggingEventCompositeJsonEncoder">
             <providers>
                 <timestamp/>
@@ -15,6 +15,13 @@
                 <mdc/>
                 <logLevel/>
                 <loggerName/>
+                <pattern>
+                    <pattern>
+                        {
+                            "appName": "${SPRING_APPLICATION_NAME}"
+                        }
+                    </pattern>
+                </pattern>
                 <threadName/>
                 <message/>
                 <logstashMarkers/>
@@ -24,18 +31,31 @@
         </encoder>
     </appender>
 
-    <logger name="org" level="info" additivity="false">
-        <appender-ref ref="FILE"/>
-        <appender-ref ref="STASH"/>
-        <appender-ref ref="CONSOLE"/>
-    </logger>
+    <springProfile name="dev">
+        <logger name="org" level="info">
+            <appender-ref ref="FILE"/>
+            <appender-ref ref="STASH"/>
+        </logger>
 
-    <logger name="com.qunite.api" level="info">
-        <appender-ref ref="FILE"/>
-        <appender-ref ref="STASH"/>
-    </logger>
+        <logger name="com.qunite.api" level="debug">
+            <appender-ref ref="FILE"/>
+            <appender-ref ref="STASH"/>
+        </logger>
+    </springProfile>
 
-    <root level="INFO">
+    <springProfile name="prod">
+        <logger name="org" level="warn">
+            <appender-ref ref="FILE"/>
+            <appender-ref ref="STASH"/>
+        </logger>
+
+        <logger name="com.qunite.api" level="warn">
+            <appender-ref ref="FILE"/>
+            <appender-ref ref="STASH"/>
+        </logger>
+    </springProfile>
+
+    <root level="info">
         <appender-ref ref="CONSOLE"/>
     </root>
 </configuration>
