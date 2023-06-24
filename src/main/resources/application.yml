@@ -1,4 +1,6 @@
 spring:
+  application:
+    name: qunite-api
   # JPA properties
   jpa:
     generate-ddl: true
