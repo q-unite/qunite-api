@@ -35,5 +35,4 @@
             <appender-ref ref="STASH"/>
         </root>
     </springProfile>
-
 </configuration>
