@@ -5,7 +5,6 @@ services:
       context: .
       dockerfile: Dockerfile
     environment:
-      SPRING_APPLICATION_NAME: qunite-api
       SPRING_PROFILES_ACTIVE: dev
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres_db:5432/localdb
       SPRING_DATASOURCE_USERNAME: localdb
