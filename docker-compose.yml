@@ -4,7 +4,6 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: api
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres_db:5432/localdb
       SPRING_DATASOURCE_USERNAME: localdb
