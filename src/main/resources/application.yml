@@ -1,4 +1,6 @@
 spring:
+  application:
+    name: qunite-api
   # JPA properties
   jpa:
     generate-ddl: true
@@ -7,7 +9,3 @@ spring:
   # Flyway
   flyway:
     enabled: false
-
-server:
-  servlet:
-    context-path: "/api/v1"
