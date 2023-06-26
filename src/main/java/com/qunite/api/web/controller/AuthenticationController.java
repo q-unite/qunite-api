@@ -5,6 +5,7 @@ import com.qunite.api.web.dto.auth.AuthenticationRequest;
 import com.qunite.api.web.dto.auth.AuthenticationResponse;
 import com.qunite.api.web.dto.user.UserCreationDto;
 import com.qunite.api.web.mapper.AuthResponseMapper;
+import com.qunite.api.web.mapper.UserMapper;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -27,13 +28,12 @@ import org.springframework.web.bind.annotation.RestController;
 public class AuthenticationController {
   private final UserService userService;
   private final AuthResponseMapper responseMapper;
+  private final UserMapper userMapper;
 
-  @Operation(summary = "Register user", responses = @ApiResponse(responseCode = "200"))
+  @Operation(summary = "Sign up user", responses = @ApiResponse(responseCode = "200"))
   @PostMapping("/register")
-  public ResponseEntity<Void> register(@Valid @RequestBody UserCreationDto userCreationDto) {
-    userService.register(
-        userCreationDto.getUsername(), userCreationDto.getEmail(), userCreationDto.getPassword()
-    );
+  public ResponseEntity<Void> signUp(@Valid @RequestBody UserCreationDto userCreationDto) {
+    userService.createOne(userMapper.toEntity(userCreationDto));
     return ResponseEntity.ok().build();
   }
 

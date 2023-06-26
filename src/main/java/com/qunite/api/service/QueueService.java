@@ -20,10 +20,10 @@ public interface QueueService {
 
   void deleteById(Long queueId);
 
-  Optional<Queue> findByUserComparingBoth(Long queueId, String loginData);
+  Optional<Queue> findByManagerOrCreator(Long queueId, String loginData);
 
-  Optional<Queue> findByUserComparingToQueueManagers(Long queueId, String loginData);
+  Optional<Queue> findByManagerComparingToUserCredentials(Long queueId, String loginData);
 
-  Optional<Queue> findByUserComparingToCreatorId(Long queueId, String loginData);
+  Optional<Queue> findByCreatorComparingToUserCredentials(Long queueId, String loginData);
 
 }

@@ -1,24 +1,21 @@
 package com.qunite.api.security;
 
-import static com.qunite.api.security.JwtConstants.ROLES;
-import static com.qunite.api.security.JwtConstants.TOKEN_PREFIX;
-
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.Objects;
+import java.util.Collections;
 import java.util.Set;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
-
 
 @RequiredArgsConstructor
 @Component
@@ -30,7 +27,7 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
                                   @NonNull HttpServletResponse response,
                                   @NonNull FilterChain filterChain)
       throws ServletException, IOException {
-    final String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
+    var authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
     if (!this.isHeaderValid(authHeader)) {
       filterChain.doFilter(request, response);
       return;
@@ -39,7 +36,7 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
         .ifPresent(decodedJWT -> {
           var username = decodedJWT.getSubject();
           var authToken = new UsernamePasswordAuthenticationToken(
-              username, null, Set.of(new SimpleGrantedAuthority(ROLES))
+              username, null, Collections.emptyList()
           );
           SecurityContextHolder.getContext().setAuthentication(authToken);
         });
@@ -47,8 +44,7 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
   }
 
   private boolean isHeaderValid(String authHeader) {
-    return Objects.nonNull(authHeader) && authHeader.startsWith(TOKEN_PREFIX);
+    return authHeader != null && authHeader.startsWith("Bearer ");
   }
-
 }
 

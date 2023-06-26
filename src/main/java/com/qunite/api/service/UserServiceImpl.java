@@ -25,8 +25,13 @@ public class UserServiceImpl implements UserService {
   @Override
   @Transactional
   public User createOne(User user) {
-    user.setPassword(passwordEncoder.encode(user.getPassword()));
-    return userRepository.save(user);
+    if (!userRepository.existsByUsernameOrEmail(user.getUsername(), user.getEmail())) {
+      user.setPassword(passwordEncoder.encode(user.getPassword()));
+      return userRepository.save(user);
+    } else {
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+          "User with such credentials already exists!");
+    }
   }
 
   @Override
@@ -63,16 +68,6 @@ public class UserServiceImpl implements UserService {
     return userRepository.findById(userId).map(User::getManagedQueues).map(List::copyOf);
   }
 
-  @Override
-  @Transactional
-  public User register(String username, String email, String password) {
-    if (!userRepository.existsByUsernameOrEmail(username, email)) {
-      return userRepository.save(new User(username, email, passwordEncoder.encode(password)));
-    } else {
-      throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
-          "User with such credentials already exists!");
-    }
-  }
 
   @Override
   @Transactional
@@ -82,15 +77,6 @@ public class UserServiceImpl implements UserService {
             userRepository.findByEmailOrUsername(loginData)
                 .filter(user -> passwordEncoder.matches(password, user.getPassword()))
                 .orElseThrow(() -> new UsernameNotFoundException(loginData))));
-  }
-
-  @Override
-  @Transactional
-  public Optional<User> compareUserIdToLoginData(String loginData, Long id) {
-    return this.findOne(id)
-        .flatMap(founded -> this.findByUsernameOrEmail(loginData)
-            .map(founded::equals)
-            .flatMap(condition -> condition ? Optional.of(founded) : Optional.empty()));
   }
 
 

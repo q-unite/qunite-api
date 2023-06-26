@@ -16,7 +16,6 @@ import java.security.Principal;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -50,11 +49,8 @@ public class UserController {
       @ApiResponse(responseCode = "200"),
       @ApiResponse(responseCode = "404", content = @Content())
   })
-  public ResponseEntity<UserDto> getById(Principal principal, @PathVariable Long id) {
-    log.info("hi there");
-    return userService.compareUserIdToLoginData(principal.getName(), id)
-        .map(user -> ResponseEntity.of(userService.findOne(id).map(userMapper::toDto)))
-        .orElse(ResponseEntity.status(HttpStatus.FORBIDDEN).build());
+  public ResponseEntity<UserDto> getById(@PathVariable Long id) {
+    return ResponseEntity.of(userService.findOne(id).map(userMapper::toDto));
   }
 
   @GetMapping("/{id}/managed-queues")
@@ -62,13 +58,10 @@ public class UserController {
       @ApiResponse(responseCode = "200"),
       @ApiResponse(responseCode = "404", content = @Content())
   })
-  public ResponseEntity<List<QueueDto>> getManagedQueues(Principal principal,
-                                                         @PathVariable Long id) {
-    return userService.compareUserIdToLoginData(principal.getName(), id)
-        .map(user -> ResponseEntity.of(userService.getManagedQueues(id)
-            .map(list -> list.stream()
-                .map(queueMapper::toDto).toList())))
-        .orElse(ResponseEntity.status(HttpStatus.FORBIDDEN).build());
+  public ResponseEntity<List<QueueDto>> getManagedQueues(@PathVariable Long id) {
+    return ResponseEntity.of(userService.getManagedQueues(id)
+        .map(list -> list.stream()
+            .map(queueMapper::toDto).toList()));
   }
 
   @GetMapping("/{id}/created-queues")
@@ -76,40 +69,40 @@ public class UserController {
       @ApiResponse(responseCode = "200"),
       @ApiResponse(responseCode = "404", content = @Content())
   })
-  public ResponseEntity<List<QueueDto>> getCreatedQueues(Principal principal,
-                                                         @PathVariable Long id) {
-    return userService.compareUserIdToLoginData(principal.getName(), id)
-        .map(user -> ResponseEntity.of(
-            userService.getCreatedQueues(id)
-                .map(list -> list.stream()
-                    .map(queueMapper::toDto).toList())))
-        .orElse(ResponseEntity.status(HttpStatus.FORBIDDEN).build());
+  public ResponseEntity<List<QueueDto>> getCreatedQueues(@PathVariable Long id) {
+    return ResponseEntity.of(
+        userService.getCreatedQueues(id)
+            .map(list -> list.stream()
+                .map(queueMapper::toDto).toList()));
   }
 
-  @DeleteMapping("/{id}")
-  @Operation(summary = "Delete user by id", responses = @ApiResponse(responseCode = "204"))
-  public ResponseEntity<Void> deleteById(Principal principal, @PathVariable Long id) {
-    return userService.compareUserIdToLoginData(principal.getName(), id)
-        .map(user -> {
-          userService.deleteOne(id);
-          return ResponseEntity.noContent().<Void>build();
-        })
-        .orElse(ResponseEntity.status(HttpStatus.FORBIDDEN).build());
+  @GetMapping("/self")
+  public ResponseEntity<UserDto> getSelf(Principal principal) {
+    return ResponseEntity.of(userService.findByUsernameOrEmail(principal.getName())
+        .map(userMapper::toDto));
   }
 
-  @PatchMapping("/{id}")
-  @Operation(summary = "Update user by id", responses = {
+  @PatchMapping("/")
+  @Operation(summary = "Update user by credentials", responses = {
       @ApiResponse(responseCode = "200"),
       @ApiResponse(responseCode = "404", content = @Content())
   })
-  public ResponseEntity<UserDto> updateUser(Principal principal, @PathVariable Long id,
+  public ResponseEntity<UserDto> updateSelf(Principal principal,
                                             @Valid @RequestBody UserUpdateDto userUpdateDto) {
-    return userService.compareUserIdToLoginData(principal.getName(), id)
-        .map(user -> ResponseEntity.of(userService.findOne(id)
-            .map(founded -> userMapper.partialUpdate(userUpdateDto, founded))
-            .map(userService::createOne)
-            .map(userMapper::toDto)))
-        .orElse(ResponseEntity.status(HttpStatus.FORBIDDEN).build());
+    return ResponseEntity.of(userService.findByUsernameOrEmail(principal.getName())
+        .map(founded -> userMapper.partialUpdate(userUpdateDto, founded))
+        .map(userService::createOne)
+        .map(userMapper::toDto));
+  }
 
+  @DeleteMapping("/")
+  @Operation(summary = "Delete user by credentials", responses = @ApiResponse(responseCode = "204"))
+  public ResponseEntity<Void> deleteSelf(Principal principal) {
+    return userService.findByUsernameOrEmail(principal.getName())
+        .map(user -> {
+          userService.deleteOne(user.getId());
+          return ResponseEntity.noContent().<Void>build();
+        })
+        .orElse(ResponseEntity.notFound().build());
   }
 }
