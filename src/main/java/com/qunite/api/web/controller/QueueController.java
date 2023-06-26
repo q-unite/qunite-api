@@ -1,7 +1,5 @@
 package com.qunite.api.web.controller;
 
-import static org.springframework.http.HttpStatus.FORBIDDEN;
-
 import com.qunite.api.domain.Queue;
 import com.qunite.api.service.QueueService;
 import com.qunite.api.web.dto.entry.EntryDto;
@@ -123,11 +121,7 @@ public class QueueController {
   @DeleteMapping("/{id}")
   @Operation(summary = "Delete queue by id", responses = @ApiResponse(responseCode = "204"))
   public ResponseEntity<Void> deleteById(Principal principal, @PathVariable Long id) {
-    return queueService.findByCreatorComparingToUserCredentials(id, principal.getName())
-        .map(queue -> {
-          queueService.deleteById(id);
-          return ResponseEntity.noContent().<Void>build();
-        })
-        .orElse(ResponseEntity.status(FORBIDDEN).build());
+    queueService.deleteById(id, principal.getName());
+    return ResponseEntity.noContent().build();
   }
 }

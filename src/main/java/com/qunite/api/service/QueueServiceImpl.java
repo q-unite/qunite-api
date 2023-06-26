@@ -6,9 +6,11 @@ import com.qunite.api.data.UserRepository;
 import com.qunite.api.domain.Entry;
 import com.qunite.api.domain.EntryId;
 import com.qunite.api.domain.Queue;
+import com.qunite.api.exception.QueueNotFoundException;
 import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -49,11 +51,28 @@ public class QueueServiceImpl implements QueueService {
         .map(entry -> entry.getEntryIndex() + 1);
   }
 
-
   @Override
   @Transactional
-  public void deleteById(Long queueId) {
-    queueRepository.deleteById(queueId);
+  public void deleteById(Long queueId, String loginData) {
+    var queueById = findById(queueId);
+    if (queueById.isPresent()) {
+      if (isUserByCredentialsQueueCreator(queueId, loginData)) {
+        queueRepository.deleteById(queueId);
+      } else {
+        throw new AccessDeniedException("Credentials does not match the queue creator");
+      }
+    } else {
+      throw new QueueNotFoundException(
+          "Could not find queue by id %d".formatted(queueId));
+    }
+  }
+
+  private boolean isUserByCredentialsQueueCreator(Long queueId, String loginData) {
+    return findById(queueId)
+        .map(queue -> userService.findByUsernameOrEmail(loginData)
+            .map(user -> queue.getCreator().equals(user))
+            .orElse(false))
+        .orElse(false);
   }
 
   @Override
@@ -64,31 +83,6 @@ public class QueueServiceImpl implements QueueService {
   @Override
   public Optional<Queue> findById(Long queueId) {
     return queueRepository.findById(queueId);
-  }
-
-  @Override
-  @Transactional
-  public Optional<Queue> findByCreatorComparingToUserCredentials(Long queueId, String loginData) {
-    return findById(queueId)
-        .filter(queue -> userService.findByUsernameOrEmail(loginData)
-            .map(user -> user.equals(queue.getCreator()))
-            .orElse(false));
-  }
-
-  @Override
-  @Transactional
-  public Optional<Queue> findByManagerComparingToUserCredentials(Long queueId, String loginData) {
-    return findById(queueId)
-        .filter(queue -> userService.findByUsernameOrEmail(loginData)
-            .map(user -> queue.getManagers().contains(user))
-            .orElse(false));
-  }
-
-  @Override
-  @Transactional
-  public Optional<Queue> findByManagerOrCreator(Long queueId, String loginData) {
-    return findByCreatorComparingToUserCredentials(queueId, loginData)
-        .or(() -> findByManagerComparingToUserCredentials(queueId, loginData));
   }
 
 }

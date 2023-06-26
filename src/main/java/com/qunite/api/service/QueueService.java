@@ -18,12 +18,6 @@ public interface QueueService {
 
   Optional<Integer> getMemberPositionInQueue(Long memberId, Long queueId);
 
-  void deleteById(Long queueId);
-
-  Optional<Queue> findByManagerOrCreator(Long queueId, String loginData);
-
-  Optional<Queue> findByManagerComparingToUserCredentials(Long queueId, String loginData);
-
-  Optional<Queue> findByCreatorComparingToUserCredentials(Long queueId, String loginData);
+  void deleteById(Long queueId, String loginData);
 
 }
