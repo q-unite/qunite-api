@@ -6,7 +6,6 @@ import com.qunite.api.data.UserRepository;
 import com.qunite.api.domain.Entry;
 import com.qunite.api.domain.EntryId;
 import com.qunite.api.domain.Queue;
-import com.qunite.api.domain.User;
 import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
@@ -69,33 +68,27 @@ public class QueueServiceImpl implements QueueService {
 
   @Override
   @Transactional
-  public Optional<Queue> findByUserComparingToCreatorId(Long queueId, String loginData) {
-    return this.findById(queueId)
-        .flatMap(queue -> Optional.of(queue.getCreator())
-            .map(User::getId)
-            .map(creatorId -> userService.compareUserIdToLoginData(loginData, creatorId))
-            .flatMap(user -> user.isPresent() ? Optional.of(queue) : Optional.empty()));
+  public Optional<Queue> findByCreatorComparingToUserCredentials(Long queueId, String loginData) {
+    return findById(queueId)
+        .filter(queue -> userService.findByUsernameOrEmail(loginData)
+            .map(user -> user.equals(queue.getCreator()))
+            .orElse(false));
   }
 
   @Override
   @Transactional
-  public Optional<Queue> findByUserComparingToQueueManagers(Long queueId, String loginData) {
-    return this.findById(queueId)
-        .flatMap(queue -> queue.getManagers().stream()
-            .map(User::getId)
-            .anyMatch(managerId -> userService.compareUserIdToLoginData(loginData, managerId)
-                .isPresent()) ? Optional.of(queue) : Optional.empty());
+  public Optional<Queue> findByManagerComparingToUserCredentials(Long queueId, String loginData) {
+    return findById(queueId)
+        .filter(queue -> userService.findByUsernameOrEmail(loginData)
+            .map(user -> queue.getManagers().contains(user))
+            .orElse(false));
   }
 
   @Override
   @Transactional
-  public Optional<Queue> findByUserComparingBoth(Long queueId, String loginData) {
-    return this.findById(queueId)
-        .flatMap(queue -> this.findByUserComparingToCreatorId(queueId, loginData)
-            .map(queue::equals)
-            .flatMap(condition -> condition ? Optional.of(Boolean.TRUE)
-                : this.findByUserComparingToQueueManagers(queueId, loginData)
-                .map(queue::equals))
-            .flatMap(finalCondition -> finalCondition ? Optional.of(queue) : Optional.empty()));
+  public Optional<Queue> findByManagerOrCreator(Long queueId, String loginData) {
+    return findByCreatorComparingToUserCredentials(queueId, loginData)
+        .or(() -> findByManagerComparingToUserCredentials(queueId, loginData));
   }
+
 }

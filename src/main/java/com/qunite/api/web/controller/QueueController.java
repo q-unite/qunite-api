@@ -56,10 +56,8 @@ public class QueueController {
       @ApiResponse(responseCode = "200"),
       @ApiResponse(responseCode = "404", content = @Content())
   })
-  public ResponseEntity<QueueDto> getById(Principal principal, @PathVariable Long id) {
-    return queueService.findByUserComparingBoth(id, principal.getName())
-        .map(queue -> ResponseEntity.of(queueService.findById(id).map(queueMapper::toDto)))
-        .orElse(ResponseEntity.status(FORBIDDEN).build());
+  public ResponseEntity<QueueDto> getById(@PathVariable Long id) {
+    return ResponseEntity.of(queueService.findById(id).map(queueMapper::toDto));
   }
 
   @GetMapping("/{id}/members-amount")
@@ -67,10 +65,8 @@ public class QueueController {
       @ApiResponse(responseCode = "200"),
       @ApiResponse(responseCode = "404", content = @Content())
   })
-  public ResponseEntity<Integer> membersAmount(Principal principal, @PathVariable Long id) {
-    return queueService.findByUserComparingBoth(id, principal.getName())
-        .map(queue -> ResponseEntity.of(queueService.getMembersAmountInQueue(id)))
-        .orElse(ResponseEntity.status(FORBIDDEN).build());
+  public ResponseEntity<Integer> membersAmount(@PathVariable Long id) {
+    return ResponseEntity.of(queueService.getMembersAmountInQueue(id));
   }
 
   @GetMapping("/{id}/members/{member-id}")
@@ -78,12 +74,9 @@ public class QueueController {
       @ApiResponse(responseCode = "200"),
       @ApiResponse(responseCode = "404", content = @Content())
   })
-  public ResponseEntity<Integer> memberPosition(Principal principal,
-                                                @PathVariable(value = "id") Long queueId,
+  public ResponseEntity<Integer> memberPosition(@PathVariable(value = "id") Long queueId,
                                                 @PathVariable(value = "member-id") Long memberId) {
-    return queueService.findByUserComparingBoth(queueId, principal.getName())
-        .map(queue -> ResponseEntity.of(queueService.getMemberPositionInQueue(memberId, queueId)))
-        .orElse(ResponseEntity.status(FORBIDDEN).build());
+    return ResponseEntity.of(queueService.getMemberPositionInQueue(memberId, queueId));
   }
 
   @GetMapping("/{id}/creator")
@@ -91,12 +84,10 @@ public class QueueController {
       @ApiResponse(responseCode = "200"),
       @ApiResponse(responseCode = "404", content = @Content())
   })
-  public ResponseEntity<UserDto> getQueueCreator(Principal principal, @PathVariable Long id) {
-    return queueService.findByUserComparingBoth(id, principal.getName())
-        .map(queue -> ResponseEntity.of(
-            queueService.findById(id).map(Queue::getCreator).map(userMapper::toDto)
-        ))
-        .orElse(ResponseEntity.status(FORBIDDEN).build());
+  public ResponseEntity<UserDto> getQueueCreator(@PathVariable Long id) {
+    return ResponseEntity.of(queueService.findById(id)
+        .map(Queue::getCreator)
+        .map(userMapper::toDto));
   }
 
   @GetMapping("/{id}/managers")
@@ -104,14 +95,10 @@ public class QueueController {
       @ApiResponse(responseCode = "200"),
       @ApiResponse(responseCode = "404", content = @Content())
   })
-  public ResponseEntity<List<UserDto>> getQueueManagers(Principal principal,
-                                                        @PathVariable Long id) {
-    return queueService.findByUserComparingToCreatorId(id, principal.getName())
-        .map(queue -> ResponseEntity.of(
-            queueService.findById(id)
-                .map(founded -> founded.getManagers().stream().map(userMapper::toDto).toList())
-        ))
-        .orElse(ResponseEntity.status(FORBIDDEN).build());
+  public ResponseEntity<List<UserDto>> getQueueManagers(@PathVariable Long id) {
+    return ResponseEntity.of(queueService.findById(id)
+        .map(founded -> founded.getManagers().stream()
+            .map(userMapper::toDto).toList()));
   }
 
   @GetMapping("/{id}/entries")
@@ -119,14 +106,10 @@ public class QueueController {
       @ApiResponse(responseCode = "200"),
       @ApiResponse(responseCode = "404", content = @Content())
   })
-  public ResponseEntity<List<EntryDto>> getQueueEntries(Principal principal,
-                                                        @PathVariable Long id) {
-    return queueService.findByUserComparingBoth(id, principal.getName())
-        .map(queue -> ResponseEntity.of(
-            queueService.findById(id)
-                .map(founded -> founded.getEntries().stream().map(entryMapper::toDto).toList())
-        ))
-        .orElse(ResponseEntity.status(FORBIDDEN).build());
+  public ResponseEntity<List<EntryDto>> getQueueEntries(@PathVariable Long id) {
+    return ResponseEntity.of(queueService.findById(id)
+        .map(founded -> founded.getEntries().stream()
+            .map(entryMapper::toDto).toList()));
   }
 
   @PostMapping
@@ -140,7 +123,7 @@ public class QueueController {
   @DeleteMapping("/{id}")
   @Operation(summary = "Delete queue by id", responses = @ApiResponse(responseCode = "204"))
   public ResponseEntity<Void> deleteById(Principal principal, @PathVariable Long id) {
-    return queueService.findByUserComparingToCreatorId(id, principal.getName())
+    return queueService.findByCreatorComparingToUserCredentials(id, principal.getName())
         .map(queue -> {
           queueService.deleteById(id);
           return ResponseEntity.noContent().<Void>build();

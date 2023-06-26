@@ -10,6 +10,7 @@ public interface UserService {
   User createOne(User user);
 
   Optional<User> findOne(Long id);
+
   Optional<User> findByUsernameOrEmail(String loginData);
 
   void deleteOne(Long id);
@@ -19,10 +20,6 @@ public interface UserService {
   Optional<List<Queue>> getCreatedQueues(Long userId);
 
   Optional<List<Queue>> getManagedQueues(Long userId);
-
-  Optional<User> compareUserIdToLoginData(String loginData, Long id);
-
-  User register(String username, String email, String password);
 
   Optional<DecodedJWT> signIn(String loginData, String password);
 

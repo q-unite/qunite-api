@@ -1,12 +1,8 @@
 package com.qunite.api.domain;
 
-import static com.qunite.api.security.JwtConstants.*;
-
-import com.qunite.api.security.JwtConstants;
 import jakarta.persistence.Access;
 import jakarta.persistence.AccessType;
 import jakarta.persistence.CascadeType;
-import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -22,7 +18,6 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
-import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -43,15 +38,10 @@ public class User implements UserDetails {
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   Long id;
 
-  @Getter(AccessLevel.NONE)
-  @Column(nullable = false, unique = true)
   String username;
 
-  @Column(nullable = false, unique = true)
   String email;
 
-  @Getter(AccessLevel.NONE)
-  @Column(nullable = false)
   String password;
 
   @Access(AccessType.FIELD)
@@ -138,20 +128,9 @@ public class User implements UserDetails {
   }
 
   @Override
-  public Collection<? extends GrantedAuthority> getAuthorities() {
-    return Set.of(new SimpleGrantedAuthority(ROLES));
+  public Collection<GrantedAuthority> getAuthorities() {
+    return Collections.emptyList();
   }
-
-  @Override
-  public String getPassword() {
-    return password;
-  }
-
-  @Override
-  public String getUsername() {
-    return username;
-  }
-
 
   @Override
   public boolean isAccountNonExpired() {
