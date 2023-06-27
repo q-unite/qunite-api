@@ -2,6 +2,7 @@ package com.qunite.api.web;
 
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -16,15 +17,12 @@ import com.qunite.api.data.EntryRepository;
 import com.qunite.api.data.QueueRepository;
 import com.qunite.api.data.UserRepository;
 import com.qunite.api.domain.User;
-import com.qunite.api.service.UserService;
 import com.qunite.api.web.mapper.UserMapper;
-import java.util.Optional;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.jdbc.Sql;
@@ -140,4 +138,13 @@ public class UserControllerIntegrationTest {
         .andExpect(jsonPath("$.firstName", is("John")));
 
   }
+
+  @Test
+  @Sql("/users-create.sql")
+  void deleteQueue() throws Exception {
+    var userId = 1;
+    mockMvc.perform(delete(url + "/" + userId))
+        .andExpect(status().isNoContent());
+  }
+
 }

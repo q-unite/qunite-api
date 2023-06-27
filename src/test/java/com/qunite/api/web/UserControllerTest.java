@@ -4,6 +4,8 @@ import static org.hamcrest.Matchers.hasSize;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.doNothing;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -140,6 +142,14 @@ public class UserControllerTest {
             {"firstName": "Mark"}"""));
 
   }
+
+  @Test
+  void deleteQueue() throws Exception {
+    doNothing().when(userService).deleteOne(anyLong());
+    mockMvc.perform(delete(url + "/1"))
+        .andExpect(status().isNoContent());
+  }
+
 
 
   private Queue queue(Long queueId, Long creatorId) {
