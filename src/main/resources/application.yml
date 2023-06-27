@@ -9,3 +9,5 @@ spring:
   # Flyway
   flyway:
     enabled: false
+jwt:
+  secret: "SOME-SECRET"

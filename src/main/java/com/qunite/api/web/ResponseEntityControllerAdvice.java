@@ -1,6 +1,7 @@
 package com.qunite.api.web;
 
 import com.qunite.api.exception.QueueNotFoundException;
+import com.qunite.api.exception.UserAlreadyExistsException;
 import com.qunite.api.web.dto.ExceptionResponse;
 import java.nio.file.AccessDeniedException;
 import java.time.LocalDateTime;
@@ -22,6 +23,12 @@ public class ResponseEntityControllerAdvice {
   @ExceptionHandler(QueueNotFoundException.class)
   public ResponseEntity<ExceptionResponse> handleNotFound(RuntimeException exception) {
     return ResponseEntity.status(HttpStatus.NOT_FOUND)
+        .body(exceptionResponse(exception.getMessage()));
+  }
+
+  @ExceptionHandler(UserAlreadyExistsException.class)
+  public ResponseEntity<ExceptionResponse> handleBadRequest(RuntimeException exception) {
+    return ResponseEntity.status(HttpStatus.BAD_REQUEST)
         .body(exceptionResponse(exception.getMessage()));
   }
 

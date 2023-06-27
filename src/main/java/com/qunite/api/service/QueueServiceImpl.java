@@ -59,7 +59,7 @@ public class QueueServiceImpl implements QueueService {
       if (isUserByCredentialsQueueCreator(queueId, loginData)) {
         queueRepository.deleteById(queueId);
       } else {
-        throw new AccessDeniedException("Credentials does not match the queue creator");
+        throw new AccessDeniedException("User is not a creator");
       }
     } else {
       throw new QueueNotFoundException(

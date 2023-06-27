@@ -18,6 +18,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.jdbc.Sql;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.NONE)
+@IntegrationTest
 class QueueServiceTest {
   @Autowired
   private QueueService queueService;
@@ -59,7 +60,7 @@ class QueueServiceTest {
   @Sql({"/users-create.sql", "/queues-create.sql"})
   @Test
   void testDeletingQueue() {
-    queueService.deleteById(1L);
+    queueService.deleteById(1L, null);
 
     assertFalse(queueRepository.existsById(1L));
   }

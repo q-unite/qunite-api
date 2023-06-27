@@ -4,16 +4,15 @@ import com.auth0.jwt.interfaces.DecodedJWT;
 import com.qunite.api.data.UserRepository;
 import com.qunite.api.domain.Queue;
 import com.qunite.api.domain.User;
+import com.qunite.api.exception.UserAlreadyExistsException;
 import com.qunite.api.security.JwtService;
 import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.server.ResponseStatusException;
 
 @Service
 @RequiredArgsConstructor
@@ -29,8 +28,7 @@ public class UserServiceImpl implements UserService {
       user.setPassword(passwordEncoder.encode(user.getPassword()));
       return userRepository.save(user);
     } else {
-      throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
-          "User with such credentials already exists!");
+      throw new UserAlreadyExistsException("User already exists");
     }
   }
 
