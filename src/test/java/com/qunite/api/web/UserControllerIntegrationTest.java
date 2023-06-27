@@ -60,23 +60,24 @@ public class UserControllerIntegrationTest {
   @Test
   @Sql("/users-create.sql")
   void retrieveByIdWhenExists() throws Exception {
-    var userId = 1L;
+    var userId = 1;
+
     var resultActions =
         mockMvc.perform(get(url + "/" + userId).accept(MediaType.APPLICATION_JSON_VALUE));
     resultActions.andExpect(status().isOk())
         .andExpect(header().string(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE))
-        .andExpect(content().json("""
-            {"id": 1}"""));
+        .andExpect(jsonPath("$.id", is(userId)));
   }
 
   @Test
   @Sql("/users-create.sql")
   void retrieveAll() throws Exception {
     var size = 7;
+
     var resultActions = mockMvc.perform(get(url).accept(MediaType.APPLICATION_JSON));
     resultActions.andExpect(status().isOk())
         .andExpect(header().string(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE))
-        .andExpect(jsonPath("$", hasSize(7)));
+        .andExpect(jsonPath("$", hasSize(size)));
   }
 
   @Test
@@ -84,6 +85,7 @@ public class UserControllerIntegrationTest {
   void retrieveManagedQueues() throws Exception {
     var userId = 1;
     var size = 2;
+
     var resultActions =
         mockMvc.perform(get(url + "/" + userId + "/managed-queues")
             .accept(MediaType.APPLICATION_JSON));
@@ -98,13 +100,14 @@ public class UserControllerIntegrationTest {
   void retrieveCreatedQueues() throws Exception {
     var userId = 1;
     var size = 2;
+
     var resultActions =
         mockMvc.perform(get(url + "/" + userId + "/created-queues")
             .accept(MediaType.APPLICATION_JSON));
 
     resultActions.andExpect(status().isOk())
         .andExpect(header().string(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE))
-        .andExpect(jsonPath("$", hasSize(2)));
+        .andExpect(jsonPath("$", hasSize(size)));
   }
 
   @Test
@@ -126,9 +129,10 @@ public class UserControllerIntegrationTest {
   void updateUser() throws Exception {
     final var user = new User();
     user.setFirstName("John");
+    var userId = 1;
+
     final var dto = userMapper.toDto(user);
     final var json = new ObjectMapper().writeValueAsString(dto);
-    var userId = 1;
 
     var resultActions =
         mockMvc.perform(

@@ -3,6 +3,7 @@ package com.qunite.api.web;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.is;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.BDDMockito.given;
@@ -115,7 +116,7 @@ class QueueControllerTest {
         .accept(MediaType.APPLICATION_JSON));
     resultActions.andExpect(status().isOk())
         .andExpect(header().string(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE))
-        .andExpect(content().json("{id: 2}"));
+        .andExpect(jsonPath("$.id", is(2)));
   }
 
   @Test

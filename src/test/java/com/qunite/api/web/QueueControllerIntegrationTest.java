@@ -19,6 +19,7 @@ import com.qunite.api.data.UserRepository;
 import com.qunite.api.domain.Queue;
 import com.qunite.api.service.UserService;
 import com.qunite.api.web.mapper.QueueMapper;
+import java.util.Random;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -53,7 +54,7 @@ public class QueueControllerIntegrationTest {
   private QueueMapper queueMapper;
 
   @Autowired
-  UserService userService;
+  private UserService userService;
 
   @AfterEach
   public void cleanAll() {
@@ -66,6 +67,7 @@ public class QueueControllerIntegrationTest {
   @Sql({"/users-create.sql", "/queues-create.sql"})
   void retrieveByIdWhenExists() throws Exception {
     var queueId = 1;
+
     var resultActions = mockMvc.perform(get(url + "/" + queueId)
         .accept(MediaType.APPLICATION_JSON));
     resultActions.andExpect(status().isOk())
@@ -76,17 +78,20 @@ public class QueueControllerIntegrationTest {
   @Test
   @Sql({"/users-create.sql", "/queues-create.sql"})
   void retrieveAllQueues() throws Exception {
+    var size = 4;
+
     var resultActions = mockMvc.perform(get(url).accept(MediaType.APPLICATION_JSON));
     resultActions.andExpect(status().isOk())
         .andExpect(header().string(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE))
-        .andExpect(jsonPath("$", hasSize(4)));
+        .andExpect(jsonPath("$", hasSize(size)));
   }
 
   @Test
   @Sql({"/users-create.sql", "/queues-create.sql", "/entries-create.sql"})
   void retrieveMembersAmount() throws Exception {
     var queueId = 1;
-    var amount = "5";
+    var amount = 5;
+
     var response = mockMvc.perform(get(url + "/" + queueId + "/members-amount")
             .accept(MediaType.APPLICATION_JSON))
         .andReturn().getResponse();
@@ -101,6 +106,7 @@ public class QueueControllerIntegrationTest {
     var queueId = 1;
     var memberId = 3;
     var position = 4 + 1;
+
     var response = mockMvc.perform(get(url + "/" + queueId + "/members/" + memberId)
             .accept(MediaType.APPLICATION_JSON))
         .andReturn().getResponse();
@@ -114,6 +120,7 @@ public class QueueControllerIntegrationTest {
   void retrieveQueueCreator() throws Exception {
     var queueId = 4;
     var creatorId = 1;
+
     var resultActions = mockMvc.perform(get(url + "/" + queueId + "/creator")
         .accept(MediaType.APPLICATION_JSON));
     resultActions.andExpect(status().isOk())
@@ -178,7 +185,8 @@ public class QueueControllerIntegrationTest {
   @Test
   @Sql({"/users-create.sql", "/queues-create.sql"})
   void deleteQueue() throws Exception {
-    var queueId = 1;
+    var queueId = new Random().nextLong();
+
     mockMvc.perform(delete(url + "/" + queueId))
         .andExpect(status().isNoContent());
   }
