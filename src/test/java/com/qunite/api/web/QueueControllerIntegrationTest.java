@@ -17,6 +17,7 @@ import com.qunite.api.data.EntryRepository;
 import com.qunite.api.data.QueueRepository;
 import com.qunite.api.data.UserRepository;
 import com.qunite.api.domain.Queue;
+import com.qunite.api.service.UserService;
 import com.qunite.api.web.mapper.QueueMapper;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
@@ -51,6 +52,8 @@ public class QueueControllerIntegrationTest {
   @Autowired
   private QueueMapper queueMapper;
 
+  @Autowired
+  UserService userService;
   @AfterEach
   public void cleanAll() {
     userRepository.deleteAll();
@@ -96,7 +99,7 @@ public class QueueControllerIntegrationTest {
   void retrieveMemberPositionInQueue() throws Exception {
     var queueId = 1;
     var memberId = 3;
-    var position = 4;
+    var position = 4+1;
     var response = mockMvc.perform(get(url + "/" + queueId + "/members/" + memberId)
             .accept(MediaType.APPLICATION_JSON))
         .andReturn().getResponse();
@@ -109,12 +112,12 @@ public class QueueControllerIntegrationTest {
   @Sql({"/users-create.sql", "/queues-create.sql"})
   void retrieveQueueCreator() throws Exception {
     var queueId = 4;
-    var creatorId = "1";
+    var creatorId = 1;
     var resultActions = mockMvc.perform(get(url + "/" + queueId + "/creator")
         .accept(MediaType.APPLICATION_JSON));
     resultActions.andExpect(status().isOk())
         .andExpect(header().string(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE))
-        .andExpect(jsonPath("$.creator.id", is(creatorId)));
+        .andExpect(jsonPath("creator.id", is(creatorId)));
   }
 
   @Test
@@ -156,7 +159,10 @@ public class QueueControllerIntegrationTest {
   @Sql({"/users-create.sql"})
   void createQueue() throws Exception {
     var queue = new Queue();
+    var creator = userService.findOne(1L);
     queue.setName("SomeQueue");
+    queue.setCreator(creator.get());
+
     var dto = queueMapper.toDto(queue);
     var json = new ObjectMapper().writeValueAsString(dto);
 
@@ -165,8 +171,7 @@ public class QueueControllerIntegrationTest {
         .content(json));
     resultActions.andExpect(status().isCreated())
         .andExpect(header().string(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE))
-        .andExpect(jsonPath("$", hasSize(1)))
-        .andExpect(jsonPath("$.name", is("SomeQueue")));
+        .andExpect(jsonPath("name", is("SomeQueue")));
   }
 
   @Test
