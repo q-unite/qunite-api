@@ -80,7 +80,7 @@ public class UserControllerIntegrationTest {
   }
 
   @Test
-  @Sql({"/users-create.sql", "/queues-create.sql"})
+  @Sql({"/users-create.sql", "/queues-create.sql", "/queues-managers-create.sql"})
   void retrieveManagedQueues() throws Exception {
     var userId = 1;
     var size = 2;

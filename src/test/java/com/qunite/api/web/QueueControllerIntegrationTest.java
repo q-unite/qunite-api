@@ -113,11 +113,12 @@ public class QueueControllerIntegrationTest {
   void retrieveQueueCreator() throws Exception {
     var queueId = 4;
     var creatorId = 1;
+    var creatorName = "First";
     var resultActions = mockMvc.perform(get(url + "/" + queueId + "/creator")
         .accept(MediaType.APPLICATION_JSON));
     resultActions.andExpect(status().isOk())
         .andExpect(header().string(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE))
-        .andExpect(jsonPath("creator.id", is(creatorId)));
+        .andExpect(jsonPath("$.creator.firstName", is("First")));
   }
 
   @Test
