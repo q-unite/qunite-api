@@ -1,13 +1,11 @@
 spring:
+  application:
+    name: qunite-api
   # JPA properties
   jpa:
     generate-ddl: true
     hibernate:
-      ddl-auto: update
+      ddl-auto: create-drop
   # Flyway
   flyway:
     enabled: false
-
-jwt:
-  secret: "SOME-SECRET"
-  issuer: "SOME-ISSUER"

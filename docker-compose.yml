@@ -4,11 +4,12 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: api
     environment:
+      SPRING_PROFILES_ACTIVE: dev
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres_db:5432/localdb
       SPRING_DATASOURCE_USERNAME: localdb
       SPRING_DATASOURCE_PASSWORD: localdb
+      LOGSTASH_URL: localhost:9600
     ports:
       - '8080:8080'
     depends_on:
