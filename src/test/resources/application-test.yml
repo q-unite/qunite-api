@@ -13,4 +13,4 @@ spring:
     enabled: true
     connect-retries: 3
 jwt:
-  secret: "SOME-SECRET"
+  secret: "test"
