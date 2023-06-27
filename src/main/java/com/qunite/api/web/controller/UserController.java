@@ -82,7 +82,7 @@ public class UserController {
         .map(userMapper::toDto));
   }
 
-  @PatchMapping("/")
+  @PatchMapping("/self")
   @Operation(summary = "Update user by credentials", responses = {
       @ApiResponse(responseCode = "200"),
       @ApiResponse(responseCode = "404", content = @Content())
@@ -95,7 +95,7 @@ public class UserController {
         .map(userMapper::toDto));
   }
 
-  @DeleteMapping("/")
+  @DeleteMapping("/self")
   @Operation(summary = "Delete user by credentials", responses = @ApiResponse(responseCode = "204"))
   public ResponseEntity<Void> deleteSelf(Principal principal) {
     return userService.findByUsernameOrEmail(principal.getName())

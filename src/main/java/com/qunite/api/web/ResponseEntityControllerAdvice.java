@@ -1,8 +1,8 @@
 package com.qunite.api.web;
 
 import com.qunite.api.exception.QueueNotFoundException;
+import com.qunite.api.exception.UserAlreadyExistsException;
 import com.qunite.api.web.dto.ExceptionResponse;
-import java.nio.file.AccessDeniedException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import org.springframework.http.HttpStatus;
@@ -13,15 +13,15 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 @RestControllerAdvice
 public class ResponseEntityControllerAdvice {
 
-  @ExceptionHandler(AccessDeniedException.class)
-  public ResponseEntity<ExceptionResponse> handleAccess(RuntimeException exception) {
-    return ResponseEntity.status(HttpStatus.FORBIDDEN)
-        .body(exceptionResponse(exception.getMessage()));
-  }
-
   @ExceptionHandler(QueueNotFoundException.class)
   public ResponseEntity<ExceptionResponse> handleNotFound(RuntimeException exception) {
     return ResponseEntity.status(HttpStatus.NOT_FOUND)
+        .body(exceptionResponse(exception.getMessage()));
+  }
+
+  @ExceptionHandler(UserAlreadyExistsException.class)
+  public ResponseEntity<ExceptionResponse> handleBadRequest(RuntimeException exception) {
+    return ResponseEntity.status(HttpStatus.BAD_REQUEST)
         .body(exceptionResponse(exception.getMessage()));
   }
 

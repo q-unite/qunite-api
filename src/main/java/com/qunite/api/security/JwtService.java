@@ -14,7 +14,7 @@ public class JwtService {
   @Value("${jwt.secret}")
   private String secret;
 
-  @Value("${jwt.issuer}")
+  @Value("${spring.application.name}")
   private String issuer;
 
   public String createJwtToken(User user) {

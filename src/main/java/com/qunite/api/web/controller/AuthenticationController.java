@@ -31,7 +31,7 @@ public class AuthenticationController {
   private final UserMapper userMapper;
 
   @Operation(summary = "Sign up user", responses = @ApiResponse(responseCode = "200"))
-  @PostMapping("/register")
+  @PostMapping("/sign-up")
   public ResponseEntity<Void> signUp(@Valid @RequestBody UserCreationDto userCreationDto) {
     userService.createOne(userMapper.toEntity(userCreationDto));
     return ResponseEntity.ok().build();
