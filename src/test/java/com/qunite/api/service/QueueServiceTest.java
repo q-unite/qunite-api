@@ -17,7 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.jdbc.Sql;
 
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.NONE)
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @IntegrationTest
 class QueueServiceTest {
   @Autowired
@@ -60,7 +60,7 @@ class QueueServiceTest {
   @Sql({"/users-create.sql", "/queues-create.sql"})
   @Test
   void testDeletingQueue() {
-    queueService.deleteById(1L, null);
+    queueService.deleteById(1L, "First");
 
     assertFalse(queueRepository.existsById(1L));
   }
