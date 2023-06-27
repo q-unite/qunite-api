@@ -54,6 +54,7 @@ public class QueueControllerIntegrationTest {
 
   @Autowired
   UserService userService;
+
   @AfterEach
   public void cleanAll() {
     userRepository.deleteAll();
@@ -99,7 +100,7 @@ public class QueueControllerIntegrationTest {
   void retrieveMemberPositionInQueue() throws Exception {
     var queueId = 1;
     var memberId = 3;
-    var position = 4+1;
+    var position = 4 + 1;
     var response = mockMvc.perform(get(url + "/" + queueId + "/members/" + memberId)
             .accept(MediaType.APPLICATION_JSON))
         .andReturn().getResponse();
@@ -113,12 +114,11 @@ public class QueueControllerIntegrationTest {
   void retrieveQueueCreator() throws Exception {
     var queueId = 4;
     var creatorId = 1;
-    var creatorName = "First";
     var resultActions = mockMvc.perform(get(url + "/" + queueId + "/creator")
         .accept(MediaType.APPLICATION_JSON));
     resultActions.andExpect(status().isOk())
         .andExpect(header().string(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE))
-        .andExpect(jsonPath("$.creator.firstName", is("First")));
+        .andExpect(jsonPath("$.id", is(creatorId)));
   }
 
   @Test

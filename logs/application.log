@@ -12619,3 +12619,31 @@ Caused by: java.lang.RuntimeException: Driver org.postgresql.Driver claims to no
 2023-06-27T18:16:29.853+03:00  INFO 20080 --- [main] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
 2023-06-27T18:16:29.855+03:00  INFO 20080 --- [main] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 1 ms
 2023-06-27T18:16:29.865+03:00  INFO 20080 --- [main] com.qunite.api.web.UserControllerTest    : Started UserControllerTest in 0.721 seconds (process running for 6.787)
+2023-06-27T18:41:33.199+03:00  INFO 7776 --- [main] com.qunite.api.web.QueueControllerTest   : Starting QueueControllerTest using Java 17.0.7 with PID 7776 (started by Никита in D:\Учеба\Projects\qunite-api)
+2023-06-27T18:41:33.202+03:00  INFO 7776 --- [main] com.qunite.api.web.QueueControllerTest   : No active profile set, falling back to 1 default profile: "default"
+2023-06-27T18:41:34.783+03:00  INFO 7776 --- [main] o.s.b.t.m.w.SpringBootMockServletContext : Initializing Spring TestDispatcherServlet ''
+2023-06-27T18:41:34.784+03:00  INFO 7776 --- [main] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2023-06-27T18:41:34.785+03:00  INFO 7776 --- [main] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 1 ms
+2023-06-27T18:41:34.805+03:00  INFO 7776 --- [main] com.qunite.api.web.QueueControllerTest   : Started QueueControllerTest in 2.117 seconds (process running for 3.126)
+2023-06-27T18:41:35.140+03:00  INFO 7776 --- [main] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.qunite.api.web.UserControllerTest]: UserControllerTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2023-06-27T18:41:35.145+03:00  INFO 7776 --- [main] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.qunite.api.QuniteApiApplication for test class com.qunite.api.web.UserControllerTest
+2023-06-27T18:41:35.185+03:00  INFO 7776 --- [main] com.qunite.api.web.UserControllerTest    : Starting UserControllerTest using Java 17.0.7 with PID 7776 (started by Никита in D:\Учеба\Projects\qunite-api)
+2023-06-27T18:41:35.186+03:00  INFO 7776 --- [main] com.qunite.api.web.UserControllerTest    : No active profile set, falling back to 1 default profile: "default"
+2023-06-27T18:41:35.440+03:00  INFO 7776 --- [main] o.s.b.t.m.w.SpringBootMockServletContext : Initializing Spring TestDispatcherServlet ''
+2023-06-27T18:41:35.441+03:00  INFO 7776 --- [main] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2023-06-27T18:41:35.442+03:00  INFO 7776 --- [main] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 1 ms
+2023-06-27T18:41:35.447+03:00  INFO 7776 --- [main] com.qunite.api.web.UserControllerTest    : Started UserControllerTest in 0.297 seconds (process running for 3.767)
+2023-06-27T18:41:54.027+03:00  INFO 13580 --- [main] com.qunite.api.web.QueueControllerTest   : Starting QueueControllerTest using Java 17.0.7 with PID 13580 (started by Никита in D:\Учеба\Projects\qunite-api)
+2023-06-27T18:41:54.030+03:00  INFO 13580 --- [main] com.qunite.api.web.QueueControllerTest   : No active profile set, falling back to 1 default profile: "default"
+2023-06-27T18:41:55.601+03:00  INFO 13580 --- [main] o.s.b.t.m.w.SpringBootMockServletContext : Initializing Spring TestDispatcherServlet ''
+2023-06-27T18:41:55.601+03:00  INFO 13580 --- [main] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2023-06-27T18:41:55.603+03:00  INFO 13580 --- [main] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 2 ms
+2023-06-27T18:41:55.624+03:00  INFO 13580 --- [main] com.qunite.api.web.QueueControllerTest   : Started QueueControllerTest in 2.087 seconds (process running for 3.118)
+2023-06-27T18:41:55.998+03:00  INFO 13580 --- [main] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.qunite.api.web.UserControllerTest]: UserControllerTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2023-06-27T18:41:56.004+03:00  INFO 13580 --- [main] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.qunite.api.QuniteApiApplication for test class com.qunite.api.web.UserControllerTest
+2023-06-27T18:41:56.045+03:00  INFO 13580 --- [main] com.qunite.api.web.UserControllerTest    : Starting UserControllerTest using Java 17.0.7 with PID 13580 (started by Никита in D:\Учеба\Projects\qunite-api)
+2023-06-27T18:41:56.046+03:00  INFO 13580 --- [main] com.qunite.api.web.UserControllerTest    : No active profile set, falling back to 1 default profile: "default"
+2023-06-27T18:41:56.279+03:00  INFO 13580 --- [main] o.s.b.t.m.w.SpringBootMockServletContext : Initializing Spring TestDispatcherServlet ''
+2023-06-27T18:41:56.280+03:00  INFO 13580 --- [main] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2023-06-27T18:41:56.281+03:00  INFO 13580 --- [main] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 1 ms
+2023-06-27T18:41:56.289+03:00  INFO 13580 --- [main] com.qunite.api.web.UserControllerTest    : Started UserControllerTest in 0.281 seconds (process running for 3.784)
