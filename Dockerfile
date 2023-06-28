@@ -3,7 +3,7 @@ WORKDIR /workspace/app
 
 COPY target/*.jar app.jar
 
-RUN java -Djarmode=layertools -jar target/application.jar extract --destination target/extracted
+RUN java -Djarmode=layertools -jar target/app.jar extract --destination target/extracted
 
 FROM eclipse-temurin:17-jre-alpine
 ARG EXTRACTED=/workspace/app/target/extracted
