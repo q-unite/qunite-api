@@ -7,6 +7,9 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./app
     steps:
       - uses: actions/checkout@v3
       - name: Set up JDK 17
@@ -20,7 +23,7 @@ jobs:
       - uses: actions/upload-artifact@v3
         with:
           name: target
-          path: ~/target
+          path: app/target
 
   checkstyle_job:
     runs-on: ubuntu-latest
@@ -37,11 +40,14 @@ jobs:
   docker_build:
     needs: build
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./app
     steps:
       - uses: actions/download-artifact@v3
         with:
           name: target
-          path: ~/target
+          path: app/target
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v2
       - name: Set up Docker Buildx
