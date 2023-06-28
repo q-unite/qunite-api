@@ -77,7 +77,7 @@ public class QueueControllerIntegrationTest {
   @Test
   @Sql({"/users-create.sql", "/queues-create.sql"})
   void retrieveAllQueues() throws Exception {
-    var resultActions = mockMvc.perform(get(url));
+    var resultActions = mockMvc.perform(get("/{url}", url));
 
     resultActions.andExpect(status().isOk())
         .andExpect(jsonPath("$", hasSize(4)));
@@ -112,7 +112,7 @@ public class QueueControllerIntegrationTest {
   void retrieveQueueCreator() throws Exception {
     var queueId = 4;
 
-    var resultActions = mockMvc.perform(get("/{url}/1/{id}/creator", url, queueId));
+    var resultActions = mockMvc.perform(get("/{url}/{id}/creator", url, queueId));
 
     resultActions.andExpect(status().isOk())
         .andExpect(jsonPath("$.id", is(1)));

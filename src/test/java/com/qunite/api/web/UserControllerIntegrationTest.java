@@ -72,7 +72,7 @@ public class UserControllerIntegrationTest {
   @Test
   @Sql("/users-create.sql")
   void retrieveAll() throws Exception {
-    var resultActions = mockMvc.perform(get("/{url}"));
+    var resultActions = mockMvc.perform(get("/{url}", url));
 
     resultActions.andExpect(status().isOk())
         .andExpect(jsonPath("$", hasSize(7)));
@@ -84,7 +84,7 @@ public class UserControllerIntegrationTest {
     var userId = 1;
 
     var resultActions =
-        mockMvc.perform(get("/{url}/{id}/managed-queues}", url, userId));
+        mockMvc.perform(get("/{url}/{id}/managed-queues", url, userId));
 
     resultActions.andExpect(status().isOk())
         .andExpect(jsonPath("$", hasSize(2)));
@@ -127,7 +127,7 @@ public class UserControllerIntegrationTest {
     final var json = new ObjectMapper().writeValueAsString(dto);
 
     var resultActions =
-        mockMvc.perform(patch("/{url}/{id}", url, user.getId())
+        mockMvc.perform(patch("/{url}/{id}", url, userId)
             .contentType(MediaType.APPLICATION_JSON).content(json));
 
     resultActions.andExpect(status().isOk())
