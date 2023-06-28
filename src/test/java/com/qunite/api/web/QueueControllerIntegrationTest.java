@@ -100,8 +100,8 @@ public class QueueControllerIntegrationTest {
     var queueId = 1;
     var memberId = 3;
 
-    var resultActions = mockMvc.perform(get("/{url}/{queueId}/members/{memberId}"
-        , url, queueId, memberId));
+    var resultActions = mockMvc.perform(get("/{url}/{queueId}/members/{memberId}",
+        url, queueId, memberId));
 
     resultActions.andExpect(status().isOk())
         .andExpect(content().string(is("5")));

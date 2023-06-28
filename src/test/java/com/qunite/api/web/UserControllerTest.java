@@ -91,7 +91,7 @@ public class UserControllerTest {
   @Test
   void retrieveCreatedQueues() throws Exception {
     var userId = 1;
-    var queues = queues(4, (long)userId);
+    var queues = queues(4, (long) userId);
     given(userService.getCreatedQueues(anyLong())).willReturn(Optional.of(queues));
 
     var resultActions =

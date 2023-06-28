@@ -120,7 +120,7 @@ class QueueControllerTest {
 
     given(queueService.findById(anyLong())).willReturn(Optional.of(queue));
 
-    var resultActions = mockMvc.perform(get("/{url}/{id}/managers",url, queue.getId()));
+    var resultActions = mockMvc.perform(get("/{url}/{id}/managers", url, queue.getId()));
 
     resultActions.andExpect(status().isOk())
         .andExpect(jsonPath("$", hasSize(queue.getManagers().size())))
