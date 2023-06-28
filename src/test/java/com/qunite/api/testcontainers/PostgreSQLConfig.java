@@ -4,13 +4,13 @@ import lombok.Data;
 import org.testcontainers.containers.PostgreSQLContainer;
 
 @Data
-public class PostgreSQLConfig<C extends PostgreSQLContainer<C>> implements TestcontainersConfig<C> {
+public class PostgreSQLConfig<T extends PostgreSQLContainer<T>> implements TestcontainersConfig<T> {
   public static final String NAME = "postgresql";
   private String dockerImage;
 
-  public C forContainer() {
+  public T forContainer() {
     @SuppressWarnings("unchecked")
-    C container = (C) new PostgreSQLContainer<>(dockerImage);
+    T container = (T) new PostgreSQLContainer<>(dockerImage);
     return container;
   }
 }

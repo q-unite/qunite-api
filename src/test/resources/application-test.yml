@@ -7,7 +7,7 @@ spring:
   flyway:
     enabled: true
     connect-retries: 3
-#Testcontainers
+# Testcontainers
 testcontainers:
   postgresql:
     docker-image: postgres:15-alpine
