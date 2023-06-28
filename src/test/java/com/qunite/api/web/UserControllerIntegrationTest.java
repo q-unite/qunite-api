@@ -17,6 +17,7 @@ import com.qunite.api.data.EntryRepository;
 import com.qunite.api.data.QueueRepository;
 import com.qunite.api.data.UserRepository;
 import com.qunite.api.domain.User;
+import com.qunite.api.service.UserService;
 import com.qunite.api.web.mapper.UserMapper;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
@@ -48,6 +49,9 @@ public class UserControllerIntegrationTest {
 
   @Autowired
   private EntryRepository entryRepository;
+
+  @Autowired
+  private UserService userService;
 
   @AfterEach
   public void cleanAll() {
@@ -131,7 +135,7 @@ public class UserControllerIntegrationTest {
             .contentType(MediaType.APPLICATION_JSON).content(json));
 
     resultActions.andExpect(status().isOk())
-        .andExpect(jsonPath("$.firstName", is("Mark")));
+        .andExpect(jsonPath("$.firstName", is("John")));
   }
 
   @Test
