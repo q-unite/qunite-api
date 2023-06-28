@@ -20,7 +20,7 @@ jobs:
       - uses: actions/upload-artifact@v3
         with:
           name: target
-          path: /target
+          path: ~/target
 
   checkstyle_job:
     runs-on: ubuntu-latest
@@ -40,7 +40,7 @@ jobs:
     steps:
       - uses: actions/download-artifact@v3
         with:
-          name: my-artifact
+          name: target
           path: ~/target
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v2
