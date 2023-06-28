@@ -7,6 +7,3 @@ spring:
   flyway:
     enabled: true
     connect-retries: 3
-testcontainers:
-  postgres:
-    image: postgres:15.1
