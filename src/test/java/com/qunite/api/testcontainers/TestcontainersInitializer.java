@@ -6,12 +6,10 @@ import org.springframework.context.ApplicationContextInitializer;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.lifecycle.Startables;
-import org.testcontainers.utility.DockerImageName;
 
 public class TestcontainersInitializer implements
     ApplicationContextInitializer<ConfigurableApplicationContext> {
-  static PostgreSQLContainer<?> postgres =
-      new PostgreSQLContainer<>(DockerImageName.parse("postgres:15.1"));
+  static PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>("postgres:15-alpine");
 
   static {
     Startables.deepStart(postgres).join();
@@ -19,10 +17,10 @@ public class TestcontainersInitializer implements
 
   @Override
   public void initialize(ConfigurableApplicationContext ctx) {
-    TestPropertyValues.of(Map.of(
-        "spring.datasource.url", postgres.getJdbcUrl(),
-        "spring.datasource.username", postgres.getUsername(),
-        "spring.datasource.password", postgres.getPassword()
+    TestPropertyValues.of(Map.ofEntries(
+        Map.entry("spring.datasource.url", postgres.getJdbcUrl()),
+        Map.entry("spring.datasource.username", postgres.getUsername()),
+        Map.entry("spring.datasource.password", postgres.getPassword())
     )).applyTo(ctx.getEnvironment());
   }
 }
