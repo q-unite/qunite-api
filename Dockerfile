@@ -1,10 +1,7 @@
 FROM maven:3.9.2-eclipse-temurin-17-alpine AS build
 WORKDIR /workspace/app
 
-COPY pom.xml .
-COPY src src
-RUN --mount=type=cache,target=/root/.m2 mvn install -DskipTests
-RUN mv target/*.jar target/application.jar
+COPY target/*.jar app.jar
 
 RUN java -Djarmode=layertools -jar target/application.jar extract --destination target/extracted
 
