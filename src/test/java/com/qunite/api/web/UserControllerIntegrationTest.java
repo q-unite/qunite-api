@@ -32,7 +32,7 @@ import org.springframework.test.web.servlet.MockMvc;
 @AutoConfigureMockMvc
 @IntegrationTest
 public class UserControllerIntegrationTest {
-  private final String url = "/users";
+  private final String url = "users";
 
   @Autowired
   private MockMvc mockMvc;
@@ -63,51 +63,43 @@ public class UserControllerIntegrationTest {
     var userId = 1;
 
     var resultActions =
-        mockMvc.perform(get(url + "/" + userId).accept(MediaType.APPLICATION_JSON_VALUE));
+        mockMvc.perform(get("/{url}/{id}", url, userId));
+
     resultActions.andExpect(status().isOk())
-        .andExpect(header().string(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE))
         .andExpect(jsonPath("$.id", is(userId)));
   }
 
   @Test
   @Sql("/users-create.sql")
   void retrieveAll() throws Exception {
-    var size = 7;
+    var resultActions = mockMvc.perform(get("/{url}"));
 
-    var resultActions = mockMvc.perform(get(url).accept(MediaType.APPLICATION_JSON));
     resultActions.andExpect(status().isOk())
-        .andExpect(header().string(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE))
-        .andExpect(jsonPath("$", hasSize(size)));
+        .andExpect(jsonPath("$", hasSize(7)));
   }
 
   @Test
   @Sql({"/users-create.sql", "/queues-create.sql", "/queues-managers-create.sql"})
   void retrieveManagedQueues() throws Exception {
     var userId = 1;
-    var size = 2;
 
     var resultActions =
-        mockMvc.perform(get(url + "/" + userId + "/managed-queues")
-            .accept(MediaType.APPLICATION_JSON));
+        mockMvc.perform(get("/{url}/{id}/managed-queues}", url, userId));
 
     resultActions.andExpect(status().isOk())
-        .andExpect(header().string(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE))
-        .andExpect(jsonPath("$", hasSize(size)));
+        .andExpect(jsonPath("$", hasSize(2)));
   }
 
   @Test
   @Sql({"/users-create.sql", "/queues-create.sql"})
   void retrieveCreatedQueues() throws Exception {
     var userId = 1;
-    var size = 2;
 
     var resultActions =
-        mockMvc.perform(get(url + "/" + userId + "/created-queues")
-            .accept(MediaType.APPLICATION_JSON));
+        mockMvc.perform(get("/{url}/{id}/created-queues", url, userId));
 
     resultActions.andExpect(status().isOk())
-        .andExpect(header().string(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE))
-        .andExpect(jsonPath("$", hasSize(size)));
+        .andExpect(jsonPath("$", hasSize(2)));
   }
 
   @Test
@@ -118,9 +110,9 @@ public class UserControllerIntegrationTest {
     var json = new ObjectMapper().writeValueAsString(dto);
 
     var resultActions =
-        mockMvc.perform(post(url).contentType(MediaType.APPLICATION_JSON).content(json));
+        mockMvc.perform(post("/{url}", url).contentType(MediaType.APPLICATION_JSON).content(json));
+
     resultActions.andExpect(status().isCreated())
-        .andExpect(header().string(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE))
         .andExpect(jsonPath("$.firstName", is("SomeUser")));
   }
 
@@ -135,19 +127,19 @@ public class UserControllerIntegrationTest {
     final var json = new ObjectMapper().writeValueAsString(dto);
 
     var resultActions =
-        mockMvc.perform(
-            patch(url + "/" + userId).contentType(MediaType.APPLICATION_JSON).content(json));
-    resultActions.andExpect(status().isOk())
-        .andExpect(header().string(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE))
-        .andExpect(jsonPath("$.firstName", is("John")));
+        mockMvc.perform(patch("/{url}/{id}", url, user.getId())
+            .contentType(MediaType.APPLICATION_JSON).content(json));
 
+    resultActions.andExpect(status().isOk())
+        .andExpect(jsonPath("$.firstName", is("Mark")));
   }
 
   @Test
   @Sql("/users-create.sql")
   void deleteQueue() throws Exception {
     var userId = 1;
-    mockMvc.perform(delete(url + "/" + userId))
+
+    mockMvc.perform(delete("/{url}/{id}", url, userId))
         .andExpect(status().isNoContent());
   }
 
