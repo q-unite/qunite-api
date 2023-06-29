@@ -67,9 +67,9 @@ public class QueueServiceImpl implements QueueService {
     }
   }
 
-  private boolean isUserByCredentialsQueueCreator(Long queueId, String loginData) {
+  private boolean isUserByCredentialsQueueCreator(Long queueId, String username) {
     return findById(queueId)
-        .map(queue -> userService.findByUsernameOrEmail(loginData)
+        .map(queue -> userService.findByUsername(username)
             .map(user -> queue.getCreator().equals(user))
             .orElse(false))
         .orElse(false);

@@ -74,7 +74,7 @@ public class UserController {
 
   @GetMapping("/self")
   public ResponseEntity<UserDto> getSelf(Principal principal) {
-    return ResponseEntity.of(userService.findByUsernameOrEmail(principal.getName())
+    return ResponseEntity.of(userService.findByUsername(principal.getName())
         .map(userMapper::toDto));
   }
 
@@ -85,7 +85,7 @@ public class UserController {
   })
   public ResponseEntity<UserDto> updateSelf(Principal principal,
                                             @Valid @RequestBody UserUpdateDto userUpdateDto) {
-    return ResponseEntity.of(userService.findByUsernameOrEmail(principal.getName())
+    return ResponseEntity.of(userService.findByUsername(principal.getName())
         .map(founded -> userMapper.partialUpdate(userUpdateDto, founded))
         .map(userService::createOne)
         .map(userMapper::toDto));
@@ -94,7 +94,7 @@ public class UserController {
   @DeleteMapping("/self")
   @Operation(summary = "Delete user by credentials", responses = @ApiResponse(responseCode = "204"))
   public ResponseEntity<Void> deleteSelf(Principal principal) {
-    return userService.findByUsernameOrEmail(principal.getName())
+    return userService.findByUsername(principal.getName())
         .map(user -> {
           userService.deleteOne(user.getId());
           return ResponseEntity.noContent().<Void>build();
