@@ -12,6 +12,7 @@ import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
 @RequiredArgsConstructor
@@ -49,6 +50,28 @@ public class QueueServiceImpl implements QueueService {
   public Optional<Integer> getMemberPositionInQueue(Long memberId, Long queueId) {
     return entryRepository.findById(new EntryId(memberId, queueId))
         .map(entry -> entry.getEntryIndex() + 1);
+  }
+
+  @Override
+  @Transactional(isolation = Isolation.REPEATABLE_READ)
+  public void changeMemberPositionInQueue(Long memberId, Long queueId, Integer newIndex) {
+    entryRepository.findById(new EntryId(memberId, queueId)).ifPresent(entry -> {
+      var currentIndex = entry.getEntryIndex();
+      if (!currentIndex.equals(newIndex)) {
+        var startIndex = Math.min(currentIndex, newIndex);
+        var endIndex = Math.max(currentIndex, newIndex);
+        var increment = currentIndex < newIndex ? -1 : 1;
+
+        entryRepository.updateEntryIndexes(queueId, startIndex, endIndex, increment);
+        entry.setEntryIndex(newIndex);
+      }
+    });
+  }
+
+  @Override
+  @Transactional
+  public void deleteMemberFromQueue(Long memberId, Long queueId) {
+    entryRepository.deleteById(new EntryId(memberId, queueId));
   }
 
   @Override

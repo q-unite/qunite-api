@@ -3,8 +3,10 @@ package com.qunite.api.web.controller;
 import com.qunite.api.domain.Queue;
 import com.qunite.api.service.QueueService;
 import com.qunite.api.web.dto.entry.EntryDto;
+import com.qunite.api.web.dto.entry.EntryUpdateDto;
 import com.qunite.api.web.dto.queue.QueueCreationDto;
 import com.qunite.api.web.dto.queue.QueueDto;
+import com.qunite.api.web.dto.queue.QueueUpdateDto;
 import com.qunite.api.web.dto.user.UserDto;
 import com.qunite.api.web.mapper.EntryMapper;
 import com.qunite.api.web.mapper.QueueMapper;
@@ -23,6 +25,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -70,9 +73,37 @@ public class QueueController {
       @ApiResponse(responseCode = "200"),
       @ApiResponse(responseCode = "404", content = @Content())
   })
-  public ResponseEntity<Integer> memberPosition(@PathVariable(value = "id") Long queueId,
+  public ResponseEntity<Integer> memberPosition(@PathVariable Long id,
                                                 @PathVariable(value = "member-id") Long memberId) {
-    return ResponseEntity.of(queueService.getMemberPositionInQueue(memberId, queueId));
+    return ResponseEntity.of(queueService.getMemberPositionInQueue(memberId, id));
+  }
+
+  @PostMapping("/{id}/members/{member-id}")
+  @Operation(summary = "Enroll member to queue")
+  public ResponseEntity<Void> enrollMemberToQueue(@PathVariable Long id,
+                                                  @PathVariable(value = "member-id")
+                                                  Long memberId) {
+    queueService.enrollMemberToQueue(memberId, id);
+    return ResponseEntity.ok().build();
+  }
+
+  @DeleteMapping("/{id}/members/{member-id}")
+  @Operation(summary = "Delete member from queue by id",
+      responses = @ApiResponse(responseCode = "204"))
+  public ResponseEntity<Void> deleteMemberFromQueue(@PathVariable Long id,
+                                                    @PathVariable(value = "member-id")
+                                                    Long memberId) {
+    queueService.deleteMemberFromQueue(memberId, id);
+    return ResponseEntity.noContent().build();
+  }
+
+  @PatchMapping("/{id}/entries/{index}")
+  @Operation(summary = "Change member position in queue")
+  public ResponseEntity<Void> changeMemberPositionInQueue(@PathVariable Long id,
+                                                          @PathVariable Integer index,
+                                                          @RequestBody EntryUpdateDto entryDto) {
+    queueService.changeMemberPositionInQueue(entryDto.getMemberId(), id, index);
+    return ResponseEntity.ok().build();
   }
 
   @GetMapping("/{id}/creator")
@@ -114,6 +145,19 @@ public class QueueController {
       @Valid @RequestBody QueueCreationDto queueCreationDto) {
     var created = queueService.create(queueMapper.toEntity(queueCreationDto));
     return new ResponseEntity<>(queueMapper.toDto(created), HttpStatus.CREATED);
+  }
+
+  @PatchMapping("/{id}")
+  @Operation(summary = "Update queue by id", responses = {
+      @ApiResponse(responseCode = "200"),
+      @ApiResponse(responseCode = "404", content = @Content())
+  })
+  public ResponseEntity<QueueDto> updateQueue(@PathVariable Long id,
+                                              @RequestBody QueueUpdateDto queueUpdateDto) {
+    return ResponseEntity.of(queueService.findById(id)
+        .map(queue -> queueMapper.partialUpdate(queueUpdateDto, queue))
+        .map(queueService::create)
+        .map(queueMapper::toDto));
   }
 
   @DeleteMapping("/{id}")
