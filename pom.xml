@@ -21,6 +21,7 @@
         <lombok-mapstruct-binding.version>0.2.0</lombok-mapstruct-binding.version>
         <springdoc-openapi-starter-webmvc-ui.version>2.1.0</springdoc-openapi-starter-webmvc-ui.version>
         <logstash-logback-encoder.version>6.3</logstash-logback-encoder.version>
+        <testcontainers.version>1.18.3</testcontainers.version>
     </properties>
     <dependencies>
         <dependency>
@@ -89,6 +90,12 @@
             <artifactId>logstash-logback-encoder</artifactId>
             <version>${logstash-logback-encoder.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.testcontainers</groupId>
+            <artifactId>postgresql</artifactId>
+            <version>${testcontainers.version}</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>
@@ -111,9 +118,6 @@
             <plugin>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <configuration>
-                    <environmentVariables>
-                        <embedded.containers.enabled>false</embedded.containers.enabled>
-                    </environmentVariables>
                     <excludedGroups>integration</excludedGroups>
                 </configuration>
             </plugin>
@@ -152,24 +156,8 @@
         <profile>
             <id>integration-test</id>
             <properties>
-                <embedded-postgresql.version>3.0.0-RC1</embedded-postgresql.version>
-                <spring-cloud-starter-bootstrap.version>4.0.0</spring-cloud-starter-bootstrap.version>
                 <maven-failsafe-plugin.version>3.0.0</maven-failsafe-plugin.version>
             </properties>
-            <dependencies>
-                <dependency>
-                    <groupId>org.springframework.cloud</groupId>
-                    <artifactId>spring-cloud-starter-bootstrap</artifactId>
-                    <version>${spring-cloud-starter-bootstrap.version}</version>
-                    <scope>test</scope>
-                </dependency>
-                <dependency>
-                    <groupId>com.playtika.testcontainers</groupId>
-                    <artifactId>embedded-postgresql</artifactId>
-                    <version>${embedded-postgresql.version}</version>
-                    <scope>test</scope>
-                </dependency>
-            </dependencies>
             <build>
                 <plugins>
                     <plugin>
