@@ -17,5 +17,4 @@ public interface UserService {
   Optional<List<Queue>> getCreatedQueues(Long userId);
 
   Optional<List<Queue>> getManagedQueues(Long userId);
-
 }

@@ -35,7 +35,7 @@ import org.springframework.test.web.servlet.MockMvc;
 
 @WebMvcTest(controllers = UserController.class)
 @Import({QueueMapperImpl.class, UserMapperImpl.class, EntryMapperImpl.class})
-public class UserControllerTest {
+class UserControllerTest {
   private final String url = "/users";
 
   @Autowired
@@ -138,7 +138,6 @@ public class UserControllerTest {
         .andExpect(header().string(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE))
         .andExpect(content().json("""
             {"firstName": "Mark"}"""));
-
   }
 
 

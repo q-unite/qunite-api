@@ -92,5 +92,4 @@ class UserServiceTest {
 
     assertFalse(userRepository.existsById(1L));
   }
-
 }
