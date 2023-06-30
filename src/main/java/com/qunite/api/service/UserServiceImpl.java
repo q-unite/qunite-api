@@ -69,11 +69,11 @@ public class UserServiceImpl implements UserService {
 
   @Override
   @Transactional
-  public Optional<DecodedJWT> signIn(String loginData, String password) {
+  public Optional<DecodedJWT> signIn(String login, String password) {
     return jwtService.verifyAccessToken(
         jwtService.createJwtToken(
-            userRepository.findByEmailOrUsername(loginData)
+            userRepository.findByEmailOrUsername(login)
                 .filter(user -> passwordEncoder.matches(password, user.getPassword()))
-                .orElseThrow(() -> new UsernameNotFoundException(loginData))));
+                .orElseThrow(() -> new UsernameNotFoundException(login))));
   }
 }
