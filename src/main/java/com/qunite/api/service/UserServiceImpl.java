@@ -49,6 +49,4 @@ public class UserServiceImpl implements UserService {
   public Optional<List<Queue>> getManagedQueues(Long userId) {
     return userRepository.findById(userId).map(User::getManagedQueues).map(List::copyOf);
   }
-
-
 }
