@@ -76,8 +76,4 @@ public class UserServiceImpl implements UserService {
                 .filter(user -> passwordEncoder.matches(password, user.getPassword()))
                 .orElseThrow(() -> new UsernameNotFoundException(loginData))));
   }
-
-
-
-
 }

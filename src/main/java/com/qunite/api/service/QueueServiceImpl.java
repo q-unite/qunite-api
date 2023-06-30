@@ -84,5 +84,4 @@ public class QueueServiceImpl implements QueueService {
   public Optional<Queue> findById(Long queueId) {
     return queueRepository.findById(queueId);
   }
-
 }

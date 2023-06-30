@@ -24,7 +24,6 @@ import lombok.Setter;
 import lombok.ToString;
 import org.hibernate.Hibernate;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 @Getter
@@ -151,5 +150,4 @@ public class User implements UserDetails {
   public boolean isEnabled() {
     return true;
   }
-
 }

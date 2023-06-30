@@ -44,6 +44,4 @@ public class AuthenticationController {
     return ResponseEntity.of(userService.signIn(request.getLoginData(), request.getPassword())
         .map(responseMapper::toAuthResponse));
   }
-
-
 }

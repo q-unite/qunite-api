@@ -22,5 +22,4 @@ public interface UserService {
   Optional<List<Queue>> getManagedQueues(Long userId);
 
   Optional<DecodedJWT> signIn(String loginData, String password);
-
 }
