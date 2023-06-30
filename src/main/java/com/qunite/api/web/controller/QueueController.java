@@ -93,7 +93,7 @@ public class QueueController {
   })
   public ResponseEntity<List<UserDto>> getQueueManagers(@PathVariable Long id) {
     return ResponseEntity.of(queueService.findById(id)
-        .map(founded -> founded.getManagers().stream()
+        .map(found -> found.getManagers().stream()
             .map(userMapper::toDto).toList()));
   }
 
@@ -104,7 +104,7 @@ public class QueueController {
   })
   public ResponseEntity<List<EntryDto>> getQueueEntries(@PathVariable Long id) {
     return ResponseEntity.of(queueService.findById(id)
-        .map(founded -> founded.getEntries().stream()
+        .map(found -> found.getEntries().stream()
             .map(entryMapper::toDto).toList()));
   }
 
