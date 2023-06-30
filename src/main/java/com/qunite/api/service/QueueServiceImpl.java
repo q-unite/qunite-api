@@ -53,10 +53,10 @@ public class QueueServiceImpl implements QueueService {
 
   @Override
   @Transactional
-  public void deleteById(Long queueId, String loginData) {
+  public void deleteById(Long queueId, String username) {
     var queueById = findById(queueId);
     if (queueById.isPresent()) {
-      if (isUserByCredentialsQueueCreator(queueId, loginData)) {
+      if (isUserByCredentialsQueueCreator(queueId, username)) {
         queueRepository.deleteById(queueId);
       } else {
         throw new AccessDeniedException("User is not a creator");
