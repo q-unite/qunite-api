@@ -73,6 +73,10 @@ public class UserController {
   }
 
   @GetMapping("/self")
+  @Operation(summary = "Get user by credentials", responses = {
+      @ApiResponse(responseCode = "200"),
+      @ApiResponse(responseCode = "404", content = @Content())
+  })
   public ResponseEntity<UserDto> getSelf(Principal principal) {
     return ResponseEntity.of(userService.findByUsername(principal.getName())
         .map(userMapper::toDto));
