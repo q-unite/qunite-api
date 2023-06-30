@@ -34,11 +34,11 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
-// TODO: 27.06.2023  
+// TODO: 27.06.2023
 @Disabled("Refactor due to security emergence")
 @WebMvcTest(controllers = UserController.class)
 @Import({QueueMapperImpl.class, UserMapperImpl.class, EntryMapperImpl.class})
-public class UserControllerTest {
+class UserControllerTest {
   private final String url = "/users";
 
   @Autowired
@@ -126,11 +126,11 @@ public class UserControllerTest {
   @Test
   void updateUser() throws Exception {
     final var user = user(1L);
-    user.setUsername("John");
+    user.setFirstName("John");
     final var dto = userMapper.toDto(user);
     final var json = new ObjectMapper().writeValueAsString(dto);
     var expectedUser = user(1L);
-    expectedUser.setUsername("Mark");
+    expectedUser.setFirstName("Mark");
 
     given(userService.findOne(anyLong())).willReturn(Optional.of(user));
     given(userService.createOne(any(User.class))).willReturn(expectedUser);
@@ -140,7 +140,7 @@ public class UserControllerTest {
     resultActions.andExpect(status().isOk())
         .andExpect(header().string(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE))
         .andExpect(content().json("""
-            {"username": "Mark"}"""));
+            {"firstName": "Mark"}"""));
 
   }
 
