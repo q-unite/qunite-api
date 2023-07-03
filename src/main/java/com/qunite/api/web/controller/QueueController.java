@@ -14,13 +14,13 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import java.security.Principal;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -29,7 +29,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-@CrossOrigin
 @RequiredArgsConstructor
 @RequestMapping(path = "/queues", produces = MediaType.APPLICATION_JSON_VALUE)
 @Tag(name = "Queue Controller")
@@ -82,9 +81,9 @@ public class QueueController {
       @ApiResponse(responseCode = "404", content = @Content())
   })
   public ResponseEntity<UserDto> getQueueCreator(@PathVariable Long id) {
-    return ResponseEntity.of(
-        queueService.findById(id).map(Queue::getCreator).map(userMapper::toDto)
-    );
+    return ResponseEntity.of(queueService.findById(id)
+        .map(Queue::getCreator)
+        .map(userMapper::toDto));
   }
 
   @GetMapping("/{id}/managers")
@@ -93,10 +92,9 @@ public class QueueController {
       @ApiResponse(responseCode = "404", content = @Content())
   })
   public ResponseEntity<List<UserDto>> getQueueManagers(@PathVariable Long id) {
-    return ResponseEntity.of(
-        queueService.findById(id)
-            .map(queue -> queue.getManagers().stream().map(userMapper::toDto).toList())
-    );
+    return ResponseEntity.of(queueService.findById(id)
+        .map(found -> found.getManagers().stream()
+            .map(userMapper::toDto).toList()));
   }
 
   @GetMapping("/{id}/entries")
@@ -105,10 +103,9 @@ public class QueueController {
       @ApiResponse(responseCode = "404", content = @Content())
   })
   public ResponseEntity<List<EntryDto>> getQueueEntries(@PathVariable Long id) {
-    return ResponseEntity.of(
-        queueService.findById(id)
-            .map(queue -> queue.getEntries().stream().map(entryMapper::toDto).toList())
-    );
+    return ResponseEntity.of(queueService.findById(id)
+        .map(found -> found.getEntries().stream()
+            .map(entryMapper::toDto).toList()));
   }
 
   @PostMapping
@@ -121,8 +118,8 @@ public class QueueController {
 
   @DeleteMapping("/{id}")
   @Operation(summary = "Delete queue by id", responses = @ApiResponse(responseCode = "204"))
-  public ResponseEntity<Void> deleteById(@PathVariable Long id) {
-    queueService.deleteById(id);
+  public ResponseEntity<Void> deleteById(Principal principal, @PathVariable Long id) {
+    queueService.deleteById(id, principal.getName());
     return ResponseEntity.noContent().build();
   }
 }
