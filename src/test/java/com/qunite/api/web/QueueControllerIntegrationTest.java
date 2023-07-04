@@ -34,7 +34,7 @@ import org.springframework.test.web.servlet.MockMvc;
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureMockMvc
 @IntegrationTest
-public class QueueControllerIntegrationTest {
+class QueueControllerIntegrationTest {
 
   private final String url = "queues";
 

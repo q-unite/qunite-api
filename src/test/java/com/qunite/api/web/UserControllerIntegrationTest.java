@@ -33,7 +33,7 @@ import org.springframework.test.web.servlet.MockMvc;
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureMockMvc
 @IntegrationTest
-public class UserControllerIntegrationTest {
+class UserControllerIntegrationTest {
   private final String url = "users";
 
   @Autowired
