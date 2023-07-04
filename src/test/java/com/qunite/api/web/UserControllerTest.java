@@ -140,7 +140,7 @@ class UserControllerTest {
   }
 
   @Test
-  void deleteQueue() throws Exception {
+  void deleteUser() throws Exception {
     doNothing().when(userService).deleteOne(anyLong());
     mockMvc.perform(delete("/{url}/1", url))
         .andExpect(status().isNoContent());

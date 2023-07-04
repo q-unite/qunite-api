@@ -141,7 +141,7 @@ public class UserControllerIntegrationTest {
 
   @Test
   @Sql("/users-create.sql")
-  void deleteQueue() throws Exception {
+  void deleteUser() throws Exception {
     var userId = 1L;
 
     mockMvc.perform(delete("/{url}/{id}", url, userId))
