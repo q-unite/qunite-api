@@ -43,6 +43,11 @@
         <property name="eachLine" value="true"/>
     </module>
 
+    <module name="RegexpMultiline">
+        <property name="message" value="Blank line at end of block should be removed" />
+        <property name="format" value="(?&lt;!\{\s{0,99}$)^$(?=^\s{0,99}\})" />
+    </module>
+
     <module name="LineLength">
         <property name="fileExtensions" value="java"/>
         <property name="max" value="100"/>
@@ -64,6 +69,10 @@
             <property name="allowNonPrintableEscapes" value="true"/>
         </module>
         <module name="AvoidStarImport"/>
+        <module name="RedundantImport"/>
+        <module name="UnusedImports">
+            <property name="processJavadoc" value="false"/>
+        </module>
         <module name="OneTopLevelClass"/>
         <module name="NoLineWrap">
             <property name="tokens" value="PACKAGE_DEF, IMPORT, STATIC_IMPORT"/>

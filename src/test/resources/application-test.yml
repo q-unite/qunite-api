@@ -11,3 +11,5 @@ spring:
 testcontainers:
   postgresql:
     docker-image: postgres:15-alpine
+jwt:
+  secret: "test"
