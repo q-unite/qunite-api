@@ -18,5 +18,5 @@ public interface QueueService {
 
   Optional<Integer> getMemberPositionInQueue(Long memberId, Long queueId);
 
-  void deleteById(Long queueId);
+  void deleteById(Long queueId, String username);
 }

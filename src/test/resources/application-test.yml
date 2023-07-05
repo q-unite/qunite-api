@@ -1,9 +1,4 @@
 spring:
-  # Datasource
-  datasource:
-    username: ${embedded.postgresql.user}
-    url: jdbc:postgresql://${embedded.postgresql.host}:${embedded.postgresql.port}/${embedded.postgresql.schema}
-    password: ${embedded.postgresql.password}
   # JPA
   jpa:
     hibernate:
@@ -12,3 +7,9 @@ spring:
   flyway:
     enabled: true
     connect-retries: 3
+# Testcontainers
+testcontainers:
+  postgresql:
+    docker-image: postgres:15-alpine
+jwt:
+  secret: "test"

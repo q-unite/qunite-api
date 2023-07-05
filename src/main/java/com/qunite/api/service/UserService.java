@@ -1,5 +1,6 @@
 package com.qunite.api.service;
 
+import com.auth0.jwt.interfaces.DecodedJWT;
 import com.qunite.api.domain.Queue;
 import com.qunite.api.domain.User;
 import java.util.List;
@@ -10,6 +11,8 @@ public interface UserService {
 
   Optional<User> findOne(Long id);
 
+  Optional<User> findByUsername(String username);
+
   void deleteOne(Long id);
 
   List<User> findAll();
@@ -18,4 +21,5 @@ public interface UserService {
 
   Optional<List<Queue>> getManagedQueues(Long userId);
 
+  Optional<DecodedJWT> signIn(String login, String password);
 }
