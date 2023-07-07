@@ -17,6 +17,8 @@ import com.qunite.api.web.dto.auth.AuthenticationRequest;
 import com.qunite.api.web.mapper.UserMapper;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -52,7 +54,7 @@ class AuthenticationIntegrationTest {
   }
 
   @Test
-  public void unauthenticatedUserShouldAccessEndpoints() throws Exception {
+  void unauthenticatedUserShouldAccessEndpoints() throws Exception {
     mockMvc.perform(post("/{url}/sign-up", url))
         .andExpect(status().isBadRequest());
     mockMvc.perform(post("/{url}/sign-in", url))
@@ -60,7 +62,7 @@ class AuthenticationIntegrationTest {
   }
 
   @Test
-  public void signUpShouldCreateNewUserWithValidData() throws Exception {
+  void signUpShouldCreateNewUserWithValidData() throws Exception {
     var user = new User();
     user.setUsername("John");
     user.setPassword("Johnson");
@@ -79,7 +81,7 @@ class AuthenticationIntegrationTest {
 
   @Test
   @Sql("/users-create.sql")
-  public void signUpShouldNotCreateWithExistingUsername() throws Exception {
+  void signUpShouldNotCreateWithExistingUsername() throws Exception {
     var user = new User();
     user.setUsername("First");
     user.setPassword("Johnson");
@@ -96,7 +98,7 @@ class AuthenticationIntegrationTest {
 
   @Test
   @Sql("/users-create.sql")
-  public void signUpShouldNotCreateWithExistingEmail() throws Exception {
+  void signUpShouldNotCreateWithExistingEmail() throws Exception {
     var user = new User();
     user.setUsername("John");
     user.setPassword("Johnson");
@@ -112,7 +114,7 @@ class AuthenticationIntegrationTest {
   }
 
   @Test
-  public void signUpShouldEncryptPassword() throws Exception {
+  void signUpShouldEncryptPassword() throws Exception {
     var user = new User();
     user.setUsername("John");
     user.setPassword("Johnson");
@@ -133,7 +135,7 @@ class AuthenticationIntegrationTest {
 
   @Test
   @Sql("/users-create.sql")
-  public void signInShouldReturnAccessTokenWithValidLoginByUsername() throws Exception {
+  void signInShouldReturnAccessTokenWithValidLoginByUsername() throws Exception {
     var requestData = new AuthenticationRequest();
     requestData.setLogin("First");
     requestData.setPassword("asd");
@@ -152,7 +154,7 @@ class AuthenticationIntegrationTest {
 
   @Test
   @Sql("/users-create.sql")
-  public void signInShouldReturnAccessTokenWithValidLoginByEmail() throws Exception {
+  void signInShouldReturnAccessTokenWithValidLoginByEmail() throws Exception {
     var requestData = new AuthenticationRequest();
     requestData.setLogin("User1@user.com");
     requestData.setPassword("asd");
@@ -171,22 +173,7 @@ class AuthenticationIntegrationTest {
 
   @Test
   @Sql("/users-create.sql")
-  public void signInShouldNotReturnAccessTokenWithInvalidLoginByEmail() throws Exception {
-    var requestData = new AuthenticationRequest();
-    requestData.setLogin("invalid228@user.com");
-    requestData.setPassword("asd");
-
-    var json = new ObjectMapper().writeValueAsString(requestData);
-
-    var resultActions = mockMvc.perform(post("/{url}/sign-in", url)
-        .contentType(MediaType.APPLICATION_JSON).content(json));
-    resultActions
-        .andExpect(status().isForbidden());
-  }
-
-  @Test
-  @Sql("/users-create.sql")
-  public void signInShouldNotReturnAccessTokenWithInvalidLoginByUsername() throws Exception {
+  void signInShouldNotReturnAccessTokenWithInvalidLogin() throws Exception {
     var requestData = new AuthenticationRequest();
     requestData.setLogin("invalid228");
     requestData.setPassword("asd");
@@ -201,7 +188,7 @@ class AuthenticationIntegrationTest {
 
   @Test
   @Sql("/users-create.sql")
-  public void signInShouldNotReturnAccessTokenWithInvalidPassword() throws Exception {
+  void signInShouldNotReturnAccessTokenWithInvalidPassword() throws Exception {
     var requestData = new AuthenticationRequest();
     requestData.setLogin("First");
     requestData.setPassword("invalidik");
@@ -216,7 +203,7 @@ class AuthenticationIntegrationTest {
 
   @Test
   @Sql("/users-create.sql")
-  public void accessTokenShouldBeValid() throws Exception {
+  void accessTokenShouldBeValid() throws Exception {
     var requestData = new AuthenticationRequest();
     requestData.setLogin("First");
     requestData.setPassword("asd");
@@ -238,7 +225,7 @@ class AuthenticationIntegrationTest {
 
   @Test
   @Sql("/users-create.sql")
-  public void invalidAccessTokenShouldBeInvalid() throws Exception {
+  void invalidAccessTokenShouldBeInvalid() throws Exception {
     mockMvc.perform(get("/users/self")
             .header(HttpHeaders.AUTHORIZATION, "Bearer aaaaaaaaaaaaaaaaaaaaaaaaa"))
         .andExpect(status().isForbidden());

@@ -79,7 +79,7 @@ class UserControllerSecurityIntegrationTest {
   @Test
   @WithMockUser("Seventh")
   @Sql({"/users-create.sql"})
-  public void anyAuthenticatedUserShouldRetrieveAllUsers() throws Exception {
+  void anyAuthenticatedUserShouldRetrieveAllUsers() throws Exception {
     mockMvc.perform(get("/{url}", url))
         .andExpect(status().isOk());
   }
@@ -87,7 +87,7 @@ class UserControllerSecurityIntegrationTest {
   @Test
   @WithMockUser("Seventh")
   @Sql({"/users-create.sql"})
-  public void anyAuthenticatedUserShouldRetrieveUserById() throws Exception {
+  void anyAuthenticatedUserShouldRetrieveUserById() throws Exception {
     mockMvc.perform(get("/{url}/1", url))
         .andExpect(status().isOk());
   }
@@ -95,7 +95,7 @@ class UserControllerSecurityIntegrationTest {
   @Test
   @WithMockUser("Seventh")
   @Sql({"/users-create.sql", "/queues-create.sql", "/queues-managers-create.sql"})
-  public void anyAuthenticatedUserShouldRetrieveManagedQueuesByUserId() throws Exception {
+  void anyAuthenticatedUserShouldRetrieveManagedQueuesByUserId() throws Exception {
     mockMvc.perform(get("/{url}/1/managed-queues", url))
         .andExpect(status().isOk());
   }
@@ -103,7 +103,7 @@ class UserControllerSecurityIntegrationTest {
   @Test
   @WithMockUser("Seventh")
   @Sql({"/users-create.sql", "/queues-create.sql"})
-  public void anyAuthenticatedUserShouldRetrieveCreatedQueuesByUserId() throws Exception {
+  void anyAuthenticatedUserShouldRetrieveCreatedQueuesByUserId() throws Exception {
     mockMvc.perform(get("/{url}/1/created-queues", url))
         .andExpect(status().isOk());
   }
@@ -111,7 +111,7 @@ class UserControllerSecurityIntegrationTest {
   @Test
   @WithMockUser("Seventh")
   @Sql({"/users-create.sql"})
-  public void userShouldRetrieveHimself() throws Exception {
+  void userShouldRetrieveHimself() throws Exception {
     mockMvc.perform(get("/{url}/self", url))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.username", is("Seventh")));
@@ -120,7 +120,7 @@ class UserControllerSecurityIntegrationTest {
   @Test
   @WithMockUser("Seventh")
   @Sql({"/users-create.sql"})
-  public void userShouldUpdateHimself() throws Exception {
+  void userShouldUpdateHimself() throws Exception {
     final var user = new User();
     user.setUsername("NewUsername");
 
@@ -134,7 +134,7 @@ class UserControllerSecurityIntegrationTest {
   @Test
   @WithMockUser("Seventh")
   @Sql({"/users-create.sql"})
-  public void userShouldDeleteHimself() throws Exception {
+  void userShouldDeleteHimself() throws Exception {
     mockMvc.perform(delete("/{url}/self", url))
         .andExpect(status().isNoContent());
   }
