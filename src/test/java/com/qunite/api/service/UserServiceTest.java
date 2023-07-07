@@ -3,6 +3,7 @@ package com.qunite.api.service;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import com.qunite.api.annotation.IntegrationTest;
 import com.qunite.api.data.EntryRepository;
@@ -10,6 +11,7 @@ import com.qunite.api.data.QueueRepository;
 import com.qunite.api.data.UserRepository;
 import com.qunite.api.domain.Queue;
 import com.qunite.api.domain.User;
+import com.qunite.api.exception.UserAlreadyExistsException;
 import java.util.List;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
@@ -39,6 +41,31 @@ class UserServiceTest {
     userRepository.deleteAll();
     queueRepository.deleteAll();
     entryRepository.deleteAll();
+  }
+
+  @Test
+  @Sql("/users-create.sql")
+  void testUpdatingShouldUpdateUserWithValidData() {
+    var user = userService.findOne(1L).get();
+    user.setUsername("NewUsername");
+
+    userService.updateOne(user);
+
+    var realUsername = userService.findOne(1L).get().getUsername();
+    assertThat(realUsername).isEqualTo("NewUsername");
+  }
+
+  @Test
+  @Sql("/users-create.sql")
+  void testUpdatingShouldNotUpdateUserWithUsedUsernameOrEmail() {
+    var user = userService.findOne(1L).get();
+    user.setUsername("Second");
+    user.setEmail("User2@user.com");
+
+    Exception exception = assertThrows(UserAlreadyExistsException.class, () ->
+        userService.updateOne(user));
+
+    assertThat(exception.getMessage()).isEqualTo("Username or email is already in use");
   }
 
   @Test
