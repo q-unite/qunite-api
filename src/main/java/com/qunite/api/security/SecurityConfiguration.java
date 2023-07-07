@@ -25,7 +25,10 @@ public class SecurityConfiguration {
         .and()
         .authorizeHttpRequests(requests -> requests
             .requestMatchers("/auth/**").permitAll()
-            .requestMatchers("/swagger-ui.html").permitAll()
+            .requestMatchers("/v3/api-docs/**",
+                "/swagger-resources/**",
+                "/swagger-ui/**",
+                "/swagger-ui.html").permitAll()
             .anyRequest().authenticated())
         .addFilterBefore(authorizationFilter, UsernamePasswordAuthenticationFilter.class);
     return http.build();
