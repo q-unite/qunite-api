@@ -23,10 +23,6 @@ import org.springframework.web.servlet.HandlerExceptionResolver;
 public class JwtAuthorizationFilter extends OncePerRequestFilter {
   private final JwtService jwtService;
 
-  @Autowired
-  @Qualifier("handlerExceptionResolver")
-  private HandlerExceptionResolver resolver;
-
   @Override
   protected void doFilterInternal(@NonNull HttpServletRequest request,
                                   @NonNull HttpServletResponse response,
@@ -37,19 +33,15 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
       filterChain.doFilter(request, response);
       return;
     }
-    try {
-      jwtService.verifyAccessToken(authHeader.substring(7))
-          .ifPresent(decodedJWT -> {
-            var username = decodedJWT.getSubject();
-            var authToken = new UsernamePasswordAuthenticationToken(
-                username, null, Collections.emptyList()
-            );
-            SecurityContextHolder.getContext().setAuthentication(authToken);
-          });
-      filterChain.doFilter(request, response);
-    } catch (JWTDecodeException exception) {
-      resolver.resolveException(request, response, null, exception);
-    }
+    jwtService.verifyAccessToken(authHeader.substring(7))
+        .ifPresent(decodedJWT -> {
+          var username = decodedJWT.getSubject();
+          var authToken = new UsernamePasswordAuthenticationToken(
+              username, null, Collections.emptyList()
+          );
+          SecurityContextHolder.getContext().setAuthentication(authToken);
+        });
+    filterChain.doFilter(request, response);
   }
 
   private boolean isHeaderValid(String authHeader) {
