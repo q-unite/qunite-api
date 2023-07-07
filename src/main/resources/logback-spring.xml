@@ -15,7 +15,7 @@
                 <pattern>
                     <pattern>
                         {
-                            "appName": "${SPRING_APPLICATION_NAME}"
+                            "app_name": "${SPRING_APPLICATION_NAME}"
                         }
                     </pattern>
                 </pattern>
