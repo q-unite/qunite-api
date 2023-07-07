@@ -1,5 +1,6 @@
 package com.qunite.api.web;
 
+import com.auth0.jwt.exceptions.JWTDecodeException;
 import com.qunite.api.exception.QueueNotFoundException;
 import com.qunite.api.exception.UserAlreadyExistsException;
 import com.qunite.api.web.dto.ExceptionResponse;
@@ -12,6 +13,11 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 @RestControllerAdvice
 public class ResponseEntityControllerAdvice {
+  @ExceptionHandler(JWTDecodeException.class)
+  public ResponseEntity<ExceptionResponse> handleJwtException(RuntimeException exception) {
+    return ResponseEntity.status(HttpStatus.FORBIDDEN)
+        .body(exceptionResponse(exception.getMessage()));
+  }
 
   @ExceptionHandler(QueueNotFoundException.class)
   public ResponseEntity<ExceptionResponse> handleNotFound(RuntimeException exception) {

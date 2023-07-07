@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,7 +25,9 @@ public class QueueServiceImpl implements QueueService {
 
   @Override
   @Transactional
-  public Queue create(Queue queue) {
+  public Queue create(Queue queue, String username) {
+    queue.setCreator(userService.findByUsername(username)
+        .orElseThrow(() -> new UsernameNotFoundException("Invalid user")));
     return queueRepository.save(queue);
   }
 
