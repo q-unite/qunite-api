@@ -30,6 +30,7 @@ import org.springframework.test.web.servlet.MockMvc;
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureMockMvc
 @IntegrationTest
+@WithMockUser("First")
 class UserControllerIntegrationTest {
   private final String url = "users";
 
@@ -60,7 +61,6 @@ class UserControllerIntegrationTest {
 
 
   @Test
-  @WithMockUser("First")
   @Sql("/users-create.sql")
   void retrieveByIdWhenExists() throws Exception {
     var userId = 1;
@@ -73,7 +73,6 @@ class UserControllerIntegrationTest {
   }
 
   @Test
-  @WithMockUser("First")
   @Sql("/users-create.sql")
   void retrieveAll() throws Exception {
     var resultActions = mockMvc.perform(get("/{url}", url));
@@ -83,7 +82,6 @@ class UserControllerIntegrationTest {
   }
 
   @Test
-  @WithMockUser("First")
   @Sql({"/users-create.sql", "/queues-create.sql", "/queues-managers-create.sql"})
   void retrieveManagedQueues() throws Exception {
     var userId = 1;
@@ -96,7 +94,6 @@ class UserControllerIntegrationTest {
   }
 
   @Test
-  @WithMockUser("First")
   @Sql({"/users-create.sql", "/queues-create.sql"})
   void retrieveCreatedQueues() throws Exception {
     var userId = 1;
@@ -109,7 +106,6 @@ class UserControllerIntegrationTest {
   }
 
   @Test
-  @WithMockUser("First")
   @Sql("/users-create.sql")
   void updateUser() throws Exception {
     final var user = new User();
@@ -127,7 +123,6 @@ class UserControllerIntegrationTest {
   }
 
   @Test
-  @WithMockUser("First")
   @Sql("/users-create.sql")
   void deleteUser() throws Exception {
     var userId = 1L;

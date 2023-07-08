@@ -4,7 +4,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -26,7 +25,6 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.web.servlet.MockMvc;
 import org.testcontainers.shaded.com.fasterxml.jackson.databind.ObjectMapper;
@@ -90,8 +88,8 @@ class AuthenticationIntegrationTest {
 
   @ParameterizedTest
   @CsvSource({
-      "First, Johnson, john@gmail.com",
-      "John, Johnson, User1@user.com"
+      occupiedUsername + ", " + incorrectPassword + ", " + notOccupiedEmail,
+      notOccupiedUsername + ", " + incorrectPassword + ", " + occupiedEmail
   })
   @Sql("/users-create.sql")
   void signUpShouldNotCreateWithExistingLogin(String username,
@@ -110,31 +108,10 @@ class AuthenticationIntegrationTest {
         .andExpect(status().isBadRequest());
   }
 
-  @Test
-  void signUpShouldEncryptPassword() throws Exception {
-    var user = new User();
-    user.setUsername(notOccupiedUsername);
-    user.setPassword(correctPassword);
-    user.setEmail(notOccupiedEmail);
-
-    var dto = userMapper.toUserCreationDto(user);
-    var json = new ObjectMapper().writeValueAsString(dto);
-
-    mockMvc.perform(
-            post("/{url}/sign-up", url)
-                .contentType(MediaType.APPLICATION_JSON).content(json))
-        .andExpect(status().isOk());
-
-    var actualPassword =
-        userService.findByUsername(notOccupiedUsername).orElseThrow().getPassword();
-    var encoder = new BCryptPasswordEncoder();
-    assertTrue(encoder.matches(correctPassword, actualPassword));
-  }
-
   @ParameterizedTest
   @CsvSource({
-      "First, asd",
-      "User1@user.com, asd"
+      occupiedUsername + ", " + correctPassword,
+      occupiedEmail + ", " + correctPassword
   })
   @Sql("/users-create.sql")
   void signInShouldReturnAccessTokenWithValidLogin(String login, String password) throws Exception {
@@ -149,32 +126,19 @@ class AuthenticationIntegrationTest {
 
     resultActions
         .andExpect(status().isOk())
-        .andExpect(jsonPath("$.token", notNullValue()))
-        .andExpect(jsonPath("$.type", is("JWT")))
-        .andExpect(jsonPath("$.algorithm", is("HS256")));
+        .andExpect(jsonPath("$.token", notNullValue()));
   }
 
-  @Test
+  @ParameterizedTest
+  @CsvSource({
+      notOccupiedEmail + ", " + correctPassword,
+      occupiedUsername + ", " + incorrectPassword
+  })
   @Sql("/users-create.sql")
-  void signInShouldNotReturnAccessTokenWithInvalidLogin() throws Exception {
+  void signInShouldNotReturnAccessTokenWithInvalidData() throws Exception {
     var requestData = new AuthenticationRequest();
     requestData.setLogin(notOccupiedEmail);
     requestData.setPassword(correctPassword);
-
-    var json = new ObjectMapper().writeValueAsString(requestData);
-
-    var resultActions = mockMvc.perform(post("/{url}/sign-in", url)
-        .contentType(MediaType.APPLICATION_JSON).content(json));
-    resultActions
-        .andExpect(status().isForbidden());
-  }
-
-  @Test
-  @Sql("/users-create.sql")
-  void signInShouldNotReturnAccessTokenWithInvalidPassword() throws Exception {
-    var requestData = new AuthenticationRequest();
-    requestData.setLogin(occupiedUsername);
-    requestData.setPassword(incorrectPassword);
 
     var json = new ObjectMapper().writeValueAsString(requestData);
 

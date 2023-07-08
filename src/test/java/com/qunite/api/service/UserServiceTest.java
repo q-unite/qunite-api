@@ -4,6 +4,7 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.qunite.api.annotation.IntegrationTest;
 import com.qunite.api.data.EntryRepository;
@@ -18,6 +19,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.jdbc.Sql;
 
 
@@ -26,14 +28,14 @@ import org.springframework.test.context.jdbc.Sql;
 class UserServiceTest {
   @Autowired
   private UserService userService;
-
+  @Autowired
+  private QueueService queueService;
+  @Autowired
+  private PasswordEncoder passwordEncoder;
   @Autowired
   private UserRepository userRepository;
   @Autowired
   private QueueRepository queueRepository;
-  @Autowired
-  private QueueService queueService;
-
   @Autowired
   private EntryRepository entryRepository;
 
@@ -104,16 +106,20 @@ class UserServiceTest {
   }
 
   @Test
-  void testCreatingUserCreatesNewUser() {
+  void testCreatingUserCreatesNewUserWithEncryptedPassword() {
+    var password = "password";
+
     User user = new User();
     user.setUsername("Creator");
     user.setEmail("Email");
-    user.setPassword("password");
+    user.setPassword(password);
 
     user = userService.createOne(user);
     var result = userService.findAll();
+
     assertEquals(1, result.size());
     assertEquals(user, result.get(0));
+    assertTrue(passwordEncoder.matches(password, result.get(0).getPassword()));
   }
 
   @Test

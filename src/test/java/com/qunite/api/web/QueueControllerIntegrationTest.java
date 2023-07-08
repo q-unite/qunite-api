@@ -17,7 +17,6 @@ import com.qunite.api.data.QueueRepository;
 import com.qunite.api.data.UserRepository;
 import com.qunite.api.domain.Queue;
 import com.qunite.api.service.QueueService;
-import com.qunite.api.service.UserService;
 import com.qunite.api.web.mapper.QueueMapper;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
@@ -32,6 +31,7 @@ import org.springframework.test.web.servlet.MockMvc;
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureMockMvc
 @IntegrationTest
+@WithMockUser("First")
 class QueueControllerIntegrationTest {
 
   private final String url = "queues";
@@ -54,9 +54,6 @@ class QueueControllerIntegrationTest {
   @Autowired
   private QueueService queueService;
 
-  @Autowired
-  private UserService userService;
-
   @AfterEach
   public void cleanAll() {
     userRepository.deleteAll();
@@ -65,7 +62,6 @@ class QueueControllerIntegrationTest {
   }
 
   @Test
-  @WithMockUser("First")
   @Sql({"/users-create.sql", "/queues-create.sql"})
   void retrieveByIdWhenExists() throws Exception {
     var queueId = 1;
@@ -77,7 +73,6 @@ class QueueControllerIntegrationTest {
   }
 
   @Test
-  @WithMockUser("First")
   @Sql({"/users-create.sql", "/queues-create.sql"})
   void retrieveAllQueues() throws Exception {
     var resultActions = mockMvc.perform(get("/{url}", url));
@@ -87,7 +82,6 @@ class QueueControllerIntegrationTest {
   }
 
   @Test
-  @WithMockUser("First")
   @Sql({"/users-create.sql", "/queues-create.sql", "/entries-create.sql"})
   void retrieveMembersAmount() throws Exception {
     var queueId = 1;
@@ -99,7 +93,6 @@ class QueueControllerIntegrationTest {
   }
 
   @Test
-  @WithMockUser("First")
   @Sql({"/users-create.sql", "/queues-create.sql", "/entries-create.sql"})
   void retrieveMemberPositionInQueue() throws Exception {
     var queueId = 1;
@@ -113,7 +106,6 @@ class QueueControllerIntegrationTest {
   }
 
   @Test
-  @WithMockUser("First")
   @Sql({"/users-create.sql", "/queues-create.sql"})
   void retrieveQueueCreator() throws Exception {
     var queueId = 4;
@@ -125,7 +117,6 @@ class QueueControllerIntegrationTest {
   }
 
   @Test
-  @WithMockUser("First")
   @Sql({"/users-create.sql", "/queues-create.sql", "/queues-managers-create.sql"})
   void retrieveQueueManagers() throws Exception {
     var queueId = 1;
@@ -137,7 +128,6 @@ class QueueControllerIntegrationTest {
   }
 
   @Test
-  @WithMockUser("First")
   @Sql({"/users-create.sql", "/queues-create.sql", "/entries-create.sql"})
   void retrieveQueueEntries() throws Exception {
     var resultActions = mockMvc.perform(get("/{url}/{id}/entries", url, 1));
@@ -156,11 +146,12 @@ class QueueControllerIntegrationTest {
   }
 
   @Test
-  @WithMockUser("First")
   @Sql({"/users-create.sql"})
   void createQueue() throws Exception {
+    var queueName = "SomeQueue";
+
     var queue = new Queue();
-    queue.setName("SomeQueue");
+    queue.setName(queueName);
 
     var dto = queueMapper.toDto(queue);
     var json = new ObjectMapper().writeValueAsString(dto);
@@ -170,12 +161,11 @@ class QueueControllerIntegrationTest {
         .content(json));
 
     resultActions.andExpect(status().isCreated())
-        .andExpect(jsonPath("$.name", is("SomeQueue")))
+        .andExpect(jsonPath("$.name", is(queueName)))
         .andExpect(jsonPath("$.creatorId", is(1)));
   }
 
   @Test
-  @WithMockUser("First")
   @Sql({"/users-create.sql", "/queues-create.sql"})
   void deleteQueue() throws Exception {
     var queueId = 1L;
