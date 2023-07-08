@@ -3,12 +3,14 @@ package com.qunite.api.web;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import com.auth0.jwt.exceptions.JWTDecodeException;
 import com.qunite.api.annotation.IntegrationTest;
 import com.qunite.api.data.UserRepository;
 import com.qunite.api.domain.User;
@@ -205,9 +207,9 @@ class AuthenticationIntegrationTest {
 
   @Test
   @Sql("/users-create.sql")
-  void invalidAccessTokenShouldBeInvalid() throws Exception {
-    mockMvc.perform(get("/users/self")
+  void invalidAccessTokenShouldBeInvalid() {
+    assertThrows(JWTDecodeException.class, ()->mockMvc.perform(get("/users/self")
             .header(HttpHeaders.AUTHORIZATION, "Bearer aaaaaaaaaaaaaaaaaaaaaaaaa"))
-        .andExpect(status().isForbidden());
+        .andExpect(status().isForbidden()));
   }
 }
