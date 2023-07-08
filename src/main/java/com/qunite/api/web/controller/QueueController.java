@@ -111,8 +111,8 @@ public class QueueController {
   @PostMapping
   @Operation(summary = "Create queue", responses = @ApiResponse(responseCode = "201"))
   public ResponseEntity<QueueDto> createQueue(
-      @Valid @RequestBody QueueCreationDto queueCreationDto) {
-    var created = queueService.create(queueMapper.toEntity(queueCreationDto));
+      @Valid @RequestBody QueueCreationDto queueCreationDto, Principal principal) {
+    var created = queueService.create(queueMapper.toEntity(queueCreationDto), principal.getName());
     return new ResponseEntity<>(queueMapper.toDto(created), HttpStatus.CREATED);
   }
 

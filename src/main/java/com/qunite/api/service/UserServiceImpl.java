@@ -34,6 +34,26 @@ public class UserServiceImpl implements UserService {
 
   @Override
   @Transactional
+  public User updateOne(User newUser) {
+    boolean isUsernameInUse = userRepository.findUserByUsername(newUser.getUsername())
+        .filter(found -> !found.getId().equals(newUser.getId())).isPresent();
+    boolean isEmailInUse = userRepository.findByEmailOrUsername(newUser.getEmail())
+        .filter(found -> !found.getId().equals(newUser.getId())).isPresent();
+
+    if (isUsernameInUse) {
+      throw new UserAlreadyExistsException(
+          "Username %s is already in use".formatted(newUser.getUsername()));
+    }
+    if (isEmailInUse) {
+      throw new UserAlreadyExistsException(
+          "Email %s is already in use".formatted(newUser.getEmail()));
+    }
+    return userRepository.save(newUser);
+  }
+
+
+  @Override
+  @Transactional
   public Optional<User> findOne(Long userId) {
     return userRepository.findById(userId);
   }

@@ -17,23 +17,21 @@ import com.qunite.api.data.QueueRepository;
 import com.qunite.api.data.UserRepository;
 import com.qunite.api.domain.Queue;
 import com.qunite.api.service.QueueService;
-import com.qunite.api.service.UserService;
 import com.qunite.api.web.mapper.QueueMapper;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.web.servlet.MockMvc;
 
-// TODO: 04.07.2023
-@Disabled("Refactor due to security emergence")
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureMockMvc
 @IntegrationTest
+@WithMockUser("First")
 class QueueControllerIntegrationTest {
 
   private final String url = "queues";
@@ -55,9 +53,6 @@ class QueueControllerIntegrationTest {
 
   @Autowired
   private QueueService queueService;
-
-  @Autowired
-  private UserService userService;
 
   @AfterEach
   public void cleanAll() {
@@ -135,8 +130,6 @@ class QueueControllerIntegrationTest {
   @Test
   @Sql({"/users-create.sql", "/queues-create.sql", "/entries-create.sql"})
   void retrieveQueueEntries() throws Exception {
-    var queueId = 1;
-
     var resultActions = mockMvc.perform(get("/{url}/{id}/entries", url, 1));
 
     resultActions.andExpect(status().isOk())
@@ -155,10 +148,10 @@ class QueueControllerIntegrationTest {
   @Test
   @Sql({"/users-create.sql"})
   void createQueue() throws Exception {
+    var queueName = "SomeQueue";
+
     var queue = new Queue();
-    var creator = userService.findOne(1L);
-    queue.setName("SomeQueue");
-    queue.setCreator(creator.get());
+    queue.setName(queueName);
 
     var dto = queueMapper.toDto(queue);
     var json = new ObjectMapper().writeValueAsString(dto);
@@ -168,7 +161,8 @@ class QueueControllerIntegrationTest {
         .content(json));
 
     resultActions.andExpect(status().isCreated())
-        .andExpect(jsonPath("$.name", is("SomeQueue")));
+        .andExpect(jsonPath("$.name", is(queueName)))
+        .andExpect(jsonPath("$.creatorId", is(1)));
   }
 
   @Test
