@@ -208,7 +208,7 @@ class AuthenticationIntegrationTest {
   @Test
   @Sql("/users-create.sql")
   void invalidAccessTokenShouldBeInvalid() {
-    assertThrows(JWTDecodeException.class, ()->mockMvc.perform(get("/users/self")
+    assertThrows(JWTDecodeException.class, () -> mockMvc.perform(get("/users/self")
             .header(HttpHeaders.AUTHORIZATION, "Bearer aaaaaaaaaaaaaaaaaaaaaaaaa"))
         .andExpect(status().isForbidden()));
   }

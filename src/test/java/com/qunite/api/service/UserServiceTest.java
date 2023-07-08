@@ -68,7 +68,7 @@ class UserServiceTest {
     Exception exception = assertThrows(UserAlreadyExistsException.class, () ->
         userService.updateOne(user));
 
-    assertThat(exception.getMessage()).isEqualTo("Username or email is already in use");
+    assertThat(exception.getMessage()).isEqualTo("Username Second is already in use");
   }
 
   @Test
