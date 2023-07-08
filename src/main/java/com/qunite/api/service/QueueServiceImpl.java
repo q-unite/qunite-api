@@ -27,7 +27,8 @@ public class QueueServiceImpl implements QueueService {
   @Transactional
   public Queue create(Queue queue, String username) {
     queue.setCreator(userService.findByUsername(username)
-        .orElseThrow(() -> new UsernameNotFoundException("Invalid creator with username: %s".formatted(username))));
+        .orElseThrow(() -> new UsernameNotFoundException(
+            "Invalid creator with username: %s".formatted(username))));
     return queueRepository.save(queue);
   }
 
