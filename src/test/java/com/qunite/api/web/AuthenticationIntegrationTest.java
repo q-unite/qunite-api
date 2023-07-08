@@ -17,6 +17,8 @@ import com.qunite.api.web.dto.auth.AuthenticationRequest;
 import com.qunite.api.web.mapper.UserMapper;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -77,30 +79,14 @@ class AuthenticationIntegrationTest {
     assertThat(userService.findByUsername("John")).isPresent();
   }
 
-  @Test
+  @ParameterizedTest
+  @CsvSource({"First, Johnson, john@gmail.com", "John, Johnson, User1@user.com"})
   @Sql("/users-create.sql")
-  void signUpShouldNotCreateWithExistingUsername() throws Exception {
+  void signUpShouldNotCreateWithExistingLogin(String username, String password, String email) throws Exception {
     var user = new User();
-    user.setUsername("First");
-    user.setPassword("Johnson");
-    user.setEmail("john@gmail.com");
-
-    var dto = userMapper.toUserCreationDto(user);
-    var json = new ObjectMapper().writeValueAsString(dto);
-
-    mockMvc.perform(
-            post("/{url}/sign-up", url)
-                .contentType(MediaType.APPLICATION_JSON).content(json))
-        .andExpect(status().isBadRequest());
-  }
-
-  @Test
-  @Sql("/users-create.sql")
-  void signUpShouldNotCreateWithExistingEmail() throws Exception {
-    var user = new User();
-    user.setUsername("John");
-    user.setPassword("Johnson");
-    user.setEmail("User1@user.com");
+    user.setUsername(username);
+    user.setPassword(password);
+    user.setEmail(email);
 
     var dto = userMapper.toUserCreationDto(user);
     var json = new ObjectMapper().writeValueAsString(dto);
@@ -131,31 +117,13 @@ class AuthenticationIntegrationTest {
     assertTrue(encoder.matches("Johnson", createdUser.getPassword()));
   }
 
-  @Test
+  @ParameterizedTest
+  @CsvSource({"First, asd", "User1@user.com, asd"})
   @Sql("/users-create.sql")
-  void signInShouldReturnAccessTokenWithValidLoginByUsername() throws Exception {
+  void signInShouldReturnAccessTokenWithValidLogin(String login, String password) throws Exception {
     var requestData = new AuthenticationRequest();
-    requestData.setLogin("First");
-    requestData.setPassword("asd");
-
-    var json = new ObjectMapper().writeValueAsString(requestData);
-
-    var resultActions = mockMvc.perform(post("/{url}/sign-in", url)
-        .contentType(MediaType.APPLICATION_JSON).content(json));
-
-    resultActions
-        .andExpect(status().isOk())
-        .andExpect(jsonPath("$.token", notNullValue()))
-        .andExpect(jsonPath("$.type", is("JWT")))
-        .andExpect(jsonPath("$.algorithm", is("HS256")));
-  }
-
-  @Test
-  @Sql("/users-create.sql")
-  void signInShouldReturnAccessTokenWithValidLoginByEmail() throws Exception {
-    var requestData = new AuthenticationRequest();
-    requestData.setLogin("User1@user.com");
-    requestData.setPassword("asd");
+    requestData.setLogin(login);
+    requestData.setPassword(password);
 
     var json = new ObjectMapper().writeValueAsString(requestData);
 

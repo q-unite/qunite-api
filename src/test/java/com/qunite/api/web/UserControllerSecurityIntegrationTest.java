@@ -53,7 +53,7 @@ class UserControllerSecurityIntegrationTest {
   }
 
   @Test
-  void unauthenticatedUserShouldDoNothing() throws Exception {
+  void unauthenticatedUserShouldHaveNoAccess() throws Exception {
     mockMvc.perform(get("/{url}", url))
         .andExpect(status().isForbidden());
     mockMvc.perform(get("/{url}/1", url))
@@ -121,8 +121,10 @@ class UserControllerSecurityIntegrationTest {
   @WithMockUser("Seventh")
   @Sql({"/users-create.sql"})
   void userShouldUpdateHimself() throws Exception {
+    final var username = "NewUsername";
+
     final var user = new User();
-    user.setUsername("NewUsername");
+    user.setUsername(username);
 
     final var dto = userMapper.toDto(user);
     final var json = new ObjectMapper().writeValueAsString(dto);

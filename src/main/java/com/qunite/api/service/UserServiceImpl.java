@@ -36,7 +36,7 @@ public class UserServiceImpl implements UserService {
   @Transactional
   public User updateOne(User newUser) {
     Optional<User> foundByUsername = userRepository.findUserByUsername(newUser.getUsername());
-    Optional<User> foundByEmail = userRepository.findUserByEmail(newUser.getUsername());
+    Optional<User> foundByEmail = userRepository.findUserByEmail(newUser.getEmail());
     if ((foundByUsername.isEmpty() || foundByUsername.get().getId().equals(newUser.getId()))
         && (foundByEmail.isEmpty() || foundByEmail.get().getId().equals(newUser.getId()))) {
       return userRepository.save(newUser);

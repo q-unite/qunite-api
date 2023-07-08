@@ -12,6 +12,7 @@ import com.qunite.api.data.UserRepository;
 import com.qunite.api.domain.Queue;
 import com.qunite.api.domain.User;
 import com.qunite.api.exception.UserAlreadyExistsException;
+import com.qunite.api.utils.JpaRepositoryUtils;
 import java.util.List;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
@@ -46,13 +47,15 @@ class UserServiceTest {
   @Test
   @Sql("/users-create.sql")
   void testUpdatingShouldUpdateUserWithValidData() {
-    var user = userService.findOne(1L).get();
-    user.setUsername("NewUsername");
+    var username = "NewUsername";
+
+    var user = JpaRepositoryUtils.getById(1L, userRepository);
+    user.setUsername(username);
 
     userService.updateOne(user);
 
-    var realUsername = userService.findOne(1L).get().getUsername();
-    assertThat(realUsername).isEqualTo("NewUsername");
+    var actualUsername = JpaRepositoryUtils.getById(1L, userRepository).getUsername();
+    assertThat(actualUsername).isEqualTo(username);
   }
 
   @Test
