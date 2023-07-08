@@ -51,7 +51,7 @@ class QueueControllerSecurityIntegrationTest {
   }
 
   @Test
-  void unauthenticatedUserShouldDoNothing() throws Exception {
+  void unauthenticatedUserShouldHaveNoAccess() throws Exception {
     mockMvc.perform(get("/{url}", url))
         .andExpect(status().isForbidden());
     mockMvc.perform(get("/{url}/1", url))

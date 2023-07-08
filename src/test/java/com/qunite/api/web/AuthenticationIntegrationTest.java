@@ -48,6 +48,13 @@ class AuthenticationIntegrationTest {
   @Autowired
   private UserRepository userRepository;
 
+  private static final String occupiedUsername = "First";
+  private static final String notOccupiedUsername = "John";
+  private static final String occupiedEmail = "User1@user.com";
+  private static final String notOccupiedEmail = "john@user.com";
+  private static final String correctPassword = "asd";
+  private static final String incorrectPassword = "dsa";
+
   @AfterEach
   public void cleanAll() {
     userRepository.deleteAll();
@@ -64,9 +71,9 @@ class AuthenticationIntegrationTest {
   @Test
   void signUpShouldCreateNewUserWithValidData() throws Exception {
     var user = new User();
-    user.setUsername("John");
-    user.setPassword("Johnson");
-    user.setEmail("john@gmail.com");
+    user.setUsername(notOccupiedUsername);
+    user.setPassword(correctPassword);
+    user.setEmail(notOccupiedEmail);
 
     var dto = userMapper.toUserCreationDto(user);
     var json = new ObjectMapper().writeValueAsString(dto);
@@ -76,13 +83,17 @@ class AuthenticationIntegrationTest {
                 .contentType(MediaType.APPLICATION_JSON).content(json))
         .andExpect(status().is2xxSuccessful());
 
-    assertThat(userService.findByUsername("John")).isPresent();
+    assertThat(userService.findByUsername(notOccupiedUsername)).isPresent();
   }
 
   @ParameterizedTest
-  @CsvSource({"First, Johnson, john@gmail.com", "John, Johnson, User1@user.com"})
+  @CsvSource({
+      "First, Johnson, john@gmail.com",
+      "John, Johnson, User1@user.com"
+  })
   @Sql("/users-create.sql")
-  void signUpShouldNotCreateWithExistingLogin(String username, String password, String email) throws Exception {
+  void signUpShouldNotCreateWithExistingLogin(String username,
+                                              String password, String email) throws Exception {
     var user = new User();
     user.setUsername(username);
     user.setPassword(password);
@@ -100,9 +111,9 @@ class AuthenticationIntegrationTest {
   @Test
   void signUpShouldEncryptPassword() throws Exception {
     var user = new User();
-    user.setUsername("John");
-    user.setPassword("Johnson");
-    user.setEmail("john@gmail.com");
+    user.setUsername(notOccupiedUsername);
+    user.setPassword(correctPassword);
+    user.setEmail(notOccupiedEmail);
 
     var dto = userMapper.toUserCreationDto(user);
     var json = new ObjectMapper().writeValueAsString(dto);
@@ -112,13 +123,16 @@ class AuthenticationIntegrationTest {
                 .contentType(MediaType.APPLICATION_JSON).content(json))
         .andExpect(status().isOk());
 
-    var createdUser = userService.findByUsername("John").get();
+    var createdUser = userService.findByUsername(notOccupiedUsername).get();
     var encoder = new BCryptPasswordEncoder();
-    assertTrue(encoder.matches("Johnson", createdUser.getPassword()));
+    assertTrue(encoder.matches(correctPassword, createdUser.getPassword()));
   }
 
   @ParameterizedTest
-  @CsvSource({"First, asd", "User1@user.com, asd"})
+  @CsvSource({
+      "First, asd",
+      "User1@user.com, asd"
+  })
   @Sql("/users-create.sql")
   void signInShouldReturnAccessTokenWithValidLogin(String login, String password) throws Exception {
     var requestData = new AuthenticationRequest();
@@ -141,8 +155,8 @@ class AuthenticationIntegrationTest {
   @Sql("/users-create.sql")
   void signInShouldNotReturnAccessTokenWithInvalidLogin() throws Exception {
     var requestData = new AuthenticationRequest();
-    requestData.setLogin("invalid228");
-    requestData.setPassword("asd");
+    requestData.setLogin(notOccupiedEmail);
+    requestData.setPassword(correctPassword);
 
     var json = new ObjectMapper().writeValueAsString(requestData);
 
@@ -156,8 +170,8 @@ class AuthenticationIntegrationTest {
   @Sql("/users-create.sql")
   void signInShouldNotReturnAccessTokenWithInvalidPassword() throws Exception {
     var requestData = new AuthenticationRequest();
-    requestData.setLogin("First");
-    requestData.setPassword("invalidik");
+    requestData.setLogin(occupiedUsername);
+    requestData.setPassword(incorrectPassword);
 
     var json = new ObjectMapper().writeValueAsString(requestData);
 
@@ -171,8 +185,8 @@ class AuthenticationIntegrationTest {
   @Sql("/users-create.sql")
   void accessTokenShouldBeValid() throws Exception {
     var requestData = new AuthenticationRequest();
-    requestData.setLogin("First");
-    requestData.setPassword("asd");
+    requestData.setLogin(occupiedUsername);
+    requestData.setPassword(correctPassword);
 
     var json = new ObjectMapper().writeValueAsString(requestData);
 
@@ -186,7 +200,7 @@ class AuthenticationIntegrationTest {
     mockMvc.perform(get("/users/self")
             .header(HttpHeaders.AUTHORIZATION, "Bearer " + token))
         .andExpect(status().isOk())
-        .andExpect(jsonPath("$.username", is("First")));
+        .andExpect(jsonPath("$.username", is(occupiedUsername)));
   }
 
   @Test
