@@ -61,7 +61,7 @@ class UserServiceTest {
   @Test
   @Sql("/users-create.sql")
   void testUpdatingShouldNotUpdateUserWithUsedUsernameOrEmail() {
-    var user = userService.findOne(1L).get();
+    var user = userService.findOne(1L).orElseThrow();
     user.setUsername("Second");
     user.setEmail("User2@user.com");
 
@@ -90,7 +90,7 @@ class UserServiceTest {
   void testGettingManagedQueuesReturnsManagedQueues() {
     var queues = userService.getManagedQueues(1L);
     List<Queue> expectedQueues =
-        List.of(queueService.findById(1L).get(), queueService.findById(3L).get());
+        List.of(queueService.findById(1L).orElseThrow(), queueService.findById(3L).orElseThrow());
     assertThat(queues).hasValue(expectedQueues);
   }
 
@@ -99,7 +99,7 @@ class UserServiceTest {
   void testGettingCreatedQueuesCreatesQueue() {
     var queues = userService.getCreatedQueues(1L);
     List<Queue> expectedQueues =
-        List.of(queueService.findById(1L).get(), queueService.findById(4L).get());
+        List.of(queueService.findById(1L).orElseThrow(), queueService.findById(4L).orElseThrow());
     assertThat(queues).hasValue(expectedQueues);
   }
 

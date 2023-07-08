@@ -125,9 +125,10 @@ class AuthenticationIntegrationTest {
                 .contentType(MediaType.APPLICATION_JSON).content(json))
         .andExpect(status().isOk());
 
-    var createdUser = userService.findByUsername(notOccupiedUsername).get();
+    var actualPassword =
+        userService.findByUsername(notOccupiedUsername).orElseThrow().getPassword();
     var encoder = new BCryptPasswordEncoder();
-    assertTrue(encoder.matches(correctPassword, createdUser.getPassword()));
+    assertTrue(encoder.matches(correctPassword, actualPassword));
   }
 
   @ParameterizedTest
