@@ -57,7 +57,7 @@ class QueueServiceTest {
   @Sql({"/users-create.sql", "/queues-create.sql"})
   @Test
   void testEnrollingUserToQueue() {
-    queueService.enrollMemberToQueue(2L, 1L);
+    queueService.enrollMemberToQueue("Second", 1L);
 
     assertTrue(entryRepository.existsById(new EntryId(2L, 1L)));
   }
@@ -91,15 +91,16 @@ class QueueServiceTest {
   @Sql({"/users-create.sql", "/queues-create.sql", "/entries-create.sql"})
   @Test
   void testChangeMemberPositionForward() {
+    var queueId = 1L;
     var expectedEntryIdList = List.of(
-        new EntryId(6L, 1L),
-        new EntryId(5L, 1L),
-        new EntryId(7L, 1L),
-        new EntryId(4L, 1L),
-        new EntryId(3L, 1L));
+        new EntryId(6L, queueId),
+        new EntryId(5L, queueId),
+        new EntryId(7L, queueId),
+        new EntryId(4L, queueId),
+        new EntryId(3L, queueId));
 
-    queueService.changeMemberPositionInQueue(7L, 1L, 2);
-    var actualEntryIdList = entryRepository.findEntriesIdsByQueueId(1L);
+    queueService.changeMemberPositionInQueue(7L, queueId, 2, "First");
+    var actualEntryIdList = entryRepository.findEntriesIdsByQueueId(queueId);
 
     assertEquals(expectedEntryIdList, actualEntryIdList);
   }
@@ -107,15 +108,16 @@ class QueueServiceTest {
   @Sql({"/users-create.sql", "/queues-create.sql", "/entries-create.sql"})
   @Test
   void testChangeMemberPositionBackward() {
+    var queueId = 1L;
     var expectedEntryIdList = List.of(
-        new EntryId(7L, 1L),
-        new EntryId(6L, 1L),
-        new EntryId(3L, 1L),
-        new EntryId(5L, 1L),
-        new EntryId(4L, 1L));
+        new EntryId(7L, queueId),
+        new EntryId(6L, queueId),
+        new EntryId(3L, queueId),
+        new EntryId(5L, queueId),
+        new EntryId(4L, queueId));
 
-    queueService.changeMemberPositionInQueue(3L, 1L, 2);
-    var actualEntryIdList = entryRepository.findEntriesIdsByQueueId(1L);
+    queueService.changeMemberPositionInQueue(3L, queueId, 2, "First");
+    var actualEntryIdList = entryRepository.findEntriesIdsByQueueId(queueId);
 
     assertEquals(expectedEntryIdList, actualEntryIdList);
   }
@@ -123,15 +125,16 @@ class QueueServiceTest {
   @Sql({"/users-create.sql", "/queues-create.sql", "/entries-create.sql"})
   @Test
   void testChangeMemberPositionOnItself() {
+    var queueId = 1L;
     var expectedEntryIdList = List.of(
-        new EntryId(7L, 1L),
-        new EntryId(6L, 1L),
-        new EntryId(5L, 1L),
-        new EntryId(4L, 1L),
-        new EntryId(3L, 1L));
+        new EntryId(7L, queueId),
+        new EntryId(6L, queueId),
+        new EntryId(5L, queueId),
+        new EntryId(4L, queueId),
+        new EntryId(3L, queueId));
 
-    queueService.changeMemberPositionInQueue(5L, 1L, 2);
-    var actualEntryIdList = entryRepository.findEntriesIdsByQueueId(1L);
+    queueService.changeMemberPositionInQueue(5L, queueId, 2, "First");
+    var actualEntryIdList = entryRepository.findEntriesIdsByQueueId(queueId);
 
     assertEquals(expectedEntryIdList, actualEntryIdList);
   }
@@ -139,18 +142,20 @@ class QueueServiceTest {
   @Sql({"/users-create.sql", "/queues-create.sql", "/entries-create.sql"})
   @Test
   void testChangeMemberPositionConcurrent() throws InterruptedException {
+    var queueId = 1L;
+    var username = "First";
     ExecutorService executor = Executors.newFixedThreadPool(2);
-    executor.execute(() -> queueService.changeMemberPositionInQueue(7L, 1L, 4));
-    executor.execute(() -> queueService.changeMemberPositionInQueue(3L, 1L, 0));
+    executor.execute(() -> queueService.changeMemberPositionInQueue(7L, queueId, 4, username));
+    executor.execute(() -> queueService.changeMemberPositionInQueue(3L, queueId, 0, username));
     executor.shutdown();
     executor.awaitTermination(1, TimeUnit.MINUTES);
-    var actualEntryIdList = entryRepository.findEntriesIdsByQueueId(1L);
+    var actualEntryIdList = entryRepository.findEntriesIdsByQueueId(queueId);
     var expectedEntryIdList = List.of(
-        new EntryId(7L, 1L),
-        new EntryId(6L, 1L),
-        new EntryId(5L, 1L),
-        new EntryId(4L, 1L),
-        new EntryId(3L, 1L));
+        new EntryId(7L, queueId),
+        new EntryId(6L, queueId),
+        new EntryId(5L, queueId),
+        new EntryId(4L, queueId),
+        new EntryId(3L, queueId));
 
     assertAll(
         () -> assertEquals(expectedEntryIdList.size(), actualEntryIdList.size()),
