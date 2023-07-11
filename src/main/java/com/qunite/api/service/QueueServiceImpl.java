@@ -10,6 +10,7 @@ import com.qunite.api.exception.QueueNotFoundException;
 import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
+import one.util.streamex.StreamEx;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
@@ -31,8 +32,8 @@ public class QueueServiceImpl implements QueueService {
 
   @Override
   @Transactional
-  public void enrollMemberToQueue(Long memberId, Long queueId) {
-    userRepository.findById(memberId)
+  public void enrollMemberToQueue(String username, Long queueId) {
+    userRepository.findByUsername(username)
         .flatMap(user ->
             queueRepository.findById(queueId)
                 .map(queue -> new Entry(user, queue)))
@@ -54,24 +55,33 @@ public class QueueServiceImpl implements QueueService {
 
   @Override
   @Transactional(isolation = Isolation.REPEATABLE_READ)
-  public void changeMemberPositionInQueue(Long memberId, Long queueId, Integer newIndex) {
-    entryRepository.findById(new EntryId(memberId, queueId)).ifPresent(entry -> {
-      var currentIndex = entry.getEntryIndex();
-      if (!currentIndex.equals(newIndex)) {
-        var startIndex = Math.min(currentIndex, newIndex);
-        var endIndex = Math.max(currentIndex, newIndex);
-        var increment = currentIndex < newIndex ? -1 : 1;
+  public void changeMemberPositionInQueue(Long memberId, Long queueId,
+                                          Integer newIndex, String username) {
+    if (isUserQueueCreatorOrManagerByCredentials(queueId, username)) {
+      entryRepository.findById(new EntryId(memberId, queueId)).ifPresent(entry -> {
+        var currentIndex = entry.getEntryIndex();
+        if (!currentIndex.equals(newIndex)) {
+          var startIndex = Math.min(currentIndex, newIndex);
+          var endIndex = Math.max(currentIndex, newIndex);
+          var increment = currentIndex < newIndex ? -1 : 1;
 
-        entryRepository.updateEntryIndexes(queueId, startIndex, endIndex, increment);
-        entry.setEntryIndex(newIndex);
-      }
-    });
+          entryRepository.updateEntryIndexes(queueId, startIndex, endIndex, increment);
+          entry.setEntryIndex(newIndex);
+        }
+      });
+    } else {
+      throw new AccessDeniedException("User is not a creator or manager");
+    }
   }
 
   @Override
   @Transactional
-  public void deleteMemberFromQueue(Long memberId, Long queueId) {
-    entryRepository.deleteById(new EntryId(memberId, queueId));
+  public void deleteMemberFromQueue(Long memberId, Long queueId, String username) {
+    if (isUserQueueCreatorOrManagerByCredentials(queueId, username)) {
+      entryRepository.deleteById(new EntryId(memberId, queueId));
+    } else {
+      throw new AccessDeniedException("User is not a creator or manager");
+    }
   }
 
   @Override
@@ -79,7 +89,7 @@ public class QueueServiceImpl implements QueueService {
   public void deleteById(Long queueId, String username) {
     var queueById = findById(queueId);
     if (queueById.isPresent()) {
-      if (isUserByCredentialsQueueCreator(queueId, username)) {
+      if (isUserQueueCreatorByCredentials(queueId, username)) {
         queueRepository.deleteById(queueId);
       } else {
         throw new AccessDeniedException("User is not a creator");
@@ -90,12 +100,20 @@ public class QueueServiceImpl implements QueueService {
     }
   }
 
-  private boolean isUserByCredentialsQueueCreator(Long queueId, String username) {
+  private boolean isUserQueueCreatorByCredentials(Long queueId, String username) {
     return findById(queueId)
         .map(queue -> userService.findByUsername(username)
             .map(user -> queue.getCreator().equals(user))
             .orElse(false))
         .orElse(false);
+  }
+
+  private boolean isUserQueueCreatorOrManagerByCredentials(Long queueId, String username) {
+    return findById(queueId)
+        .filter(queue -> StreamEx.of(queue.getManagers()).append(queue.getCreator())
+            .findAny(user -> user.getUsername().equals(username))
+            .isPresent())
+        .isPresent();
   }
 
   @Override

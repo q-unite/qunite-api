@@ -78,12 +78,11 @@ public class QueueController {
     return ResponseEntity.of(queueService.getMemberPositionInQueue(memberId, id));
   }
 
-  @PostMapping("/{id}/members/{member-id}")
+  @PostMapping("/{id}/members")
   @Operation(summary = "Enroll member to queue")
   public ResponseEntity<Void> enrollMemberToQueue(@PathVariable Long id,
-                                                  @PathVariable(value = "member-id")
-                                                  Long memberId) {
-    queueService.enrollMemberToQueue(memberId, id);
+                                                  Principal principal) {
+    queueService.enrollMemberToQueue(principal.getName(), id);
     return ResponseEntity.ok().build();
   }
 
@@ -92,8 +91,9 @@ public class QueueController {
       responses = @ApiResponse(responseCode = "204"))
   public ResponseEntity<Void> deleteMemberFromQueue(@PathVariable Long id,
                                                     @PathVariable(value = "member-id")
-                                                    Long memberId) {
-    queueService.deleteMemberFromQueue(memberId, id);
+                                                    Long memberId,
+                                                    Principal principal) {
+    queueService.deleteMemberFromQueue(memberId, id, principal.getName());
     return ResponseEntity.noContent().build();
   }
 
@@ -101,8 +101,10 @@ public class QueueController {
   @Operation(summary = "Change member position in queue")
   public ResponseEntity<Void> changeMemberPositionInQueue(@PathVariable Long id,
                                                           @PathVariable Integer index,
-                                                          @RequestBody EntryUpdateDto entryDto) {
-    queueService.changeMemberPositionInQueue(entryDto.getMemberId(), id, index);
+                                                          @RequestBody EntryUpdateDto entryDto,
+                                                          Principal principal) {
+    queueService.changeMemberPositionInQueue(entryDto.getMemberId(), id,
+        index, principal.getName());
     return ResponseEntity.ok().build();
   }
 
