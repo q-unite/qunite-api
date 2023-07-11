@@ -11,6 +11,7 @@ import com.qunite.api.domain.EntryId;
 import com.qunite.api.domain.Queue;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
@@ -44,7 +45,6 @@ class EntityLifecycleTest {
 
     assertFalse(queueRepository.existsById(1L));
   }
-
 
 
   @Test
@@ -193,8 +193,12 @@ class EntityLifecycleTest {
 
   @Test
   @Sql({"/users-create.sql", "/queues-create.sql", "/entries-create.sql"})
-  void queueEntriesAreSortedByTimeAndId() {
-    var actualEntryIdList = entryRepository.findEntriesIdsByQueueId(1L);
+  void queueEntriesAreSortedByEntryIndex() {
+    var actualEntryIdList = queueRepository.findById(1L)
+        .orElseThrow(() -> new AssertionError("Queue with id %s not found".formatted(1L)))
+        .getEntries().stream()
+        .map(Entry::getId)
+        .collect(Collectors.toList());
     var expectedEntryIdList = new ArrayList<>(List.of(
         new EntryId(7L, 1L),
         new EntryId(6L, 1L),
@@ -202,6 +206,7 @@ class EntityLifecycleTest {
         new EntryId(4L, 1L),
         new EntryId(3L, 1L)
     ));
+
     assertEquals(expectedEntryIdList, actualEntryIdList);
   }
 }

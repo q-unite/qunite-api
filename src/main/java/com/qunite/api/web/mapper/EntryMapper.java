@@ -2,6 +2,7 @@ package com.qunite.api.web.mapper;
 
 import com.qunite.api.domain.Entry;
 import com.qunite.api.web.dto.entry.EntryDto;
+import com.qunite.api.web.dto.entry.EntryUpdateDto;
 import org.mapstruct.BeanMapping;
 import org.mapstruct.InheritConfiguration;
 import org.mapstruct.InheritInverseConfiguration;
@@ -24,5 +25,5 @@ public interface EntryMapper {
   @InheritConfiguration(name = "toEntity")
   @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
   Entry partialUpdate(
-      EntryDto entryDto, @MappingTarget Entry entry);
+      EntryUpdateDto entryDto, @MappingTarget Entry entry);
 }
