@@ -97,14 +97,13 @@ public class QueueController {
     return ResponseEntity.noContent().build();
   }
 
-  @PatchMapping("/{id}/entries/{index}")
+  @PatchMapping("/{id}/entries")
   @Operation(summary = "Change member position in queue")
   public ResponseEntity<Void> changeMemberPositionInQueue(@PathVariable Long id,
-                                                          @PathVariable Integer index,
                                                           @RequestBody EntryUpdateDto entryDto,
                                                           Principal principal) {
     queueService.changeMemberPositionInQueue(entryDto.getMemberId(), id,
-        index, principal.getName());
+        entryDto.getEntryIndex(), principal.getName());
     return ResponseEntity.ok().build();
   }
 
