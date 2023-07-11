@@ -12,15 +12,15 @@ public interface QueueService {
 
   Queue create(Queue queue);
 
-  void enrollMemberToQueue(Long memberId, Long queueId);
+  void enrollMemberToQueue(String username, Long queueId);
 
   Optional<Integer> getMembersAmountInQueue(Long queueId);
 
   Optional<Integer> getMemberPositionInQueue(Long memberId, Long queueId);
 
-  void changeMemberPositionInQueue(Long memberId, Long queueId, Integer newIndex);
+  void changeMemberPositionInQueue(Long memberId, Long queueId, Integer newIndex, String username);
 
-  void deleteMemberFromQueue(Long memberId, Long queueId);
+  void deleteMemberFromQueue(Long memberId, Long queueId, String username);
 
   void deleteById(Long queueId, String username);
 }

@@ -23,6 +23,7 @@
         <java-jwt.version>4.2.1</java-jwt.version>
         <logstash-logback-encoder.version>6.3</logstash-logback-encoder.version>
         <testcontainers.version>1.18.3</testcontainers.version>
+        <streamex.version>0.8.1</streamex.version>
     </properties>
     <dependencies>
         <dependency>
@@ -66,7 +67,11 @@
             <artifactId>spring-security-test</artifactId>
             <scope>test</scope>
         </dependency>
-
+        <dependency>
+            <groupId>one.util</groupId>
+            <artifactId>streamex</artifactId>
+            <version>${streamex.version}</version>
+        </dependency>
 
         <dependency>
             <groupId>org.flywaydb</groupId>
