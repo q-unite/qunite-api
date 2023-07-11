@@ -61,9 +61,9 @@ public class QueueServiceImpl implements QueueService {
       entryRepository.findById(new EntryId(memberId, queueId)).ifPresent(entry -> {
         var currentIndex = entry.getEntryIndex();
         if (!currentIndex.equals(newIndex)) {
-          var startIndex = Math.min(currentIndex, newIndex);
-          var endIndex = Math.max(currentIndex, newIndex);
-          var increment = currentIndex < newIndex ? -1 : 1;
+          int startIndex = Math.min(currentIndex, newIndex);
+          int endIndex = Math.max(currentIndex, newIndex);
+          int increment = currentIndex < newIndex ? -1 : 1;
 
           entryRepository.updateEntryIndexes(queueId, startIndex, endIndex, increment);
           entry.setEntryIndex(newIndex);
