@@ -1,6 +1,11 @@
 package com.qunite.api.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.either;
+import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.not;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -158,9 +163,81 @@ class QueueServiceTest {
         new EntryId(3L, queueId));
 
     assertAll(
-        () -> assertEquals(expectedEntryIdList.size(), actualEntryIdList.size()),
-        () -> assertFalse(actualEntryIdList.contains(null)),
-        () -> assertTrue(actualEntryIdList.containsAll(expectedEntryIdList))
+        () -> assertThat(expectedEntryIdList).hasSameSizeAs(actualEntryIdList),
+        () -> assertThat(actualEntryIdList).doesNotContainNull(),
+        () -> assertThat(actualEntryIdList).containsAll(expectedEntryIdList)
+    );
+  }
+
+  @Sql({"/users-create.sql", "/queues-create.sql", "/entries-create.sql"})
+  @Test
+  void testDeleteFirstMemberFromQueue() {
+    var queueId = 1L;
+    var expectedEntryIdList = List.of(
+        new EntryId(6L, queueId),
+        new EntryId(5L, queueId),
+        new EntryId(4L, queueId),
+        new EntryId(3L, queueId));
+
+    queueService.deleteMemberFromQueue(7L, queueId, "First");
+    var actualEntryIdList = entryRepository.findEntriesIdsByQueueId(queueId);
+
+    assertThat(expectedEntryIdList).isEqualTo(actualEntryIdList);
+    assertThat(actualEntryIdList).doesNotContainNull();
+  }
+
+  @Sql({"/users-create.sql", "/queues-create.sql", "/entries-create.sql"})
+  @Test
+  void testDeleteMiddleMemberFromQueue() {
+    var queueId = 1L;
+    var expectedEntryIdList = List.of(
+        new EntryId(7L, queueId),
+        new EntryId(6L, queueId),
+        new EntryId(4L, queueId),
+        new EntryId(3L, queueId));
+
+    queueService.deleteMemberFromQueue(5L, queueId, "First");
+    var actualEntryIdList = entryRepository.findEntriesIdsByQueueId(queueId);
+
+    assertThat(expectedEntryIdList).isEqualTo(actualEntryIdList);
+    assertThat(actualEntryIdList).doesNotContainNull();
+  }
+
+  @Sql({"/users-create.sql", "/queues-create.sql", "/entries-create.sql"})
+  @Test
+  void testDeleteLastMemberFromQueue() {
+    var queueId = 1L;
+    var expectedEntryIdList = List.of(
+        new EntryId(7L, queueId),
+        new EntryId(6L, queueId),
+        new EntryId(5L, queueId),
+        new EntryId(4L, queueId));
+
+    queueService.deleteMemberFromQueue(3L, queueId, "First");
+    var actualEntryIdList = entryRepository.findEntriesIdsByQueueId(queueId);
+
+    assertThat(expectedEntryIdList).isEqualTo(actualEntryIdList);
+    assertThat(actualEntryIdList).doesNotContainNull();
+  }
+
+  @Sql({"/users-create.sql", "/queues-create.sql", "/entries-create.sql"})
+  @Test
+  void testDeleteMemberFromQueueConcurrent() throws InterruptedException {
+    var queueId = 1L;
+    var username = "First";
+    ExecutorService executor = Executors.newFixedThreadPool(2);
+    executor.execute(() -> queueService.deleteMemberFromQueue(7L, queueId, username));
+    executor.execute(() -> queueService.deleteMemberFromQueue(3L, queueId, username));
+    executor.shutdown();
+    executor.awaitTermination(1, TimeUnit.MINUTES);
+    var actualEntryIdList = entryRepository.findEntriesIdsByQueueId(queueId);
+
+    assertAll(
+        () -> assertThat(actualEntryIdList).doesNotContainNull(),
+        () -> assertThat(actualEntryIdList, either(hasSize(4)).or(hasSize(3))),
+        () -> assertThat(actualEntryIdList,
+            either(not(contains(new EntryId(7L, queueId))))
+                .or(not(contains(new EntryId(3L, queueId)))))
     );
   }
 }
