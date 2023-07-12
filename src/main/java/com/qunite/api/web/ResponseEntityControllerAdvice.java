@@ -1,5 +1,6 @@
 package com.qunite.api.web;
 
+import com.qunite.api.exception.EntryNotFoundException;
 import com.qunite.api.exception.QueueNotFoundException;
 import com.qunite.api.exception.UserAlreadyExistsException;
 import com.qunite.api.web.dto.ExceptionResponse;
@@ -13,7 +14,10 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 @RestControllerAdvice
 public class ResponseEntityControllerAdvice {
 
-  @ExceptionHandler(QueueNotFoundException.class)
+  @ExceptionHandler({
+      QueueNotFoundException.class,
+      EntryNotFoundException.class
+  })
   public ResponseEntity<ExceptionResponse> handleNotFound(RuntimeException exception) {
     return ResponseEntity.status(HttpStatus.NOT_FOUND)
         .body(exceptionResponse(exception.getMessage()));

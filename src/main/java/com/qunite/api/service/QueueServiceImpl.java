@@ -6,6 +6,7 @@ import com.qunite.api.data.UserRepository;
 import com.qunite.api.domain.Entry;
 import com.qunite.api.domain.EntryId;
 import com.qunite.api.domain.Queue;
+import com.qunite.api.exception.EntryNotFoundException;
 import com.qunite.api.exception.QueueNotFoundException;
 import java.util.List;
 import java.util.Optional;
@@ -33,10 +34,10 @@ public class QueueServiceImpl implements QueueService {
   @Override
   @Transactional
   public void enrollMemberToQueue(String username, Long queueId) {
+    var queue = findById(queueId).orElseThrow(
+        () -> new QueueNotFoundException("Could not find queue by id %d".formatted(queueId)));
     userRepository.findByUsername(username)
-        .flatMap(user ->
-            queueRepository.findById(queueId)
-                .map(queue -> new Entry(user, queue)))
+        .map(user -> new Entry(user, queue))
         .ifPresent(entry -> entry.getQueue().addEntry(entry));
   }
 
@@ -57,28 +58,33 @@ public class QueueServiceImpl implements QueueService {
   @Transactional(isolation = Isolation.REPEATABLE_READ)
   public void changeMemberPositionInQueue(Long memberId, Long queueId,
                                           Integer newIndex, String username) {
+    var entry = entryRepository.findById(new EntryId(memberId, queueId))
+        .orElseThrow(() -> new EntryNotFoundException(
+            "Could not find entry by memberId %s and queueId %s".formatted(memberId, queueId)));
     if (isUserQueueCreatorOrManagerByCredentials(queueId, username)) {
-      entryRepository.findById(new EntryId(memberId, queueId)).ifPresent(entry -> {
-        var currentIndex = entry.getEntryIndex();
-        if (!currentIndex.equals(newIndex)) {
-          int startIndex = Math.min(currentIndex, newIndex);
-          int endIndex = Math.max(currentIndex, newIndex);
-          int increment = currentIndex < newIndex ? -1 : 1;
+      var currentIndex = entry.getEntryIndex();
+      if (!currentIndex.equals(newIndex)) {
+        int startIndex = Math.min(currentIndex, newIndex);
+        int endIndex = Math.max(currentIndex, newIndex);
+        int increment = currentIndex < newIndex ? -1 : 1;
 
-          entryRepository.updateEntryIndexes(queueId, startIndex, endIndex, increment);
-          entry.setEntryIndex(newIndex);
-        }
-      });
+        entryRepository.updateEntryIndexes(queueId, startIndex, endIndex, increment);
+        entry.setEntryIndex(newIndex);
+      }
     } else {
       throw new AccessDeniedException("User is not a creator or manager");
     }
   }
 
   @Override
-  @Transactional
+  @Transactional(isolation = Isolation.REPEATABLE_READ)
   public void deleteMemberFromQueue(Long memberId, Long queueId, String username) {
+    var entry = entryRepository.findById(new EntryId(memberId, queueId))
+        .orElseThrow(() -> new EntryNotFoundException(
+            "Could not find entry by memberId %s and queueId %s".formatted(memberId, queueId)));
     if (isUserQueueCreatorOrManagerByCredentials(queueId, username)) {
-      entryRepository.deleteById(new EntryId(memberId, queueId));
+      entryRepository.deleteById(entry.getId());
+      entryRepository.decrementEntryIndexes(entry.getQueue().getId(), entry.getEntryIndex());
     } else {
       throw new AccessDeniedException("User is not a creator or manager");
     }
@@ -87,8 +93,7 @@ public class QueueServiceImpl implements QueueService {
   @Override
   @Transactional
   public void deleteById(Long queueId, String username) {
-    var queueById = findById(queueId);
-    if (queueById.isPresent()) {
+    if (queueRepository.existsById(queueId)) {
       if (isUserQueueCreatorByCredentials(queueId, username)) {
         queueRepository.deleteById(queueId);
       } else {

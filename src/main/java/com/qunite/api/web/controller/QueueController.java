@@ -79,7 +79,10 @@ public class QueueController {
   }
 
   @PostMapping("/{id}/members")
-  @Operation(summary = "Enroll member to queue")
+  @Operation(summary = "Enroll member to queue", responses = {
+      @ApiResponse(responseCode = "200"),
+      @ApiResponse(responseCode = "404", content = @Content())
+  })
   public ResponseEntity<Void> enrollMemberToQueue(@PathVariable Long id,
                                                   Principal principal) {
     queueService.enrollMemberToQueue(principal.getName(), id);
@@ -87,8 +90,10 @@ public class QueueController {
   }
 
   @DeleteMapping("/{id}/members/{member-id}")
-  @Operation(summary = "Delete member from queue by id",
-      responses = @ApiResponse(responseCode = "204"))
+  @Operation(summary = "Delete member from queue by id", responses = {
+      @ApiResponse(responseCode = "204"),
+      @ApiResponse(responseCode = "404", content = @Content())
+  })
   public ResponseEntity<Void> deleteMemberFromQueue(@PathVariable Long id,
                                                     @PathVariable(value = "member-id")
                                                     Long memberId,
@@ -98,7 +103,10 @@ public class QueueController {
   }
 
   @PatchMapping("/{id}/entries")
-  @Operation(summary = "Change member position in queue")
+  @Operation(summary = "Change member position in queue", responses = {
+      @ApiResponse(responseCode = "200"),
+      @ApiResponse(responseCode = "404", content = @Content())
+  })
   public ResponseEntity<Void> changeMemberPositionInQueue(@PathVariable Long id,
                                                           @RequestBody EntryUpdateDto entryDto,
                                                           Principal principal) {

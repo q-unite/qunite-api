@@ -19,4 +19,9 @@ public interface EntryRepository extends JpaRepository<Entry, EntryId> {
   @Query("UPDATE Entry e SET e.entryIndex = e.entryIndex + :increment "
       + "WHERE e.queue.id = :queueId AND e.entryIndex BETWEEN :startIndex AND :endIndex ")
   void updateEntryIndexes(Long queueId, Integer startIndex, Integer endIndex, Integer increment);
+
+  @Modifying
+  @Query("UPDATE Entry e SET e.entryIndex = e.entryIndex - 1 "
+      + "WHERE e.queue.id = :queueId AND e.entryIndex > :startIndex")
+  void decrementEntryIndexes(Long queueId, Integer startIndex);
 }
