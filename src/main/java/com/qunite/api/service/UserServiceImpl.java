@@ -94,6 +94,7 @@ public class UserServiceImpl implements UserService {
         jwtService.createJwtToken(
             userRepository.findByEmailOrUsername(login)
                 .filter(user -> passwordEncoder.matches(password, user.getPassword()))
-                .orElseThrow(() -> new UsernameNotFoundException("Username with login %s does not exist".formatted(login)))));
+                .orElseThrow(() -> new UsernameNotFoundException(
+                    "Username with login %s does not exist".formatted(login)))));
   }
 }
