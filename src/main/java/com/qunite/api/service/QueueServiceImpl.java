@@ -8,11 +8,11 @@ import com.qunite.api.domain.EntryId;
 import com.qunite.api.domain.Queue;
 import com.qunite.api.exception.EntryNotFoundException;
 import com.qunite.api.exception.QueueNotFoundException;
+import com.qunite.api.exception.UserForbiddenException;
 import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import one.util.streamex.StreamEx;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
@@ -72,7 +72,7 @@ public class QueueServiceImpl implements QueueService {
         entry.setEntryIndex(newIndex);
       }
     } else {
-      throw new AccessDeniedException("User is not a creator or manager");
+      throw new UserForbiddenException("User is not a creator or manager");
     }
   }
 
@@ -88,7 +88,7 @@ public class QueueServiceImpl implements QueueService {
       entryRepository.updateEntryIndices(entryQueue.getId(), entry.getEntryIndex(),
           entryQueue.getEntries().size(), -1);
     } else {
-      throw new AccessDeniedException("User is not a creator or manager");
+      throw new UserForbiddenException("User is not a creator or manager");
     }
   }
 
@@ -99,7 +99,7 @@ public class QueueServiceImpl implements QueueService {
       if (isUserQueueCreatorByCredentials(queueId, requesterUsername)) {
         queueRepository.deleteById(queueId);
       } else {
-        throw new AccessDeniedException("User is not a creator");
+        throw new UserForbiddenException("User is not a creator");
       }
     } else {
       throw new QueueNotFoundException(
