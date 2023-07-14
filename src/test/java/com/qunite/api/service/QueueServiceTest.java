@@ -1,6 +1,7 @@
 package com.qunite.api.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.either;
@@ -17,6 +18,7 @@ import com.qunite.api.data.QueueRepository;
 import com.qunite.api.data.UserRepository;
 import com.qunite.api.domain.EntryId;
 import com.qunite.api.domain.Queue;
+import com.qunite.api.exception.UserForbiddenException;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -107,7 +109,7 @@ class QueueServiceTest {
     queueService.changeMemberPosition(7L, queueId, 2, "First");
     var actualEntryIdList = entryRepository.findEntriesIdsByQueueId(queueId);
 
-    assertEquals(expectedEntryIdList, actualEntryIdList);
+    assertThat(actualEntryIdList).isEqualTo(expectedEntryIdList);
   }
 
   @Sql({"/users-create.sql", "/queues-create.sql", "/entries-create.sql"})
@@ -124,7 +126,7 @@ class QueueServiceTest {
     queueService.changeMemberPosition(3L, queueId, 2, "First");
     var actualEntryIdList = entryRepository.findEntriesIdsByQueueId(queueId);
 
-    assertEquals(expectedEntryIdList, actualEntryIdList);
+    assertThat(actualEntryIdList).isEqualTo(expectedEntryIdList);
   }
 
   @Sql({"/users-create.sql", "/queues-create.sql", "/entries-create.sql"})
@@ -141,7 +143,7 @@ class QueueServiceTest {
     queueService.changeMemberPosition(5L, queueId, 2, "First");
     var actualEntryIdList = entryRepository.findEntriesIdsByQueueId(queueId);
 
-    assertEquals(expectedEntryIdList, actualEntryIdList);
+    assertThat(actualEntryIdList).isEqualTo(expectedEntryIdList);
   }
 
   @Sql({"/users-create.sql", "/queues-create.sql", "/entries-create.sql"})
@@ -163,7 +165,7 @@ class QueueServiceTest {
         new EntryId(3L, queueId));
 
     assertAll(
-        () -> assertThat(expectedEntryIdList).hasSameSizeAs(actualEntryIdList),
+        () -> assertThat(actualEntryIdList).hasSameSizeAs(expectedEntryIdList),
         () -> assertThat(actualEntryIdList).doesNotContainNull(),
         () -> assertThat(actualEntryIdList).containsAll(expectedEntryIdList)
     );
@@ -182,7 +184,7 @@ class QueueServiceTest {
     queueService.deleteMember(7L, queueId, "First");
     var actualEntryIdList = entryRepository.findEntriesIdsByQueueId(queueId);
 
-    assertThat(expectedEntryIdList).isEqualTo(actualEntryIdList);
+    assertThat(actualEntryIdList).isEqualTo(expectedEntryIdList);
     assertThat(actualEntryIdList).doesNotContainNull();
   }
 
@@ -199,7 +201,7 @@ class QueueServiceTest {
     queueService.deleteMember(5L, queueId, "First");
     var actualEntryIdList = entryRepository.findEntriesIdsByQueueId(queueId);
 
-    assertThat(expectedEntryIdList).isEqualTo(actualEntryIdList);
+    assertThat(actualEntryIdList).isEqualTo(expectedEntryIdList);
     assertThat(actualEntryIdList).doesNotContainNull();
   }
 
@@ -216,7 +218,27 @@ class QueueServiceTest {
     queueService.deleteMember(3L, queueId, "First");
     var actualEntryIdList = entryRepository.findEntriesIdsByQueueId(queueId);
 
-    assertThat(expectedEntryIdList).isEqualTo(actualEntryIdList);
+    assertThat(actualEntryIdList).isEqualTo(expectedEntryIdList);
+    assertThat(actualEntryIdList).doesNotContainNull();
+  }
+
+  @Sql({"/users-create.sql", "/queues-create.sql", "/entries-create.sql"})
+  @Test
+  void testDeleteMemberFromQueueByNotAdminOrManager() {
+    var queueId = 1L;
+    var expectedEntryIdList = List.of(
+        new EntryId(7L, queueId),
+        new EntryId(6L, queueId),
+        new EntryId(5L, queueId),
+        new EntryId(4L, queueId),
+        new EntryId(3L, queueId));
+
+    assertThatThrownBy(() -> queueService.deleteMember(3L, queueId, "Fifth"))
+        .isInstanceOf(UserForbiddenException.class);
+
+    var actualEntryIdList = entryRepository.findEntriesIdsByQueueId(queueId);
+
+    assertThat(actualEntryIdList).isEqualTo(expectedEntryIdList);
     assertThat(actualEntryIdList).doesNotContainNull();
   }
 

@@ -83,10 +83,9 @@ public class QueueServiceImpl implements QueueService {
         .orElseThrow(() -> new EntryNotFoundException(
             "Could not find entry by memberId %s and queueId %s".formatted(memberId, queueId)));
     if (isUserQueueCreatorOrManagerByCredentials(queueId, requesterUsername)) {
-      var entryQueue = entry.getQueue();
       entryRepository.deleteById(entry.getId());
-      entryRepository.updateEntryIndices(entryQueue.getId(), entry.getEntryIndex(),
-          entryQueue.getEntries().size(), -1);
+      entryRepository.updateEntryIndices(queueId, entry.getEntryIndex() + 1,
+          Integer.MAX_VALUE, -1);
     } else {
       throw new UserForbiddenException("User is not a creator or manager");
     }
