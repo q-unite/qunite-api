@@ -11,8 +11,8 @@ use the Checkstyle plugin and the [config file](config/checkstyle.xml).
 To run checkstyle, execute `mvn clean verify -P checkstyle`
 
 ## Running
-To run application with docker compose you need to create backend network first, we already have the `docker-compose-network.yaml`
-so just run the command `docker compose -f docker-compose.yml -f docker-compose-network.yaml up`
+To run application with docker compose you need to create backend network first, we already have the `docker-compose-network.yml`
+so just run the command `docker compose -f docker-compose.yml -f docker-compose-network.yml up`
 
 ## Testing
 
