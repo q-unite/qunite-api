@@ -117,8 +117,8 @@ class AuthenticationIntegrationTest {
   }
 
   @ParameterizedTest
-  @DisplayName("sign in should not return access token when password does not match or" +
-      " user does not exist")
+  @DisplayName("sign in should not return access token when password does not match or"
+      + " user does not exist")
   @CsvSource({
       "John@user.com, asd",
       "First, dsa"
