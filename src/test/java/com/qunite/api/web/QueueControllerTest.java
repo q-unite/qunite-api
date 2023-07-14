@@ -81,7 +81,7 @@ class QueueControllerTest {
   @Test
   void retrieveMembersAmount() throws Exception {
     var amount = 5;
-    given(queueService.getMembersAmountInQueue(anyLong())).willReturn(Optional.of(amount));
+    given(queueService.getMembersAmount(anyLong())).willReturn(Optional.of(amount));
 
     var resultActions = mockMvc.perform(get("/{url}/1/members-amount", url));
 
@@ -92,7 +92,7 @@ class QueueControllerTest {
   @Test
   void retrieveMemberPositionInQueue() throws Exception {
     var position = 5;
-    given(queueService.getMemberPositionInQueue(anyLong(), anyLong()))
+    given(queueService.getMemberPosition(anyLong(), anyLong()))
         .willReturn(Optional.of(position));
 
     var resultActions = mockMvc.perform(get("/{url}/1/members/1", url));

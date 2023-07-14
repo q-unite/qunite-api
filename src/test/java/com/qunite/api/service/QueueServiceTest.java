@@ -62,7 +62,7 @@ class QueueServiceTest {
   @Sql({"/users-create.sql", "/queues-create.sql"})
   @Test
   void testEnrollingUserToQueue() {
-    queueService.enrollMemberToQueue("Second", 1L);
+    queueService.enrollMember("Second", 1L);
 
     assertTrue(entryRepository.existsById(new EntryId(2L, 1L)));
   }
@@ -78,8 +78,8 @@ class QueueServiceTest {
   @Sql({"/users-create.sql", "/queues-create.sql", "/entries-create.sql"})
   @Test
   void testGettingMembersAmountInQueue() {
-    var amountOfExistingQueue = queueService.getMembersAmountInQueue(1L);
-    var amountOfAbsentQueue = queueService.getMembersAmountInQueue(100L);
+    var amountOfExistingQueue = queueService.getMembersAmount(1L);
+    var amountOfAbsentQueue = queueService.getMembersAmount(100L);
 
     assertThat(amountOfExistingQueue).hasValue(5);
     assertThat(amountOfAbsentQueue).isNotPresent();
@@ -88,7 +88,7 @@ class QueueServiceTest {
   @Sql({"/users-create.sql", "/queues-create.sql", "/entries-create.sql"})
   @Test
   void testGettingMemberPositionInQueue() {
-    var memberPosition = queueService.getMemberPositionInQueue(3L, 1L);
+    var memberPosition = queueService.getMemberPosition(3L, 1L);
 
     assertThat(memberPosition).hasValue(5);
   }
@@ -104,7 +104,7 @@ class QueueServiceTest {
         new EntryId(4L, queueId),
         new EntryId(3L, queueId));
 
-    queueService.changeMemberPositionInQueue(7L, queueId, 2, "First");
+    queueService.changeMemberPosition(7L, queueId, 2, "First");
     var actualEntryIdList = entryRepository.findEntriesIdsByQueueId(queueId);
 
     assertEquals(expectedEntryIdList, actualEntryIdList);
@@ -121,7 +121,7 @@ class QueueServiceTest {
         new EntryId(5L, queueId),
         new EntryId(4L, queueId));
 
-    queueService.changeMemberPositionInQueue(3L, queueId, 2, "First");
+    queueService.changeMemberPosition(3L, queueId, 2, "First");
     var actualEntryIdList = entryRepository.findEntriesIdsByQueueId(queueId);
 
     assertEquals(expectedEntryIdList, actualEntryIdList);
@@ -138,7 +138,7 @@ class QueueServiceTest {
         new EntryId(4L, queueId),
         new EntryId(3L, queueId));
 
-    queueService.changeMemberPositionInQueue(5L, queueId, 2, "First");
+    queueService.changeMemberPosition(5L, queueId, 2, "First");
     var actualEntryIdList = entryRepository.findEntriesIdsByQueueId(queueId);
 
     assertEquals(expectedEntryIdList, actualEntryIdList);
@@ -150,8 +150,8 @@ class QueueServiceTest {
     var queueId = 1L;
     var username = "First";
     ExecutorService executor = Executors.newFixedThreadPool(2);
-    executor.execute(() -> queueService.changeMemberPositionInQueue(7L, queueId, 4, username));
-    executor.execute(() -> queueService.changeMemberPositionInQueue(3L, queueId, 0, username));
+    executor.execute(() -> queueService.changeMemberPosition(7L, queueId, 4, username));
+    executor.execute(() -> queueService.changeMemberPosition(3L, queueId, 0, username));
     executor.shutdown();
     executor.awaitTermination(1, TimeUnit.MINUTES);
     var actualEntryIdList = entryRepository.findEntriesIdsByQueueId(queueId);
@@ -179,7 +179,7 @@ class QueueServiceTest {
         new EntryId(4L, queueId),
         new EntryId(3L, queueId));
 
-    queueService.deleteMemberFromQueue(7L, queueId, "First");
+    queueService.deleteMember(7L, queueId, "First");
     var actualEntryIdList = entryRepository.findEntriesIdsByQueueId(queueId);
 
     assertThat(expectedEntryIdList).isEqualTo(actualEntryIdList);
@@ -196,7 +196,7 @@ class QueueServiceTest {
         new EntryId(4L, queueId),
         new EntryId(3L, queueId));
 
-    queueService.deleteMemberFromQueue(5L, queueId, "First");
+    queueService.deleteMember(5L, queueId, "First");
     var actualEntryIdList = entryRepository.findEntriesIdsByQueueId(queueId);
 
     assertThat(expectedEntryIdList).isEqualTo(actualEntryIdList);
@@ -213,7 +213,7 @@ class QueueServiceTest {
         new EntryId(5L, queueId),
         new EntryId(4L, queueId));
 
-    queueService.deleteMemberFromQueue(3L, queueId, "First");
+    queueService.deleteMember(3L, queueId, "First");
     var actualEntryIdList = entryRepository.findEntriesIdsByQueueId(queueId);
 
     assertThat(expectedEntryIdList).isEqualTo(actualEntryIdList);
@@ -226,8 +226,8 @@ class QueueServiceTest {
     var queueId = 1L;
     var username = "First";
     ExecutorService executor = Executors.newFixedThreadPool(2);
-    executor.execute(() -> queueService.deleteMemberFromQueue(7L, queueId, username));
-    executor.execute(() -> queueService.deleteMemberFromQueue(3L, queueId, username));
+    executor.execute(() -> queueService.deleteMember(7L, queueId, username));
+    executor.execute(() -> queueService.deleteMember(3L, queueId, username));
     executor.shutdown();
     executor.awaitTermination(1, TimeUnit.MINUTES);
     var actualEntryIdList = entryRepository.findEntriesIdsByQueueId(queueId);

@@ -65,7 +65,7 @@ public class QueueController {
       @ApiResponse(responseCode = "404", content = @Content())
   })
   public ResponseEntity<Integer> membersAmount(@PathVariable Long id) {
-    return ResponseEntity.of(queueService.getMembersAmountInQueue(id));
+    return ResponseEntity.of(queueService.getMembersAmount(id));
   }
 
   @GetMapping("/{id}/members/{member-id}")
@@ -75,7 +75,7 @@ public class QueueController {
   })
   public ResponseEntity<Integer> memberPosition(@PathVariable Long id,
                                                 @PathVariable(value = "member-id") Long memberId) {
-    return ResponseEntity.of(queueService.getMemberPositionInQueue(memberId, id));
+    return ResponseEntity.of(queueService.getMemberPosition(memberId, id));
   }
 
   @PostMapping("/{id}/members")
@@ -83,9 +83,9 @@ public class QueueController {
       @ApiResponse(responseCode = "200"),
       @ApiResponse(responseCode = "404", content = @Content())
   })
-  public ResponseEntity<Void> enrollMemberToQueue(@PathVariable Long id,
-                                                  Principal principal) {
-    queueService.enrollMemberToQueue(principal.getName(), id);
+  public ResponseEntity<Void> enrollMember(@PathVariable Long id,
+                                           Principal principal) {
+    queueService.enrollMember(principal.getName(), id);
     return ResponseEntity.ok().build();
   }
 
@@ -94,24 +94,23 @@ public class QueueController {
       @ApiResponse(responseCode = "204"),
       @ApiResponse(responseCode = "404", content = @Content())
   })
-  public ResponseEntity<Void> deleteMemberFromQueue(@PathVariable Long id,
-                                                    @PathVariable(value = "member-id")
-                                                    Long memberId,
-                                                    Principal principal) {
-    queueService.deleteMemberFromQueue(memberId, id, principal.getName());
+  public ResponseEntity<Void> deleteMember(@PathVariable Long id,
+                                           @PathVariable(value = "member-id") Long memberId,
+                                           Principal principal) {
+    queueService.deleteMember(memberId, id, principal.getName());
     return ResponseEntity.noContent().build();
   }
 
-  @PatchMapping("/{id}/entries")
+  @PatchMapping("/{id}/members/{member-id}/entries")
   @Operation(summary = "Change member position in queue", responses = {
       @ApiResponse(responseCode = "200"),
       @ApiResponse(responseCode = "404", content = @Content())
   })
-  public ResponseEntity<Void> changeMemberPositionInQueue(@PathVariable Long id,
-                                                          @RequestBody EntryUpdateDto entryDto,
-                                                          Principal principal) {
-    queueService.changeMemberPositionInQueue(entryDto.getMemberId(), id,
-        entryDto.getEntryIndex(), principal.getName());
+  public ResponseEntity<Void> changeMemberPosition(@PathVariable Long id,
+                                                   @PathVariable(value = "member-id") Long memberId,
+                                                   @RequestBody EntryUpdateDto entryDto,
+                                                   Principal principal) {
+    queueService.changeMemberPosition(memberId, id, entryDto.getEntryIndex(), principal.getName());
     return ResponseEntity.ok().build();
   }
 
@@ -120,7 +119,7 @@ public class QueueController {
       @ApiResponse(responseCode = "200"),
       @ApiResponse(responseCode = "404", content = @Content())
   })
-  public ResponseEntity<UserDto> getQueueCreator(@PathVariable Long id) {
+  public ResponseEntity<UserDto> getCreator(@PathVariable Long id) {
     return ResponseEntity.of(queueService.findById(id)
         .map(Queue::getCreator)
         .map(userMapper::toDto));
@@ -131,7 +130,7 @@ public class QueueController {
       @ApiResponse(responseCode = "200"),
       @ApiResponse(responseCode = "404", content = @Content())
   })
-  public ResponseEntity<List<UserDto>> getQueueManagers(@PathVariable Long id) {
+  public ResponseEntity<List<UserDto>> getManagers(@PathVariable Long id) {
     return ResponseEntity.of(queueService.findById(id)
         .map(found -> found.getManagers().stream()
             .map(userMapper::toDto).toList()));
@@ -142,7 +141,7 @@ public class QueueController {
       @ApiResponse(responseCode = "200"),
       @ApiResponse(responseCode = "404", content = @Content())
   })
-  public ResponseEntity<List<EntryDto>> getQueueEntries(@PathVariable Long id) {
+  public ResponseEntity<List<EntryDto>> getEntries(@PathVariable Long id) {
     return ResponseEntity.of(queueService.findById(id)
         .map(found -> found.getEntries().stream()
             .map(entryMapper::toDto).toList()));
@@ -150,7 +149,7 @@ public class QueueController {
 
   @PostMapping
   @Operation(summary = "Create queue", responses = @ApiResponse(responseCode = "201"))
-  public ResponseEntity<QueueDto> createQueue(
+  public ResponseEntity<QueueDto> create(
       @Valid @RequestBody QueueCreationDto queueCreationDto) {
     var created = queueService.create(queueMapper.toEntity(queueCreationDto));
     return new ResponseEntity<>(queueMapper.toDto(created), HttpStatus.CREATED);
@@ -161,8 +160,8 @@ public class QueueController {
       @ApiResponse(responseCode = "200"),
       @ApiResponse(responseCode = "404", content = @Content())
   })
-  public ResponseEntity<QueueDto> updateQueue(@PathVariable Long id,
-                                              @RequestBody QueueUpdateDto queueUpdateDto) {
+  public ResponseEntity<QueueDto> update(@PathVariable Long id,
+                                         @RequestBody QueueUpdateDto queueUpdateDto) {
     return ResponseEntity.of(queueService.findById(id)
         .map(queue -> queueMapper.partialUpdate(queueUpdateDto, queue))
         .map(queueService::create)
