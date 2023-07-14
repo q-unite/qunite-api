@@ -18,7 +18,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.jdbc.Sql;
 
 
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.NONE)
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @IntegrationTest
 class UserServiceTest {
   @Autowired
@@ -76,8 +76,9 @@ class UserServiceTest {
   @Test
   void testCreatingUserCreatesNewUser() {
     User user = new User();
-    user.setFirstName("Creator");
-    user.setLastName("Creator");
+    user.setUsername("Creator");
+    user.setEmail("Email");
+    user.setPassword("password");
 
     user = userService.createOne(user);
     var result = userService.findAll();

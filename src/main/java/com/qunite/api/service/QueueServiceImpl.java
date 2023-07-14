@@ -6,9 +6,11 @@ import com.qunite.api.data.UserRepository;
 import com.qunite.api.domain.Entry;
 import com.qunite.api.domain.EntryId;
 import com.qunite.api.domain.Queue;
+import com.qunite.api.exception.QueueNotFoundException;
 import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -18,6 +20,7 @@ public class QueueServiceImpl implements QueueService {
   private final QueueRepository queueRepository;
   private final UserRepository userRepository;
   private final EntryRepository entryRepository;
+  private final UserService userService;
 
   @Override
   @Transactional
@@ -48,11 +51,28 @@ public class QueueServiceImpl implements QueueService {
         .map(entry -> entry.getEntryIndex() + 1);
   }
 
-
   @Override
   @Transactional
-  public void deleteById(Long queueId) {
-    queueRepository.deleteById(queueId);
+  public void deleteById(Long queueId, String username) {
+    var queueById = findById(queueId);
+    if (queueById.isPresent()) {
+      if (isUserByCredentialsQueueCreator(queueId, username)) {
+        queueRepository.deleteById(queueId);
+      } else {
+        throw new AccessDeniedException("User is not a creator");
+      }
+    } else {
+      throw new QueueNotFoundException(
+          "Could not find queue by id %d".formatted(queueId));
+    }
+  }
+
+  private boolean isUserByCredentialsQueueCreator(Long queueId, String username) {
+    return findById(queueId)
+        .map(queue -> userService.findByUsername(username)
+            .map(user -> queue.getCreator().equals(user))
+            .orElse(false))
+        .orElse(false);
   }
 
   @Override
