@@ -14,8 +14,8 @@ import com.qunite.api.annotation.IntegrationTest;
 import com.qunite.api.data.EntryRepository;
 import com.qunite.api.data.QueueRepository;
 import com.qunite.api.data.UserRepository;
-import com.qunite.api.domain.User;
 import com.qunite.api.service.UserService;
+import com.qunite.api.web.dto.user.UserDto;
 import com.qunite.api.web.mapper.UserMapper;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
@@ -108,11 +108,10 @@ class UserControllerIntegrationTest {
   @Test
   @Sql("/users-create.sql")
   void updateUser() throws Exception {
-    final var user = new User();
+    final var user = new UserDto();
     user.setUsername("John");
 
-    final var dto = userMapper.toDto(user);
-    final var json = new ObjectMapper().writeValueAsString(dto);
+    final var json = new ObjectMapper().writeValueAsString(user);
 
     var resultActions =
         mockMvc.perform(patch("/{url}/self", url)

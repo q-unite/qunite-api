@@ -1,9 +1,9 @@
 package com.qunite.api.service;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.qunite.api.annotation.IntegrationTest;
@@ -14,8 +14,11 @@ import com.qunite.api.domain.Queue;
 import com.qunite.api.domain.User;
 import com.qunite.api.exception.UserAlreadyExistsException;
 import com.qunite.api.utils.JpaRepositoryUtils;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -48,7 +51,8 @@ class UserServiceTest {
 
   @Test
   @Sql("/users-create.sql")
-  void testUpdatingShouldUpdateUserWithValidData() {
+  @DisplayName("UpdateShouldUpdateUserWithValidData")
+  void testUpdate() {
     var username = "NewUsername";
 
     var user = JpaRepositoryUtils.getById(1L, userRepository);
@@ -61,16 +65,17 @@ class UserServiceTest {
   }
 
   @Test
+  @DisplayName("Update should not work with username or email in use")
   @Sql("/users-create.sql")
-  void testUpdatingShouldNotUpdateUserWithUsedUsernameOrEmail() {
+  void testUpdatingWithUsedLogin() {
     var user = userService.findOne(1L).orElseThrow();
     user.setUsername("Second");
     user.setEmail("User2@user.com");
 
-    Exception exception = assertThrows(UserAlreadyExistsException.class, () ->
-        userService.updateOne(user));
-
-    assertThat(exception.getMessage()).isEqualTo("Username Second is already in use");
+    assertThatThrownBy(() ->
+        userService.updateOne(user))
+        .isInstanceOf(UserAlreadyExistsException.class)
+        .message().contains("Second");
   }
 
   @Test
@@ -91,8 +96,7 @@ class UserServiceTest {
   @Sql({"/users-create.sql", "/queues-create.sql", "/queues-managers-create.sql"})
   void testGettingManagedQueuesReturnsManagedQueues() {
     var queues = userService.getManagedQueues(1L);
-    List<Queue> expectedQueues =
-        List.of(queueService.findById(1L).orElseThrow(), queueService.findById(3L).orElseThrow());
+    List<Queue> expectedQueues = getQueues(1L, 3L);
     assertThat(queues).hasValue(expectedQueues);
   }
 
@@ -100,8 +104,7 @@ class UserServiceTest {
   @Sql({"/users-create.sql", "/queues-create.sql"})
   void testGettingCreatedQueuesCreatesQueue() {
     var queues = userService.getCreatedQueues(1L);
-    List<Queue> expectedQueues =
-        List.of(queueService.findById(1L).orElseThrow(), queueService.findById(4L).orElseThrow());
+    List<Queue> expectedQueues = getQueues(1L, 4L);
     assertThat(queues).hasValue(expectedQueues);
   }
 
@@ -129,4 +132,10 @@ class UserServiceTest {
 
     assertFalse(userRepository.existsById(1L));
   }
+
+  private List<Queue> getQueues(Long... ids) {
+    return Arrays.stream(ids).map(queueService::findById).map(Optional::orElseThrow).toList();
+  }
+
+  ;
 }

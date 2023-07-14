@@ -15,8 +15,8 @@ import com.qunite.api.annotation.IntegrationTest;
 import com.qunite.api.data.EntryRepository;
 import com.qunite.api.data.QueueRepository;
 import com.qunite.api.data.UserRepository;
-import com.qunite.api.domain.Queue;
 import com.qunite.api.service.QueueService;
+import com.qunite.api.web.dto.queue.QueueCreationDto;
 import com.qunite.api.web.mapper.QueueMapper;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
@@ -150,11 +150,10 @@ class QueueControllerIntegrationTest {
   void createQueue() throws Exception {
     var queueName = "SomeQueue";
 
-    var queue = new Queue();
+    var queue = new QueueCreationDto();
     queue.setName(queueName);
 
-    var dto = queueMapper.toDto(queue);
-    var json = new ObjectMapper().writeValueAsString(dto);
+    var json = new ObjectMapper().writeValueAsString(queue);
 
     var resultActions = mockMvc.perform(post("/{url}", url)
         .contentType(MediaType.APPLICATION_JSON)

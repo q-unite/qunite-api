@@ -17,8 +17,6 @@ public interface UserMapper {
 
   UserDto toDto(User user);
 
-  UserCreationDto toUserCreationDto(User user);
-
   @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
   User partialUpdate(UserUpdateDto userDto, @MappingTarget User user);
 }
