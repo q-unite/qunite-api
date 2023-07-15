@@ -17,9 +17,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
-import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.MethodSource;
-import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -96,6 +94,13 @@ class AuthenticationIntegrationTest {
         .andExpect(status().isBadRequest());
   }
 
+  private static Stream<Arguments> signUpShouldNotAllowUsedLogin() {
+    return Stream.of(
+        Arguments.of("First", "dsa", "John@user.com"),
+        Arguments.of("John", "dsa", "User1@user.com")
+    );
+  }
+
   @ParameterizedTest
   @DisplayName("Sign in should return access token when given user exists")
   @MethodSource
@@ -115,9 +120,16 @@ class AuthenticationIntegrationTest {
         .andExpect(jsonPath("$.token", notNullValue()));
   }
 
+  private static Stream<Arguments> signInShouldReturnAccessToken() {
+    return Stream.of(
+        Arguments.of("First", "asd"),
+        Arguments.of("User1@user.com", "asd")
+    );
+  }
+
+
   @ParameterizedTest
-  @DisplayName("sign in should not return access token when password does not match or"
-      + " user does not exist")
+  @DisplayName("Does not sign in with non-existing credentials in the database")
   @MethodSource
   @Sql("/users-create.sql")
   void signInShouldCheckCredentials(String login, String password) throws Exception {
@@ -137,17 +149,5 @@ class AuthenticationIntegrationTest {
     return Stream.of(
         Arguments.of("John@user.com", "asd"),
         Arguments.of("First", "dsa"));
-  }
-  private static Stream<Arguments> signInShouldReturnAccessToken() {
-    return Stream.of(
-        Arguments.of("First", "asd"),
-        Arguments.of("User1@user.com", "asd")
-    );
-  }
-  private static Stream<Arguments> signUpShouldNotAllowUsedLogin() {
-    return Stream.of(
-        Arguments.of("First", "dsa", "John@user.com"),
-        Arguments.of("John", "dsa", "User1@user.com")
-    );
   }
 }

@@ -7,11 +7,11 @@ import com.qunite.api.domain.Entry;
 import com.qunite.api.domain.EntryId;
 import com.qunite.api.domain.Queue;
 import com.qunite.api.exception.QueueNotFoundException;
+import com.qunite.api.exception.UserNotFoundException;
 import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.AccessDeniedException;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,7 +27,7 @@ public class QueueServiceImpl implements QueueService {
   @Transactional
   public Queue create(Queue queue, String username) {
     queue.setCreator(userService.findByUsername(username)
-        .orElseThrow(() -> new UsernameNotFoundException(
+        .orElseThrow(() -> new UserNotFoundException(
             "Invalid creator with username: %s".formatted(username))));
     return queueRepository.save(queue);
   }

@@ -3,12 +3,12 @@ package com.qunite.api.web;
 import com.auth0.jwt.exceptions.JWTDecodeException;
 import com.qunite.api.exception.QueueNotFoundException;
 import com.qunite.api.exception.UserAlreadyExistsException;
+import com.qunite.api.exception.UserNotFoundException;
 import com.qunite.api.web.dto.ExceptionResponse;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
@@ -20,7 +20,7 @@ public class ResponseEntityControllerAdvice {
         .body(exceptionResponse(exception.getMessage()));
   }
 
-  @ExceptionHandler({QueueNotFoundException.class, UsernameNotFoundException.class})
+  @ExceptionHandler({QueueNotFoundException.class, UserNotFoundException.class})
   public ResponseEntity<ExceptionResponse> handleNotFound(RuntimeException exception) {
     return ResponseEntity.status(HttpStatus.NOT_FOUND)
         .body(exceptionResponse(exception.getMessage()));

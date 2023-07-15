@@ -5,11 +5,11 @@ import com.qunite.api.data.UserRepository;
 import com.qunite.api.domain.Queue;
 import com.qunite.api.domain.User;
 import com.qunite.api.exception.UserAlreadyExistsException;
+import com.qunite.api.exception.UserNotFoundException;
 import com.qunite.api.security.JwtService;
 import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -94,7 +94,7 @@ public class UserServiceImpl implements UserService {
         jwtService.createJwtToken(
             userRepository.findByEmailOrUsername(login)
                 .filter(user -> passwordEncoder.matches(password, user.getPassword()))
-                .orElseThrow(() -> new UsernameNotFoundException(
+                .orElseThrow(() -> new UserNotFoundException(
                     "Username with login %s does not exist".formatted(login)))));
   }
 }
