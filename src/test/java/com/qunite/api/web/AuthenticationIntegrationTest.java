@@ -11,11 +11,15 @@ import com.qunite.api.data.UserRepository;
 import com.qunite.api.service.UserService;
 import com.qunite.api.web.dto.auth.AuthenticationRequest;
 import com.qunite.api.web.dto.user.UserCreationDto;
+import java.util.stream.Stream;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.CsvSource;
+import org.junit.jupiter.params.provider.MethodSource;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -57,8 +61,9 @@ class AuthenticationIntegrationTest {
   @Test
   @DisplayName("Sign up should create user with not used username and email")
   void signUpShouldCreate() throws Exception {
+    var username = "John";
     var user = new UserCreationDto();
-    user.setUsername("John");
+    user.setUsername(username);
     user.setPassword("asd");
     user.setEmail("John@user.com");
 
@@ -69,15 +74,12 @@ class AuthenticationIntegrationTest {
                 .contentType(MediaType.APPLICATION_JSON).content(json))
         .andExpect(status().is2xxSuccessful());
 
-    assertThat(userService.findByUsername("John")).isPresent();
+    assertThat(userService.findByUsername(username)).isPresent();
   }
 
   @ParameterizedTest
   @DisplayName("Sign up should not create user with existing username or email")
-  @CsvSource({
-      "First, dsa, John@user.com",
-      "John, dsa, User1@user.com"
-  })
+  @MethodSource
   @Sql("/users-create.sql")
   void signUpShouldNotAllowUsedLogin(String username,
                                      String password, String email) throws Exception {
@@ -96,10 +98,7 @@ class AuthenticationIntegrationTest {
 
   @ParameterizedTest
   @DisplayName("Sign in should return access token when given user exists")
-  @CsvSource({
-      "First, asd",
-      "User1@user.com, asd"
-  })
+  @MethodSource
   @Sql("/users-create.sql")
   void signInShouldReturnAccessToken(String login, String password) throws Exception {
     var requestData = new AuthenticationRequest();
@@ -119,15 +118,12 @@ class AuthenticationIntegrationTest {
   @ParameterizedTest
   @DisplayName("sign in should not return access token when password does not match or"
       + " user does not exist")
-  @CsvSource({
-      "John@user.com, asd",
-      "First, dsa"
-  })
+  @MethodSource
   @Sql("/users-create.sql")
-  void signInShouldCheckCredentials() throws Exception {
+  void signInShouldCheckCredentials(String login, String password) throws Exception {
     var requestData = new AuthenticationRequest();
-    requestData.setLogin("John@user.com");
-    requestData.setPassword("asd");
+    requestData.setLogin(login);
+    requestData.setPassword(password);
 
     var json = new ObjectMapper().writeValueAsString(requestData);
 
@@ -135,5 +131,23 @@ class AuthenticationIntegrationTest {
         .contentType(MediaType.APPLICATION_JSON).content(json));
     resultActions
         .andExpect(status().isNotFound());
+  }
+
+  private static Stream<Arguments> signInShouldCheckCredentials() {
+    return Stream.of(
+        Arguments.of("John@user.com", "asd"),
+        Arguments.of("First", "dsa"));
+  }
+  private static Stream<Arguments> signInShouldReturnAccessToken() {
+    return Stream.of(
+        Arguments.of("First", "asd"),
+        Arguments.of("User1@user.com", "asd")
+    );
+  }
+  private static Stream<Arguments> signUpShouldNotAllowUsedLogin() {
+    return Stream.of(
+        Arguments.of("First", "dsa", "John@user.com"),
+        Arguments.of("John", "dsa", "User1@user.com")
+    );
   }
 }
