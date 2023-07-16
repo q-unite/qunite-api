@@ -5,12 +5,12 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.either;
-import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.not;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import com.qunite.api.annotation.IntegrationTest;
 import com.qunite.api.data.EntryRepository;
@@ -18,7 +18,7 @@ import com.qunite.api.data.QueueRepository;
 import com.qunite.api.data.UserRepository;
 import com.qunite.api.domain.EntryId;
 import com.qunite.api.domain.Queue;
-import com.qunite.api.exception.UserForbiddenException;
+import com.qunite.api.exception.ForbiddenAccessException;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -234,7 +234,7 @@ class QueueServiceTest {
         new EntryId(3L, queueId));
 
     assertThatThrownBy(() -> queueService.deleteMember(3L, queueId, "Fifth"))
-        .isInstanceOf(UserForbiddenException.class);
+        .isInstanceOf(ForbiddenAccessException.class);
 
     var actualEntryIdList = entryRepository.findEntriesIdsByQueueId(queueId);
 
@@ -252,14 +252,22 @@ class QueueServiceTest {
     executor.execute(() -> queueService.deleteMember(3L, queueId, username));
     executor.shutdown();
     executor.awaitTermination(1, TimeUnit.MINUTES);
-    var actualEntryIdList = entryRepository.findEntriesIdsByQueueId(queueId);
 
-    assertAll(
-        () -> assertThat(actualEntryIdList).doesNotContainNull(),
-        () -> assertThat(actualEntryIdList, either(hasSize(4)).or(hasSize(3))),
-        () -> assertThat(actualEntryIdList,
-            either(not(contains(new EntryId(7L, queueId))))
-                .or(not(contains(new EntryId(3L, queueId)))))
-    );
+    var actualEntryIdList = entryRepository.findEntriesIdsByQueueId(queueId);
+    var actualEntryIdListSize = actualEntryIdList.size();
+    var firstMaybeDeletedEntryId = new EntryId(7L, queueId);
+    var secondMaybeDeletedEntryId = new EntryId(3L, queueId);
+
+    assertThat(actualEntryIdList).doesNotContainNull();
+    if (actualEntryIdListSize == 4) {
+      assertThat(actualEntryIdList,
+          either(not(contains(firstMaybeDeletedEntryId)))
+              .or(not(contains(secondMaybeDeletedEntryId))));
+    } else if (actualEntryIdListSize == 3) {
+      assertThat(actualEntryIdList,
+          not(contains(firstMaybeDeletedEntryId, secondMaybeDeletedEntryId)));
+    } else {
+      fail("unexpected actualEntryIdList size");
+    }
   }
 }
