@@ -35,10 +35,8 @@ public class UserServiceImpl implements UserService {
   @Override
   @Transactional
   public User updateOne(User newUser) {
-    boolean isUsernameInUse = userRepository.findUserByUsername(newUser.getUsername())
-        .filter(found -> !found.getId().equals(newUser.getId())).isPresent();
-    boolean isEmailInUse = userRepository.findByEmailOrUsername(newUser.getEmail())
-        .filter(found -> !found.getId().equals(newUser.getId())).isPresent();
+    boolean isUsernameInUse = isUsernameInUse(newUser);
+    boolean isEmailInUse = isEmailInUse(newUser);
 
     if (isUsernameInUse) {
       throw new UserAlreadyExistsException(
@@ -96,5 +94,15 @@ public class UserServiceImpl implements UserService {
                 .filter(user -> passwordEncoder.matches(password, user.getPassword()))
                 .orElseThrow(() -> new UserNotFoundException(
                     "Username with login %s does not exist".formatted(login)))));
+  }
+
+  private boolean isUsernameInUse(User user) {
+    return userRepository.findUserByUsername(user.getUsername())
+        .filter(found -> !found.getId().equals(user.getId())).isPresent();
+  }
+
+  private boolean isEmailInUse(User user) {
+    return userRepository.findByEmailOrUsername(user.getEmail())
+        .filter(found -> !found.getId().equals(user.getId())).isPresent();
   }
 }
