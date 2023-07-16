@@ -1,9 +1,9 @@
 package com.qunite.api.web;
 
 import com.qunite.api.exception.EntryNotFoundException;
+import com.qunite.api.exception.ForbiddenAccessException;
 import com.qunite.api.exception.QueueNotFoundException;
 import com.qunite.api.exception.UserAlreadyExistsException;
-import com.qunite.api.exception.UserForbiddenException;
 import com.qunite.api.web.dto.ExceptionResponse;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -30,7 +30,7 @@ public class ResponseEntityControllerAdvice {
         .body(exceptionResponse(exception.getMessage()));
   }
 
-  @ExceptionHandler(UserForbiddenException.class)
+  @ExceptionHandler(ForbiddenAccessException.class)
   public ResponseEntity<ExceptionResponse> handleForbidden(RuntimeException exception) {
     return ResponseEntity.status(HttpStatus.FORBIDDEN)
         .body(exceptionResponse(exception.getMessage()));

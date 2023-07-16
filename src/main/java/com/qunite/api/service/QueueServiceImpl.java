@@ -7,8 +7,8 @@ import com.qunite.api.domain.Entry;
 import com.qunite.api.domain.EntryId;
 import com.qunite.api.domain.Queue;
 import com.qunite.api.exception.EntryNotFoundException;
+import com.qunite.api.exception.ForbiddenAccessException;
 import com.qunite.api.exception.QueueNotFoundException;
-import com.qunite.api.exception.UserForbiddenException;
 import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
@@ -57,11 +57,11 @@ public class QueueServiceImpl implements QueueService {
   @Override
   @Transactional(isolation = Isolation.REPEATABLE_READ)
   public void changeMemberPosition(Long memberId, Long queueId,
-                                   Integer newIndex, String requesterUsername) {
+                                   Integer newIndex, String principalName) {
     var entry = entryRepository.findById(new EntryId(memberId, queueId))
         .orElseThrow(() -> new EntryNotFoundException(
             "Could not find entry by memberId %s and queueId %s".formatted(memberId, queueId)));
-    if (isUserQueueCreatorOrManagerByCredentials(queueId, requesterUsername)) {
+    if (isUserQueueCreatorOrManagerByCredentials(queueId, principalName)) {
       var currentIndex = entry.getEntryIndex();
       if (!currentIndex.equals(newIndex)) {
         int startIndex = Math.min(currentIndex, newIndex);
@@ -72,33 +72,33 @@ public class QueueServiceImpl implements QueueService {
         entry.setEntryIndex(newIndex);
       }
     } else {
-      throw new UserForbiddenException("User is not a creator or manager");
+      throw new ForbiddenAccessException("User is not a creator or manager");
     }
   }
 
   @Override
   @Transactional(isolation = Isolation.REPEATABLE_READ)
-  public void deleteMember(Long memberId, Long queueId, String requesterUsername) {
+  public void deleteMember(Long memberId, Long queueId, String principalName) {
     var entry = entryRepository.findById(new EntryId(memberId, queueId))
         .orElseThrow(() -> new EntryNotFoundException(
             "Could not find entry by memberId %s and queueId %s".formatted(memberId, queueId)));
-    if (isUserQueueCreatorOrManagerByCredentials(queueId, requesterUsername)) {
+    if (isUserQueueCreatorOrManagerByCredentials(queueId, principalName)) {
       entryRepository.deleteById(entry.getId());
       entryRepository.updateEntryIndices(queueId, entry.getEntryIndex() + 1,
           Integer.MAX_VALUE, -1);
     } else {
-      throw new UserForbiddenException("User is not a creator or manager");
+      throw new ForbiddenAccessException("User is not a creator or manager");
     }
   }
 
   @Override
   @Transactional
-  public void deleteById(Long queueId, String requesterUsername) {
+  public void deleteById(Long queueId, String principalName) {
     if (queueRepository.existsById(queueId)) {
-      if (isUserQueueCreatorByCredentials(queueId, requesterUsername)) {
+      if (isUserQueueCreatorByCredentials(queueId, principalName)) {
         queueRepository.deleteById(queueId);
       } else {
-        throw new UserForbiddenException("User is not a creator");
+        throw new ForbiddenAccessException("User is not a creator");
       }
     } else {
       throw new QueueNotFoundException(
