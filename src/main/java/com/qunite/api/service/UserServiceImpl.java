@@ -58,7 +58,7 @@ public class UserServiceImpl implements UserService {
 
   @Override
   public Optional<User> findByUsername(String username) {
-    return userRepository.findUserByUsername(username);
+    return userRepository.findByUsername(username);
   }
 
   @Override
@@ -97,7 +97,7 @@ public class UserServiceImpl implements UserService {
   }
 
   private boolean isUsernameInUse(User user) {
-    return userRepository.findUserByUsername(user.getUsername())
+    return userRepository.findByUsername(user.getUsername())
         .filter(found -> !found.getId().equals(user.getId())).isPresent();
   }
 

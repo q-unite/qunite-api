@@ -6,13 +6,16 @@ import com.qunite.api.data.UserRepository;
 import com.qunite.api.domain.Entry;
 import com.qunite.api.domain.EntryId;
 import com.qunite.api.domain.Queue;
+import com.qunite.api.exception.EntryNotFoundException;
+import com.qunite.api.exception.ForbiddenAccessException;
 import com.qunite.api.exception.QueueNotFoundException;
 import com.qunite.api.exception.UserNotFoundException;
 import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.access.AccessDeniedException;
+import one.util.streamex.StreamEx;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
 @RequiredArgsConstructor
@@ -33,37 +36,82 @@ public class QueueServiceImpl implements QueueService {
   }
 
   @Override
+  public Queue update(Queue queue, String username) {
+    if (isUserQueueCreatorOrManagerByCredentials(queue.getId(), username)) {
+      return queueRepository.save(queue);
+    } else {
+      throw new ForbiddenAccessException("User is not a creator or manager");
+    }
+  }
+
+  @Override
   @Transactional
-  public void enrollMemberToQueue(Long memberId, Long queueId) {
-    userRepository.findById(memberId)
-        .flatMap(user ->
-            queueRepository.findById(queueId)
-                .map(queue -> new Entry(user, queue)))
+  public void enrollMember(String username, Long queueId) {
+    var queue = findById(queueId).orElseThrow(
+        () -> new QueueNotFoundException("Could not find queue by id %d".formatted(queueId)));
+    userRepository.findByUsername(username)
+        .map(user -> new Entry(user, queue))
         .ifPresent(entry -> entry.getQueue().addEntry(entry));
   }
 
   @Override
   @Transactional
-  public Optional<Integer> getMembersAmountInQueue(Long queueId) {
+  public Optional<Integer> getMembersAmount(Long queueId) {
     return findById(queueId).map(queue -> queue.getEntries().size());
   }
 
   @Override
   @Transactional
-  public Optional<Integer> getMemberPositionInQueue(Long memberId, Long queueId) {
+  public Optional<Integer> getMemberPosition(Long memberId, Long queueId) {
     return entryRepository.findById(new EntryId(memberId, queueId))
         .map(entry -> entry.getEntryIndex() + 1);
   }
 
   @Override
+  @Transactional(isolation = Isolation.REPEATABLE_READ)
+  public void changeMemberPosition(Long memberId, Long queueId,
+                                   Integer newIndex, String principalName) {
+    var entry = entryRepository.findById(new EntryId(memberId, queueId))
+        .orElseThrow(() -> new EntryNotFoundException(
+            "Could not find entry by memberId %s and queueId %s".formatted(memberId, queueId)));
+    if (isUserQueueCreatorOrManagerByCredentials(queueId, principalName)) {
+      var currentIndex = entry.getEntryIndex();
+      if (!currentIndex.equals(newIndex)) {
+        int startIndex = Math.min(currentIndex, newIndex);
+        int endIndex = Math.max(currentIndex, newIndex);
+        int increment = currentIndex < newIndex ? -1 : 1;
+
+        entryRepository.updateEntryIndices(queueId, startIndex, endIndex, increment);
+        entry.setEntryIndex(newIndex);
+      }
+    } else {
+      throw new ForbiddenAccessException("User is not a creator or manager");
+    }
+  }
+
+  @Override
+  @Transactional(isolation = Isolation.REPEATABLE_READ)
+  public void deleteMember(Long memberId, Long queueId, String principalName) {
+    var entry = entryRepository.findById(new EntryId(memberId, queueId))
+        .orElseThrow(() -> new EntryNotFoundException(
+            "Could not find entry by memberId %s and queueId %s".formatted(memberId, queueId)));
+    if (isUserQueueCreatorOrManagerByCredentials(queueId, principalName)) {
+      entryRepository.deleteById(entry.getId());
+      entryRepository.updateEntryIndices(queueId, entry.getEntryIndex() + 1,
+          Integer.MAX_VALUE, -1);
+    } else {
+      throw new ForbiddenAccessException("User is not a creator or manager");
+    }
+  }
+
+  @Override
   @Transactional
-  public void deleteById(Long queueId, String username) {
-    var queueById = findById(queueId);
-    if (queueById.isPresent()) {
-      if (isUserByCredentialsQueueCreator(queueId, username)) {
+  public void deleteById(Long queueId, String principalName) {
+    if (queueRepository.existsById(queueId)) {
+      if (isUserQueueCreatorByCredentials(queueId, principalName)) {
         queueRepository.deleteById(queueId);
       } else {
-        throw new AccessDeniedException("User is not a creator");
+        throw new ForbiddenAccessException("User is not a creator");
       }
     } else {
       throw new QueueNotFoundException(
@@ -71,12 +119,20 @@ public class QueueServiceImpl implements QueueService {
     }
   }
 
-  private boolean isUserByCredentialsQueueCreator(Long queueId, String username) {
+  private boolean isUserQueueCreatorByCredentials(Long queueId, String username) {
     return findById(queueId)
         .map(queue -> userService.findByUsername(username)
             .map(user -> queue.getCreator().equals(user))
             .orElse(false))
         .orElse(false);
+  }
+
+  private boolean isUserQueueCreatorOrManagerByCredentials(Long queueId, String username) {
+    return findById(queueId)
+        .filter(queue -> StreamEx.of(queue.getManagers()).append(queue.getCreator())
+            .findAny(user -> user.getUsername().equals(username))
+            .isPresent())
+        .isPresent();
   }
 
   @Override
