@@ -40,7 +40,7 @@ public class QueueServiceImpl implements QueueService {
     if (isUserQueueCreatorOrManagerByCredentials(queue.getId(), username)) {
       return queueRepository.save(queue);
     } else {
-      throw new ForbiddenAccessException("User is not a creator or manager");
+      throw new ForbiddenAccessException("User %s is not a creator or manager".formatted(username));
     }
   }
 
@@ -85,7 +85,8 @@ public class QueueServiceImpl implements QueueService {
         entry.setEntryIndex(newIndex);
       }
     } else {
-      throw new ForbiddenAccessException("User is not a creator or manager");
+      throw new ForbiddenAccessException(
+          "User %s is not a creator or manager".formatted(principalName));
     }
   }
 
@@ -100,7 +101,8 @@ public class QueueServiceImpl implements QueueService {
       entryRepository.updateEntryIndices(queueId, entry.getEntryIndex() + 1,
           Integer.MAX_VALUE, -1);
     } else {
-      throw new ForbiddenAccessException("User is not a creator or manager");
+      throw new ForbiddenAccessException(
+          "User %s is not a creator or manager".formatted(principalName));
     }
   }
 
@@ -111,7 +113,7 @@ public class QueueServiceImpl implements QueueService {
       if (isUserQueueCreatorByCredentials(queueId, principalName)) {
         queueRepository.deleteById(queueId);
       } else {
-        throw new ForbiddenAccessException("User is not a creator");
+        throw new ForbiddenAccessException("User %s is not a creator".formatted(principalName));
       }
     } else {
       throw new QueueNotFoundException(
