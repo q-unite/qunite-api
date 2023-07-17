@@ -16,13 +16,9 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 @RestControllerAdvice
 public class ResponseEntityControllerAdvice {
-  @ExceptionHandler(JWTDecodeException.class)
-  public ResponseEntity<ExceptionResponse> handleJwtException(RuntimeException exception) {
-    return ResponseEntity.status(HttpStatus.FORBIDDEN)
-        .body(exceptionResponse(exception.getMessage()));
-  }
-
-  @ExceptionHandler({QueueNotFoundException.class, UserNotFoundException.class,
+  @ExceptionHandler({
+      QueueNotFoundException.class,
+      UserNotFoundException.class,
       EntryNotFoundException.class})
   public ResponseEntity<ExceptionResponse> handleNotFound(RuntimeException exception) {
     return ResponseEntity.status(HttpStatus.NOT_FOUND)
@@ -35,7 +31,9 @@ public class ResponseEntityControllerAdvice {
         .body(exceptionResponse(exception.getMessage()));
   }
 
-  @ExceptionHandler(ForbiddenAccessException.class)
+  @ExceptionHandler({
+      ForbiddenAccessException.class,
+      JWTDecodeException.class})
   public ResponseEntity<ExceptionResponse> handleForbidden(RuntimeException exception) {
     return ResponseEntity.status(HttpStatus.FORBIDDEN)
         .body(exceptionResponse(exception.getMessage()));
