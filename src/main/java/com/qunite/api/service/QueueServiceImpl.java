@@ -9,6 +9,7 @@ import com.qunite.api.domain.Queue;
 import com.qunite.api.exception.EntryNotFoundException;
 import com.qunite.api.exception.ForbiddenAccessException;
 import com.qunite.api.exception.QueueNotFoundException;
+import com.qunite.api.exception.UserNotFoundException;
 import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
@@ -27,8 +28,20 @@ public class QueueServiceImpl implements QueueService {
 
   @Override
   @Transactional
-  public Queue create(Queue queue) {
+  public Queue create(Queue queue, String username) {
+    queue.setCreator(userService.findByUsername(username)
+        .orElseThrow(() -> new UserNotFoundException(
+            "Invalid creator with username: %s".formatted(username))));
     return queueRepository.save(queue);
+  }
+
+  @Override
+  public Queue update(Queue queue, String username) {
+    if (isUserQueueCreatorOrManagerByCredentials(queue.getId(), username)) {
+      return queueRepository.save(queue);
+    } else {
+      throw new ForbiddenAccessException("User %s is not a creator or manager".formatted(username));
+    }
   }
 
   @Override
@@ -72,7 +85,8 @@ public class QueueServiceImpl implements QueueService {
         entry.setEntryIndex(newIndex);
       }
     } else {
-      throw new ForbiddenAccessException("User is not a creator or manager");
+      throw new ForbiddenAccessException(
+          "User %s is not a creator or manager".formatted(principalName));
     }
   }
 
@@ -87,7 +101,8 @@ public class QueueServiceImpl implements QueueService {
       entryRepository.updateEntryIndices(queueId, entry.getEntryIndex() + 1,
           Integer.MAX_VALUE, -1);
     } else {
-      throw new ForbiddenAccessException("User is not a creator or manager");
+      throw new ForbiddenAccessException(
+          "User %s is not a creator or manager".formatted(principalName));
     }
   }
 
@@ -98,7 +113,7 @@ public class QueueServiceImpl implements QueueService {
       if (isUserQueueCreatorByCredentials(queueId, principalName)) {
         queueRepository.deleteById(queueId);
       } else {
-        throw new ForbiddenAccessException("User is not a creator");
+        throw new ForbiddenAccessException("User %s is not a creator".formatted(principalName));
       }
     } else {
       throw new QueueNotFoundException(

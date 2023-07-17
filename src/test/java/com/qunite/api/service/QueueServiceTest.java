@@ -54,7 +54,7 @@ class QueueServiceTest {
   @Sql("/users-create.sql")
   @Test
   void testQueueCreation() {
-    var queue = queueService.create(new Queue());
+    var queue = queueService.create(new Queue(), "First");
     var result = queueService.findAll();
 
     assertEquals(1, result.size());

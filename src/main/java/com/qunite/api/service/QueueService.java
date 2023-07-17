@@ -10,7 +10,9 @@ public interface QueueService {
 
   Optional<Queue> findById(Long id);
 
-  Queue create(Queue queue);
+  Queue create(Queue queue, String username);
+
+  Queue update(Queue queue, String username);
 
   void enrollMember(String username, Long queueId);
 

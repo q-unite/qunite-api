@@ -149,9 +149,9 @@ public class QueueController {
 
   @PostMapping
   @Operation(summary = "Create queue", responses = @ApiResponse(responseCode = "201"))
-  public ResponseEntity<QueueDto> create(
-      @Valid @RequestBody QueueCreationDto queueCreationDto) {
-    var created = queueService.create(queueMapper.toEntity(queueCreationDto));
+  public ResponseEntity<QueueDto> createQueue(
+      @Valid @RequestBody QueueCreationDto queueCreationDto, Principal principal) {
+    var created = queueService.create(queueMapper.toEntity(queueCreationDto), principal.getName());
     return new ResponseEntity<>(queueMapper.toDto(created), HttpStatus.CREATED);
   }
 
@@ -161,10 +161,11 @@ public class QueueController {
       @ApiResponse(responseCode = "404", content = @Content())
   })
   public ResponseEntity<QueueDto> update(@PathVariable Long id,
-                                         @RequestBody QueueUpdateDto queueUpdateDto) {
+                                         @RequestBody QueueUpdateDto queueUpdateDto,
+                                         Principal principal) {
     return ResponseEntity.of(queueService.findById(id)
         .map(queue -> queueMapper.partialUpdate(queueUpdateDto, queue))
-        .map(queueService::create)
+        .map(queue -> queueService.update(queue, principal.getName()))
         .map(queueMapper::toDto));
   }
 

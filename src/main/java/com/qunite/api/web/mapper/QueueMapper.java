@@ -13,7 +13,7 @@ import org.mapstruct.ReportingPolicy;
 
 @Mapper(unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface QueueMapper {
-  @Mapping(source = "creatorId", target = "creator.id")
+
   Queue toEntity(QueueCreationDto queueDto);
 
   @Mapping(source = "creator.id", target = "creatorId")
