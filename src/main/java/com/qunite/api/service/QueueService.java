@@ -10,13 +10,20 @@ public interface QueueService {
 
   Optional<Queue> findById(Long id);
 
-  Queue create(Queue queue);
+  Queue create(Queue queue, String username);
 
-  void enrollMemberToQueue(Long memberId, Long queueId);
+  Queue update(Queue queue, String username);
 
-  Optional<Integer> getMembersAmountInQueue(Long queueId);
+  void enrollMember(String username, Long queueId);
 
-  Optional<Integer> getMemberPositionInQueue(Long memberId, Long queueId);
+  Optional<Integer> getMembersAmount(Long queueId);
 
-  void deleteById(Long queueId, String username);
+  Optional<Integer> getMemberPosition(Long memberId, Long queueId);
+
+  void changeMemberPosition(Long memberId, Long queueId,
+                            Integer newIndex, String principalName);
+
+  void deleteMember(Long memberId, Long queueId, String principalName);
+
+  void deleteById(Long queueId, String principalName);
 }

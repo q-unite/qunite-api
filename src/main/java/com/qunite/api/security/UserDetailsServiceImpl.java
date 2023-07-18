@@ -1,10 +1,10 @@
 package com.qunite.api.security;
 
 import com.qunite.api.data.UserRepository;
+import com.qunite.api.exception.UserNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Component;
 
 @RequiredArgsConstructor
@@ -14,7 +14,8 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 
   @Override
   public UserDetails loadUserByUsername(String username) {
-    return userRepository.findUserByUsername(username)
-        .orElseThrow(() -> new UsernameNotFoundException(username));
+    return userRepository.findByUsername(username)
+        .orElseThrow(() -> new UserNotFoundException(
+            "User with username: %s does not exist".formatted(username)));
   }
 }

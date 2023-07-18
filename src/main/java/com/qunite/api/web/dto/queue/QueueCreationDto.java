@@ -5,5 +5,4 @@ import lombok.Data;
 @Data
 public class QueueCreationDto {
   private String name;
-  private Long creatorId;
 }

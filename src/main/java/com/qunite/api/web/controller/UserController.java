@@ -91,7 +91,7 @@ public class UserController {
                                             @Valid @RequestBody UserUpdateDto userUpdateDto) {
     return ResponseEntity.of(userService.findByUsername(principal.getName())
         .map(found -> userMapper.partialUpdate(userUpdateDto, found))
-        .map(userService::createOne)
+        .map(userService::updateOne)
         .map(userMapper::toDto));
   }
 

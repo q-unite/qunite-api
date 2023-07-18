@@ -3,8 +3,10 @@ package com.qunite.api.web.controller;
 import com.qunite.api.domain.Queue;
 import com.qunite.api.service.QueueService;
 import com.qunite.api.web.dto.entry.EntryDto;
+import com.qunite.api.web.dto.entry.EntryUpdateDto;
 import com.qunite.api.web.dto.queue.QueueCreationDto;
 import com.qunite.api.web.dto.queue.QueueDto;
+import com.qunite.api.web.dto.queue.QueueUpdateDto;
 import com.qunite.api.web.dto.user.UserDto;
 import com.qunite.api.web.mapper.EntryMapper;
 import com.qunite.api.web.mapper.QueueMapper;
@@ -23,6 +25,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -62,7 +65,7 @@ public class QueueController {
       @ApiResponse(responseCode = "404", content = @Content())
   })
   public ResponseEntity<Integer> membersAmount(@PathVariable Long id) {
-    return ResponseEntity.of(queueService.getMembersAmountInQueue(id));
+    return ResponseEntity.of(queueService.getMembersAmount(id));
   }
 
   @GetMapping("/{id}/members/{member-id}")
@@ -70,9 +73,45 @@ public class QueueController {
       @ApiResponse(responseCode = "200"),
       @ApiResponse(responseCode = "404", content = @Content())
   })
-  public ResponseEntity<Integer> memberPosition(@PathVariable(value = "id") Long queueId,
+  public ResponseEntity<Integer> memberPosition(@PathVariable Long id,
                                                 @PathVariable(value = "member-id") Long memberId) {
-    return ResponseEntity.of(queueService.getMemberPositionInQueue(memberId, queueId));
+    return ResponseEntity.of(queueService.getMemberPosition(memberId, id));
+  }
+
+  @PostMapping("/{id}/members")
+  @Operation(summary = "Enroll member to queue", responses = {
+      @ApiResponse(responseCode = "200"),
+      @ApiResponse(responseCode = "404", content = @Content())
+  })
+  public ResponseEntity<Void> enrollMember(@PathVariable Long id,
+                                           Principal principal) {
+    queueService.enrollMember(principal.getName(), id);
+    return ResponseEntity.ok().build();
+  }
+
+  @DeleteMapping("/{id}/members/{member-id}")
+  @Operation(summary = "Delete member from queue by id", responses = {
+      @ApiResponse(responseCode = "204"),
+      @ApiResponse(responseCode = "404", content = @Content())
+  })
+  public ResponseEntity<Void> deleteMember(@PathVariable Long id,
+                                           @PathVariable(value = "member-id") Long memberId,
+                                           Principal principal) {
+    queueService.deleteMember(memberId, id, principal.getName());
+    return ResponseEntity.noContent().build();
+  }
+
+  @PatchMapping("/{id}/members/{member-id}/entries")
+  @Operation(summary = "Change member position in queue", responses = {
+      @ApiResponse(responseCode = "200"),
+      @ApiResponse(responseCode = "404", content = @Content())
+  })
+  public ResponseEntity<Void> changeMemberPosition(@PathVariable Long id,
+                                                   @PathVariable(value = "member-id") Long memberId,
+                                                   @RequestBody EntryUpdateDto entryDto,
+                                                   Principal principal) {
+    queueService.changeMemberPosition(memberId, id, entryDto.getEntryIndex(), principal.getName());
+    return ResponseEntity.ok().build();
   }
 
   @GetMapping("/{id}/creator")
@@ -80,7 +119,7 @@ public class QueueController {
       @ApiResponse(responseCode = "200"),
       @ApiResponse(responseCode = "404", content = @Content())
   })
-  public ResponseEntity<UserDto> getQueueCreator(@PathVariable Long id) {
+  public ResponseEntity<UserDto> getCreator(@PathVariable Long id) {
     return ResponseEntity.of(queueService.findById(id)
         .map(Queue::getCreator)
         .map(userMapper::toDto));
@@ -91,7 +130,7 @@ public class QueueController {
       @ApiResponse(responseCode = "200"),
       @ApiResponse(responseCode = "404", content = @Content())
   })
-  public ResponseEntity<List<UserDto>> getQueueManagers(@PathVariable Long id) {
+  public ResponseEntity<List<UserDto>> getManagers(@PathVariable Long id) {
     return ResponseEntity.of(queueService.findById(id)
         .map(found -> found.getManagers().stream()
             .map(userMapper::toDto).toList()));
@@ -102,7 +141,7 @@ public class QueueController {
       @ApiResponse(responseCode = "200"),
       @ApiResponse(responseCode = "404", content = @Content())
   })
-  public ResponseEntity<List<EntryDto>> getQueueEntries(@PathVariable Long id) {
+  public ResponseEntity<List<EntryDto>> getEntries(@PathVariable Long id) {
     return ResponseEntity.of(queueService.findById(id)
         .map(found -> found.getEntries().stream()
             .map(entryMapper::toDto).toList()));
@@ -111,9 +150,23 @@ public class QueueController {
   @PostMapping
   @Operation(summary = "Create queue", responses = @ApiResponse(responseCode = "201"))
   public ResponseEntity<QueueDto> createQueue(
-      @Valid @RequestBody QueueCreationDto queueCreationDto) {
-    var created = queueService.create(queueMapper.toEntity(queueCreationDto));
+      @Valid @RequestBody QueueCreationDto queueCreationDto, Principal principal) {
+    var created = queueService.create(queueMapper.toEntity(queueCreationDto), principal.getName());
     return new ResponseEntity<>(queueMapper.toDto(created), HttpStatus.CREATED);
+  }
+
+  @PatchMapping("/{id}")
+  @Operation(summary = "Update queue by id", responses = {
+      @ApiResponse(responseCode = "200"),
+      @ApiResponse(responseCode = "404", content = @Content())
+  })
+  public ResponseEntity<QueueDto> update(@PathVariable Long id,
+                                         @RequestBody QueueUpdateDto queueUpdateDto,
+                                         Principal principal) {
+    return ResponseEntity.of(queueService.findById(id)
+        .map(queue -> queueMapper.partialUpdate(queueUpdateDto, queue))
+        .map(queue -> queueService.update(queue, principal.getName()))
+        .map(queueMapper::toDto));
   }
 
   @DeleteMapping("/{id}")

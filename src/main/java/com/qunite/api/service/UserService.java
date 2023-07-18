@@ -9,6 +9,8 @@ import java.util.Optional;
 public interface UserService {
   User createOne(User user);
 
+  User updateOne(User newUser);
+
   Optional<User> findOne(Long id);
 
   Optional<User> findByUsername(String username);
