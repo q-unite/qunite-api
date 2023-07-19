@@ -22,7 +22,8 @@ public class ResponseEntityControllerAdvice {
   @ExceptionHandler({
       UserAlreadyExistsException.class,
       IllegalArgumentException.class,
-      HttpMessageNotReadableException.class})
+      HttpMessageNotReadableException.class,
+      MethodArgumentTypeMismatchException.class})
   public ResponseEntity<ExceptionResponse> handleBadRequest(RuntimeException exception) {
     return ResponseEntity.status(HttpStatus.BAD_REQUEST)
         .body(exceptionResponse(exception.getMessage()));
@@ -43,8 +44,7 @@ public class ResponseEntityControllerAdvice {
   @ExceptionHandler({
       QueueNotFoundException.class,
       UserNotFoundException.class,
-      EntryNotFoundException.class,
-      MethodArgumentTypeMismatchException.class})
+      EntryNotFoundException.class})
   public ResponseEntity<ExceptionResponse> handleNotFound(RuntimeException exception) {
     return ResponseEntity.status(HttpStatus.NOT_FOUND)
         .body(exceptionResponse(exception.getMessage()));
