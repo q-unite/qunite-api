@@ -14,6 +14,7 @@ import jakarta.persistence.Table;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Objects;
@@ -61,6 +62,12 @@ public class User implements UserDetails {
   @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
   List<Entry> entries = new ArrayList<>();
 
+  @Access(AccessType.FIELD)
+  @ToString.Exclude
+  @OrderBy("id asc")
+  @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, orphanRemoval = true)
+  Set<Token> tokens = new HashSet<>();
+
   public User(String username, String email, String password) {
     this.username = username;
     this.email = email;
@@ -95,6 +102,16 @@ public class User implements UserDetails {
   public void removeEntry(Entry entry) {
     entries.remove(entry);
     entry.setMember(null);
+  }
+
+  public void addToken(Token token) {
+    tokens.add(token);
+    token.setOwner(this);
+  }
+
+  public void removeToken(Token token) {
+    tokens.remove(token);
+    token.setOwner(null);
   }
 
   public List<Queue> getCreatedQueues() {
