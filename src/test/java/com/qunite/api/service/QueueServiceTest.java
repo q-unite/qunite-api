@@ -270,4 +270,24 @@ class QueueServiceTest {
       fail("unexpected actualEntryIdList size");
     }
   }
+
+  @Sql({"/users-create.sql", "/queues-create.sql"})
+  @Test
+  void testAddingManager() {
+//    var queueId = 1L;
+//    var queueCreatorUsername = "First";
+//    assertEquals(queueService.findById(queueId).orElseThrow().getManagers().size(), 0);
+//
+//    var managerId = 1L;
+//    queueService.addManager(managerId, queueId, queueCreatorUsername);
+//    var managers = queueRepository.findById(queueId).orElseThrow().getManagers();
+//    assertEquals(managers.size(), 1);
+//    assertTrue(managers.contains(userRepository.findById(managerId).orElseThrow()));
+  }
+
+  @Sql({"/users-create.sql", "/queues-create.sql"})
+  @Test
+  void testDeletingManager() {
+
+  }
 }

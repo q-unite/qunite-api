@@ -121,6 +121,37 @@ public class QueueServiceImpl implements QueueService {
     }
   }
 
+  @Override
+  @Transactional
+  public void addManager(Long managerId, Long queueId, String principalName) {
+    var queue = queueRepository.findById(queueId).orElseThrow(
+        () -> new QueueNotFoundException("Could not find queue by id: %d".formatted(queueId))
+    );
+    if (isUserQueueCreatorByCredentials(queueId, principalName)) {
+      var manager = userRepository.findById(managerId).orElseThrow(
+          () -> new UserNotFoundException("No user exists by given id: %d".formatted(managerId))
+      );
+      queue.addManager(manager);
+    } else {
+      throw new ForbiddenAccessException("User %s is not a creator".formatted(principalName));
+    }
+  }
+
+  @Override
+  public void deleteManager(Long managerId, Long queueId, String principalName) {
+    var queue = queueRepository.findById(queueId).orElseThrow(
+        () -> new QueueNotFoundException("Could not find queue by id: %d".formatted(queueId))
+    );
+    if (isUserQueueCreatorByCredentials(queueId, principalName)) {
+      var manager = userRepository.findById(managerId).orElseThrow(
+          () -> new UserNotFoundException("No user exists by given id: %d".formatted(managerId))
+      );
+      queue.removeManager(manager);
+    } else {
+      throw new ForbiddenAccessException("User %s is not a creator".formatted(principalName));
+    }
+  }
+
   private boolean isUserQueueCreatorByCredentials(Long queueId, String username) {
     return findById(queueId)
         .map(queue -> userService.findByUsername(username)

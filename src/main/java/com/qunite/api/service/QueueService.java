@@ -26,4 +26,8 @@ public interface QueueService {
   void deleteMember(Long memberId, Long queueId, String principalName);
 
   void deleteById(Long queueId, String principalName);
+
+  void addManager(Long managerId, Long queueId, String principalName);
+
+  void deleteManager(Long managerId, Long queueId, String principalName);
 }

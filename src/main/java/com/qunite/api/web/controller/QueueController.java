@@ -136,7 +136,21 @@ public class QueueController {
             .map(userMapper::toDto).toList()));
   }
 
-  @GetMapping("/{id}/entries")
+  @PostMapping("/{id}/managers/{managerId}")
+  public ResponseEntity<Void> addManager(@PathVariable Long id, @PathVariable Long managerId,
+                                     Principal principal) {
+      queueService.addManager(managerId, id, principal.getName());
+      return ResponseEntity.ok().build();
+  }
+
+  @DeleteMapping("/{id}/managers/{managerId}")
+  public ResponseEntity<Void> deleteManager(@PathVariable Long id, @PathVariable Long managerId,
+                                            Principal principal) {
+    queueService.deleteManager(managerId, id, principal.getName());
+    return ResponseEntity.noContent().build();
+  }
+
+  @GetMapping("/{id}/members")
   @Operation(summary = "Get queue's entries", responses = {
       @ApiResponse(responseCode = "200"),
       @ApiResponse(responseCode = "404", content = @Content())
