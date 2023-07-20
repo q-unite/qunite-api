@@ -14,6 +14,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
@@ -24,6 +25,7 @@ public class ResponseEntityControllerAdvice {
       IllegalArgumentException.class,
       HttpMessageNotReadableException.class,
       MethodArgumentTypeMismatchException.class})
+  @ResponseStatus(HttpStatus.BAD_REQUEST)
   public ResponseEntity<ExceptionResponse> handleBadRequest(RuntimeException exception) {
     return ResponseEntity.status(HttpStatus.BAD_REQUEST)
         .body(exceptionResponse(exception.getMessage()));
@@ -32,7 +34,7 @@ public class ResponseEntityControllerAdvice {
   @ExceptionHandler(JWTDecodeException.class)
   public ResponseEntity<ExceptionResponse> handleUnauthorized(RuntimeException exception) {
     return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-        .body(exceptionResponse(exception.toString()));
+        .body(exceptionResponse(exception.getMessage()));
   }
 
   @ExceptionHandler(ForbiddenAccessException.class)
@@ -53,7 +55,7 @@ public class ResponseEntityControllerAdvice {
   @ExceptionHandler(DataIntegrityViolationException.class)
   public ResponseEntity<ExceptionResponse> handleConflict(RuntimeException exception) {
     return ResponseEntity.status(HttpStatus.CONFLICT)
-        .body(exceptionResponse(exception.toString()));
+        .body(exceptionResponse(exception.getMessage()));
   }
 
   private ExceptionResponse exceptionResponse(String message) {
