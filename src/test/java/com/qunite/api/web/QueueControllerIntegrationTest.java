@@ -173,4 +173,16 @@ class QueueControllerIntegrationTest {
         .andExpect(status().isNoContent());
     assertThat(queueService.findById(queueId)).isEmpty();
   }
+
+  @Test
+  @Sql({"/users-create.sql", "/queues-create.sql"})
+  void addManager(){
+
+  }
+
+  @Test
+  @Sql({"/users-create.sql", "/queues-create.sql"})
+  void deleteManager(){
+
+  }
 }
