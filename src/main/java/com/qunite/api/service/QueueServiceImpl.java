@@ -131,6 +131,9 @@ public class QueueServiceImpl implements QueueService {
       var manager = userRepository.findById(managerId).orElseThrow(
           () -> new UserNotFoundException("No user exists by given id: %d".formatted(managerId))
       );
+      if (manager.getUsername().equals(principalName)) {
+        throw new ForbiddenAccessException("You do not need to specify yourself as a manager ;)");
+      }
       queue.addManager(manager);
     } else {
       throw new ForbiddenAccessException("User %s is not a creator".formatted(principalName));
