@@ -138,6 +138,7 @@ public class QueueServiceImpl implements QueueService {
   }
 
   @Override
+  @Transactional
   public void deleteManager(Long managerId, Long queueId, String principalName) {
     var queue = queueRepository.findById(queueId).orElseThrow(
         () -> new QueueNotFoundException("Could not find queue by id: %d".formatted(queueId))
