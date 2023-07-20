@@ -65,8 +65,8 @@ public class User implements UserDetails {
   @Access(AccessType.FIELD)
   @ToString.Exclude
   @OrderBy("id asc")
-  @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, orphanRemoval = true)
-  Set<Token> tokens = new HashSet<>();
+  @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL, orphanRemoval = true)
+  Set<AccessToken> accessTokens = new HashSet<>();
 
   public User(String username, String email, String password) {
     this.username = username;
@@ -104,13 +104,13 @@ public class User implements UserDetails {
     entry.setMember(null);
   }
 
-  public void addToken(Token token) {
-    tokens.add(token);
+  public void addAccessToken(AccessToken token) {
+    accessTokens.add(token);
     token.setOwner(this);
   }
 
-  public void removeToken(Token token) {
-    tokens.remove(token);
+  public void removeAccessToken(AccessToken token) {
+    accessTokens.remove(token);
     token.setOwner(null);
   }
 

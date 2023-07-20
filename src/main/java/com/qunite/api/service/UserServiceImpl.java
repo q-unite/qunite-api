@@ -2,6 +2,7 @@ package com.qunite.api.service;
 
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.qunite.api.data.UserRepository;
+import com.qunite.api.domain.AccessToken;
 import com.qunite.api.domain.Queue;
 import com.qunite.api.domain.User;
 import com.qunite.api.exception.UserAlreadyExistsException;
@@ -18,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
   private final UserRepository userRepository;
+  private final TokenService tokenService;
   private final PasswordEncoder passwordEncoder;
   private final JwtService jwtService;
 
@@ -46,6 +48,12 @@ public class UserServiceImpl implements UserService {
       throw new UserAlreadyExistsException(
           "Email %s is already in use".formatted(newUser.getEmail()));
     }
+
+    if (hasUsernameChanged(newUser)) {
+      newUser.getAccessTokens().stream().filter(AccessToken::isValid)
+          .forEach(tokenService::invalidateToken);
+    }
+
     return userRepository.save(newUser);
   }
 
@@ -104,5 +112,10 @@ public class UserServiceImpl implements UserService {
   private boolean isEmailInUse(User user) {
     return userRepository.findByEmailOrUsername(user.getEmail())
         .filter(found -> !found.getId().equals(user.getId())).isPresent();
+  }
+
+  private boolean hasUsernameChanged(User user) {
+    return userRepository.findById(user.getId())
+        .filter(found -> found.getUsername().equals(user.getUsername())).isPresent();
   }
 }

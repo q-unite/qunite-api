@@ -16,7 +16,6 @@ import com.qunite.api.web.dto.auth.AuthenticationRequest;
 import com.qunite.api.web.dto.auth.AuthenticationResponse;
 import com.qunite.api.web.dto.user.UserCreationDto;
 import com.qunite.api.web.dto.user.UserUpdateDto;
-import java.lang.constant.Constable;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
@@ -28,10 +27,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
-import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.web.servlet.MockMvc;
-import org.testcontainers.shaded.com.fasterxml.jackson.core.JsonProcessingException;
 import org.testcontainers.shaded.com.fasterxml.jackson.databind.ObjectMapper;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -165,7 +162,7 @@ class AuthenticationIntegrationTest {
   void deletedToken() throws Exception {
     var token = "Bearer " + getAccessToken("First", "asd");
 
-     mockMvc.perform(delete("/users/self").header("authorization", token))
+    mockMvc.perform(delete("/users/self").header("authorization", token))
         .andExpect(status().isNoContent());
 
     mockMvc.perform(get("/users/self").header("authorization", token))
@@ -182,7 +179,8 @@ class AuthenticationIntegrationTest {
     userUpdateDto.setUsername("NEW USERNAME");
     var json = new ObjectMapper().writeValueAsString(userUpdateDto);
 
-    mockMvc.perform(patch("/users/self").contentType(MediaType.APPLICATION_JSON).content(json))
+    mockMvc.perform(patch("/users/self").contentType(MediaType.APPLICATION_JSON).content(json)
+            .header("authorization", token))
         .andExpect(status().isOk());
 
     mockMvc.perform(get("/users/self").header("authorization", token))

@@ -9,3 +9,9 @@ spring:
   # Flyway
   flyway:
     enabled: false
+  datasource:
+    password: admin
+    username: postgres
+    url: jdbc:postgresql://localhost:5432/queue
+jwt:
+  secret: secret
