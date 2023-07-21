@@ -159,7 +159,7 @@ class AuthenticationIntegrationTest {
   @Test
   @DisplayName("Token shouldn't work when user deleted")
   @Sql("/users-create.sql")
-  void deletedToken() throws Exception {
+  void deletedUser() throws Exception {
     var token = getAccessToken("First", "asd");
 
     mockMvc.perform(delete("/users/self").header("authorization", token))
@@ -188,7 +188,7 @@ class AuthenticationIntegrationTest {
   }
 
   @Test
-  @DisplayName("Token shouldn work when username not changed")
+  @DisplayName("Token should work when username not changed")
   @Sql("/users-create.sql")
   void notUpdatedUsername() throws Exception {
     var token = getAccessToken("First", "asd");
