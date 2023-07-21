@@ -71,10 +71,10 @@ public class QueueServiceImpl implements QueueService {
   @Transactional(isolation = Isolation.REPEATABLE_READ)
   public void changeMemberPosition(Long memberId, Long queueId,
                                    Integer newIndex, String principalName) {
-    var entry = entryRepository.findById(new EntryId(memberId, queueId))
-        .orElseThrow(() -> new EntryNotFoundException(
-            "Could not find entry by memberId %s and queueId %s".formatted(memberId, queueId)));
     if (isUserQueueCreatorOrManagerByCredentials(queueId, principalName)) {
+      var entry = entryRepository.findById(new EntryId(memberId, queueId))
+          .orElseThrow(() -> new EntryNotFoundException(
+              "Could not find entry by memberId %s and queueId %s".formatted(memberId, queueId)));
       var currentIndex = entry.getEntryIndex();
       if (!currentIndex.equals(newIndex)) {
         int startIndex = Math.min(currentIndex, newIndex);
@@ -93,10 +93,10 @@ public class QueueServiceImpl implements QueueService {
   @Override
   @Transactional(isolation = Isolation.REPEATABLE_READ)
   public void deleteMember(Long memberId, Long queueId, String principalName) {
-    var entry = entryRepository.findById(new EntryId(memberId, queueId))
-        .orElseThrow(() -> new EntryNotFoundException(
-            "Could not find entry by memberId %s and queueId %s".formatted(memberId, queueId)));
     if (isUserQueueCreatorOrManagerByCredentials(queueId, principalName)) {
+      var entry = entryRepository.findById(new EntryId(memberId, queueId))
+          .orElseThrow(() -> new EntryNotFoundException(
+              "Could not find entry by memberId %s and queueId %s".formatted(memberId, queueId)));
       entryRepository.deleteById(entry.getId());
       entryRepository.updateEntryIndices(queueId, entry.getEntryIndex() + 1,
           Integer.MAX_VALUE, -1);
@@ -109,15 +109,15 @@ public class QueueServiceImpl implements QueueService {
   @Override
   @Transactional
   public void deleteById(Long queueId, String principalName) {
-    if (queueRepository.existsById(queueId)) {
-      if (isUserQueueCreatorByCredentials(queueId, principalName)) {
+    if (isUserQueueCreatorByCredentials(queueId, principalName)) {
+      if (queueRepository.existsById(queueId)) {
         queueRepository.deleteById(queueId);
       } else {
-        throw new ForbiddenAccessException("User %s is not a creator".formatted(principalName));
+        throw new QueueNotFoundException(
+            "Could not find queue by id %d".formatted(queueId));
       }
     } else {
-      throw new QueueNotFoundException(
-          "Could not find queue by id %d".formatted(queueId));
+      throw new ForbiddenAccessException("User %s is not a creator".formatted(principalName));
     }
   }
 
