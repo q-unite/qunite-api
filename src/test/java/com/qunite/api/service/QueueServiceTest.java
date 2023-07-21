@@ -19,6 +19,7 @@ import com.qunite.api.data.UserRepository;
 import com.qunite.api.domain.EntryId;
 import com.qunite.api.domain.Queue;
 import com.qunite.api.exception.ForbiddenAccessException;
+import com.qunite.api.utils.JpaRepositoryUtils;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -274,20 +275,28 @@ class QueueServiceTest {
   @Sql({"/users-create.sql", "/queues-create.sql"})
   @Test
   void testAddingManager() {
-//    var queueId = 1L;
-//    var queueCreatorUsername = "First";
-//    assertEquals(queueService.findById(queueId).orElseThrow().getManagers().size(), 0);
-//
-//    var managerId = 1L;
-//    queueService.addManager(managerId, queueId, queueCreatorUsername);
-//    var managers = queueRepository.findById(queueId).orElseThrow().getManagers();
-//    assertEquals(managers.size(), 1);
-//    assertTrue(managers.contains(userRepository.findById(managerId).orElseThrow()));
+    var queueId = 1L;
+    var managerId = 3L;
+    var queueCreatorUsername = "First";
+
+    queueService.addManager(managerId, queueId, queueCreatorUsername);
+    var managersList = userRepository.findAllByManagedQueuesId(queueId);
+    var manager = JpaRepositoryUtils.getById(managerId, userRepository);
+
+    assertThat(managersList).containsOnly(manager);
   }
 
-  @Sql({"/users-create.sql", "/queues-create.sql"})
+  @Sql({"/users-create.sql", "/queues-create.sql", "/queues-managers-create.sql"})
   @Test
   void testDeletingManager() {
+    var queueId = 1L;
+    var managerId = 3L;
+    var queueCreatorUsername = "First";
 
+    queueService.deleteManager(managerId, queueId, queueCreatorUsername);
+    var managersList = userRepository.findAllByManagedQueuesId(queueId);
+    var manager = JpaRepositoryUtils.getById(managerId, userRepository);
+
+    assertThat(managersList).doesNotContain(manager);
   }
 }
