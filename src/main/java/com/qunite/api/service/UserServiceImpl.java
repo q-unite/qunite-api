@@ -46,7 +46,7 @@ public class UserServiceImpl implements UserService {
       throw new UserAlreadyExistsException(
           "Email %s is already in use".formatted(newUser.getEmail()));
     }
-    return userRepository.save(newUser);
+    return newUser;
   }
 
 

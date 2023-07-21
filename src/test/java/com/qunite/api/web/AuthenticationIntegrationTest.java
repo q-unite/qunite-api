@@ -2,6 +2,9 @@ package com.qunite.api.web;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.notNullValue;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -10,7 +13,9 @@ import com.qunite.api.annotation.IntegrationTest;
 import com.qunite.api.data.UserRepository;
 import com.qunite.api.service.UserService;
 import com.qunite.api.web.dto.auth.AuthenticationRequest;
+import com.qunite.api.web.dto.auth.AuthenticationResponse;
 import com.qunite.api.web.dto.user.UserCreationDto;
+import com.qunite.api.web.dto.user.UserUpdateDto;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
@@ -149,5 +154,70 @@ class AuthenticationIntegrationTest {
     return Stream.of(
         Arguments.of("John@user.com", "asd"),
         Arguments.of("First", "dsa"));
+  }
+
+  @Test
+  @DisplayName("Token shouldn't work when user deleted")
+  @Sql("/users-create.sql")
+  void deletedToken() throws Exception {
+    var token = "Bearer " + getAccessToken("First", "asd");
+
+    mockMvc.perform(delete("/users/self").header("authorization", token))
+        .andExpect(status().isNoContent());
+
+    mockMvc.perform(get("/users/self").header("authorization", token))
+        .andExpect(status().isForbidden());
+  }
+
+  @Test
+  @DisplayName("Token shouldn't work when username changed")
+  @Sql("/users-create.sql")
+  void updatedUsername() throws Exception {
+    var token = "Bearer " + getAccessToken("First", "asd");
+
+    var userUpdateDto = new UserUpdateDto();
+    userUpdateDto.setUsername("NEW USERNAME");
+    var json = new ObjectMapper().writeValueAsString(userUpdateDto);
+
+    mockMvc.perform(patch("/users/self").contentType(MediaType.APPLICATION_JSON).content(json)
+            .header("authorization", token))
+        .andExpect(status().isOk());
+
+    mockMvc.perform(get("/users/self").header("authorization", token))
+        .andExpect(status().isForbidden());
+  }
+
+  @Test
+  @DisplayName("Token shouldn work when username not changed")
+  @Sql("/users-create.sql")
+  void notUpdatedUsername() throws Exception {
+    var token = "Bearer " + getAccessToken("First", "asd");
+
+    var userUpdateDto = new UserUpdateDto();
+    userUpdateDto.setEmail("NEW EMAIL");
+    var json = new ObjectMapper().writeValueAsString(userUpdateDto);
+
+    mockMvc.perform(patch("/users/self").contentType(MediaType.APPLICATION_JSON).content(json)
+            .header("authorization", token))
+        .andExpect(status().isOk());
+
+    mockMvc.perform(get("/users/self").header("authorization", token))
+        .andExpect(status().isOk());
+  }
+
+  private String getAccessToken(String login, String password) throws Exception {
+    var mapper = new ObjectMapper();
+    var requestBody = new AuthenticationRequest();
+    requestBody.setLogin(login);
+    requestBody.setPassword(password);
+    var jsonBody = mapper.writeValueAsString(requestBody);
+
+    var response = mapper.readValue(mockMvc.perform(
+            post("/{url}/sign-in", url).contentType(MediaType.APPLICATION_JSON)
+                .content(jsonBody))
+        .andExpect(status().isOk())
+        .andReturn().getResponse().getContentAsString(), AuthenticationResponse.class);
+
+    return response.getToken();
   }
 }
