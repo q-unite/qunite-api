@@ -160,7 +160,7 @@ class AuthenticationIntegrationTest {
   @DisplayName("Token shouldn't work when user deleted")
   @Sql("/users-create.sql")
   void deletedToken() throws Exception {
-    var token = "Bearer " + getAccessToken("First", "asd");
+    var token = getAccessToken("First", "asd");
 
     mockMvc.perform(delete("/users/self").header("authorization", token))
         .andExpect(status().isNoContent());
@@ -173,7 +173,7 @@ class AuthenticationIntegrationTest {
   @DisplayName("Token shouldn't work when username changed")
   @Sql("/users-create.sql")
   void updatedUsername() throws Exception {
-    var token = "Bearer " + getAccessToken("First", "asd");
+    var token = getAccessToken("First", "asd");
 
     var userUpdateDto = new UserUpdateDto();
     userUpdateDto.setUsername("NEW USERNAME");
@@ -191,7 +191,7 @@ class AuthenticationIntegrationTest {
   @DisplayName("Token shouldn work when username not changed")
   @Sql("/users-create.sql")
   void notUpdatedUsername() throws Exception {
-    var token = "Bearer " + getAccessToken("First", "asd");
+    var token = getAccessToken("First", "asd");
 
     var userUpdateDto = new UserUpdateDto();
     userUpdateDto.setEmail("NEW EMAIL");
@@ -218,6 +218,6 @@ class AuthenticationIntegrationTest {
         .andExpect(status().isOk())
         .andReturn().getResponse().getContentAsString(), AuthenticationResponse.class);
 
-    return response.getToken();
+    return "Bearer " + response.getToken();
   }
 }
