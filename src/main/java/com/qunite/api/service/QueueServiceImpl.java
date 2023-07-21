@@ -38,7 +38,7 @@ public class QueueServiceImpl implements QueueService {
   @Override
   public Queue update(Queue queue, String username) {
     if (isUserQueueCreatorOrManagerByCredentials(queue.getId(), username)) {
-      return queue;
+      return queueRepository.save(queue);
     } else {
       throw new ForbiddenAccessException("User %s is not a creator or manager".formatted(username));
     }
