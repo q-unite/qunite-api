@@ -3,13 +3,14 @@ package com.qunite.api.service;
 import com.qunite.api.data.AccessTokenRepository;
 import com.qunite.api.domain.AccessToken;
 import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class TokenServiceImpl implements TokenService {
-  AccessTokenRepository tokenRepository;
+  private final AccessTokenRepository tokenRepository;
 
   @Override
   @Transactional
@@ -21,6 +22,5 @@ public class TokenServiceImpl implements TokenService {
   @Transactional
   public void invalidateToken(AccessToken token) {
     token.setValid(false);
-    tokenRepository.save(token);
-  }
+    }
 }

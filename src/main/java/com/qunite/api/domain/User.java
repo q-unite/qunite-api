@@ -66,7 +66,7 @@ public class User implements UserDetails {
   @ToString.Exclude
   @OrderBy("id asc")
   @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL, orphanRemoval = true)
-  Set<AccessToken> accessTokens = new HashSet<>();
+  List<AccessToken> accessTokens = new ArrayList<>();
 
   public User(String username, String email, String password) {
     this.username = username;
@@ -124,6 +124,10 @@ public class User implements UserDetails {
 
   public List<Entry> getEntries() {
     return Collections.unmodifiableList(entries);
+  }
+
+  public List<AccessToken> getAccessTokens() {
+    return Collections.unmodifiableList(accessTokens);
   }
 
   @Override

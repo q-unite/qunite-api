@@ -172,7 +172,7 @@ class AuthenticationIntegrationTest {
   @Test
   @DisplayName("Token shouldn't work when username changed")
   @Sql("/users-create.sql")
-  void updatedUser() throws Exception {
+  void updatedUsername() throws Exception {
     var token = "Bearer " + getAccessToken("First", "asd");
 
     var userUpdateDto = new UserUpdateDto();
@@ -185,6 +185,24 @@ class AuthenticationIntegrationTest {
 
     mockMvc.perform(get("/users/self").header("authorization", token))
         .andExpect(status().isForbidden());
+  }
+
+  @Test
+  @DisplayName("Token shouldn work when username not changed")
+  @Sql("/users-create.sql")
+  void notUpdatedUsername() throws Exception {
+    var token = "Bearer " + getAccessToken("First", "asd");
+
+    var userUpdateDto = new UserUpdateDto();
+    userUpdateDto.setEmail("NEW EMAIL");
+    var json = new ObjectMapper().writeValueAsString(userUpdateDto);
+
+    mockMvc.perform(patch("/users/self").contentType(MediaType.APPLICATION_JSON).content(json)
+            .header("authorization", token))
+        .andExpect(status().isOk());
+
+    mockMvc.perform(get("/users/self").header("authorization", token))
+        .andExpect(status().isOk());
   }
 
   private String getAccessToken(String login, String password) throws Exception {

@@ -11,17 +11,24 @@ import com.qunite.api.security.JwtService;
 import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
+@Lazy
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
   private final UserRepository userRepository;
   private final TokenService tokenService;
   private final PasswordEncoder passwordEncoder;
   private final JwtService jwtService;
+  @Lazy
+  private final UserServiceImpl self;
 
   @Override
   @Transactional
@@ -49,12 +56,12 @@ public class UserServiceImpl implements UserService {
           "Email %s is already in use".formatted(newUser.getEmail()));
     }
 
-    if (hasUsernameChanged(newUser)) {
+    if (self.hasUsernameChanged(newUser)) {
       newUser.getAccessTokens().stream().filter(AccessToken::isValid)
           .forEach(tokenService::invalidateToken);
     }
 
-    return userRepository.save(newUser);
+    return newUser;
   }
 
 
@@ -114,8 +121,10 @@ public class UserServiceImpl implements UserService {
         .filter(found -> !found.getId().equals(user.getId())).isPresent();
   }
 
-  private boolean hasUsernameChanged(User user) {
+
+  @Transactional(propagation = Propagation.REQUIRES_NEW)
+  public boolean hasUsernameChanged(User user) {
     return userRepository.findById(user.getId())
-        .filter(found -> found.getUsername().equals(user.getUsername())).isPresent();
+        .filter(found -> found.getUsername().equals(user.getUsername())).isEmpty();
   }
 }
