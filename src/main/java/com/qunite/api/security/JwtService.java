@@ -5,7 +5,6 @@ import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.qunite.api.domain.User;
 import com.qunite.api.service.UserService;
-import com.qunite.api.service.UserServiceImpl;
 import java.time.Instant;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
