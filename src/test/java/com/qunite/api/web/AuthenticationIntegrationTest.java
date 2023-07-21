@@ -128,14 +128,13 @@ class AuthenticationIntegrationTest {
   }
 
 
-  @ParameterizedTest
-  @DisplayName("Does not sign in with non-existing credentials in the database")
-  @MethodSource
+  @Test
+  @DisplayName("Does not sign in with non-existing username in the database")
   @Sql("/users-create.sql")
-  void signInShouldCheckCredentials(String login, String password) throws Exception {
+  void signInShouldCheckUsername() throws Exception {
     var requestData = new AuthenticationRequest();
-    requestData.setLogin(login);
-    requestData.setPassword(password);
+    requestData.setLogin("Invalid Login");
+    requestData.setPassword("asd");
 
     var json = new ObjectMapper().writeValueAsString(requestData);
 
@@ -145,9 +144,19 @@ class AuthenticationIntegrationTest {
         .andExpect(status().isNotFound());
   }
 
-  private static Stream<Arguments> signInShouldCheckCredentials() {
-    return Stream.of(
-        Arguments.of("John@user.com", "asd"),
-        Arguments.of("First", "dsa"));
+  @Test
+  @DisplayName("Does not sign in with non-matching password")
+  @Sql("/users-create.sql")
+  void signInShouldCheckPassword() throws Exception {
+    var requestData = new AuthenticationRequest();
+    requestData.setLogin("User1@user.com");
+    requestData.setPassword("Invalid Password");
+
+    var json = new ObjectMapper().writeValueAsString(requestData);
+
+    var resultActions = mockMvc.perform(post("/{url}/sign-in", url)
+        .contentType(MediaType.APPLICATION_JSON).content(json));
+    resultActions
+        .andExpect(status().isForbidden());
   }
 }
