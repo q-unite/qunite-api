@@ -40,9 +40,13 @@ public class JwtService {
             .withIssuer(issuer)
             .build()
             .verify(token))
-        .filter(decodedJWT -> userService.findOne(Long.valueOf(decodedJWT.getId()))
-            .filter(found -> found.getUsername().equals(decodedJWT.getSubject()))
-            .filter(found -> found.getPassword().equals(decodedJWT.getClaim("password").asString()))
-            .isPresent());
+        .filter(this::isDataValid);
+  }
+
+  private boolean isDataValid(DecodedJWT decodedJWT) {
+    return userService.findOne(Long.valueOf(decodedJWT.getId()))
+        .filter(found -> found.getUsername().equals(decodedJWT.getSubject()))
+        .filter(found -> found.getPassword().equals(decodedJWT.getClaim("password").asString()))
+        .isPresent();
   }
 }
