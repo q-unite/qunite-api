@@ -124,35 +124,36 @@ public class QueueServiceImpl implements QueueService {
   @Override
   @Transactional
   public void addManager(Long managerId, Long queueId, String principalName) {
-    var queue = queueRepository.findById(queueId).orElseThrow(
-        () -> new QueueNotFoundException("Could not find queue by id: %d".formatted(queueId))
-    );
-    if (isUserQueueCreatorByCredentials(queueId, principalName)) {
-      var manager = userRepository.findById(managerId).orElseThrow(
-          () -> new UserNotFoundException("No user exists by given id: %d".formatted(managerId))
-      );
-      if (manager.getUsername().equals(principalName)) {
-        throw new ForbiddenAccessException("You do not need to specify yourself as a manager ;)");
-      }
-      queue.addManager(manager);
-    } else {
-      throw new ForbiddenAccessException("User %s is not a creator".formatted(principalName));
+    checkIfUserIsAbleToModifyQueueManagers(managerId, queueId, principalName);
+
+    var queue = queueRepository.getReferenceById(queueId);
+    var manager = userRepository.getReferenceById(managerId);
+    if (manager.getUsername().equals(principalName)) {
+      throw new ForbiddenAccessException("You do not need to specify yourself as a manager ;)");
     }
+    queue.addManager(manager);
   }
 
   @Override
   @Transactional
   public void deleteManager(Long managerId, Long queueId, String principalName) {
-    var queue = queueRepository.findById(queueId).orElseThrow(
-        () -> new QueueNotFoundException("Could not find queue by id: %d".formatted(queueId))
-    );
-    if (isUserQueueCreatorByCredentials(queueId, principalName)) {
-      var manager = userRepository.findById(managerId).orElseThrow(
-          () -> new UserNotFoundException("No user exists by given id: %d".formatted(managerId))
-      );
-      queue.removeManager(manager);
-    } else {
-      throw new ForbiddenAccessException("User %s is not a creator".formatted(principalName));
+    checkIfUserIsAbleToModifyQueueManagers(managerId, queueId, principalName);
+
+    var queue = queueRepository.getReferenceById(queueId);
+    var manager = userRepository.getReferenceById(managerId);
+    queue.removeManager(manager);
+  }
+
+  private void checkIfUserIsAbleToModifyQueueManagers(Long managerId, Long queueId,
+                                                      String principalName) {
+    if (!userRepository.existsById(managerId)) {
+      throw new UserNotFoundException("No user exists by given id: %d".formatted(managerId));
+    }
+    if (!queueRepository.existsById(queueId)) {
+      throw new QueueNotFoundException("Could not find queue by id: %d".formatted(queueId));
+    }
+    if (!isUserQueueCreatorByCredentials(queueId, principalName)) {
+      throw new ForbiddenAccessException("You can not modify this queue");
     }
   }
 
