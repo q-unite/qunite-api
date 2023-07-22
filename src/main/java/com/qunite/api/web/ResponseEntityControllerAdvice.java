@@ -1,11 +1,9 @@
 package com.qunite.api.web;
 
 import com.auth0.jwt.exceptions.JWTDecodeException;
-import com.qunite.api.exception.EntryNotFoundException;
+import com.qunite.api.exception.EntityNotFoundException;
 import com.qunite.api.exception.ForbiddenAccessException;
-import com.qunite.api.exception.QueueNotFoundException;
 import com.qunite.api.exception.UserAlreadyExistsException;
-import com.qunite.api.exception.UserNotFoundException;
 import com.qunite.api.web.dto.ExceptionResponse;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -41,10 +39,7 @@ public class ResponseEntityControllerAdvice {
         .body(exceptionResponse(exception.getMessage()));
   }
 
-  @ExceptionHandler({
-      QueueNotFoundException.class,
-      UserNotFoundException.class,
-      EntryNotFoundException.class})
+  @ExceptionHandler(EntityNotFoundException.class)
   public ResponseEntity<ExceptionResponse> handleNotFound(RuntimeException exception) {
     return ResponseEntity.status(HttpStatus.NOT_FOUND)
         .body(exceptionResponse(exception.getMessage()));
