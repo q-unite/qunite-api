@@ -26,6 +26,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.web.servlet.MockMvc;
@@ -46,6 +47,8 @@ class AuthenticationIntegrationTest {
 
   @Autowired
   private UserRepository userRepository;
+
+  private final ObjectMapper objectMapper = new ObjectMapper();
 
   @AfterEach
   public void cleanAll() {
@@ -70,7 +73,7 @@ class AuthenticationIntegrationTest {
     user.setPassword("asd");
     user.setEmail("John@user.com");
 
-    var json = new ObjectMapper().writeValueAsString(user);
+    var json = objectMapper.writeValueAsString(user);
 
     mockMvc.perform(
             post("/{url}/sign-up", url)
@@ -91,7 +94,7 @@ class AuthenticationIntegrationTest {
     user.setPassword(password);
     user.setEmail(email);
 
-    var json = new ObjectMapper().writeValueAsString(user);
+    var json = objectMapper.writeValueAsString(user);
 
     mockMvc.perform(
             post("/{url}/sign-up", url)
@@ -115,7 +118,7 @@ class AuthenticationIntegrationTest {
     requestData.setLogin(login);
     requestData.setPassword(password);
 
-    var json = new ObjectMapper().writeValueAsString(requestData);
+    var json = objectMapper.writeValueAsString(requestData);
 
     var resultActions = mockMvc.perform(post("/{url}/sign-in", url)
         .contentType(MediaType.APPLICATION_JSON).content(json));
@@ -142,7 +145,7 @@ class AuthenticationIntegrationTest {
     requestData.setLogin(login);
     requestData.setPassword(password);
 
-    var json = new ObjectMapper().writeValueAsString(requestData);
+    var json = objectMapper.writeValueAsString(requestData);
 
     var resultActions = mockMvc.perform(post("/{url}/sign-in", url)
         .contentType(MediaType.APPLICATION_JSON).content(json));
@@ -157,62 +160,61 @@ class AuthenticationIntegrationTest {
   }
 
   @Test
-  @DisplayName("Token shouldn't work when user deleted")
+  @DisplayName("Token shouldn't work when user has been deleted")
   @Sql("/users-create.sql")
   void deletedUser() throws Exception {
     var token = getAccessToken("First", "asd");
 
-    mockMvc.perform(delete("/users/self").header("authorization", token))
+    mockMvc.perform(delete("/users/self").header(HttpHeaders.AUTHORIZATION, token))
         .andExpect(status().isNoContent());
 
-    mockMvc.perform(get("/users/self").header("authorization", token))
+    mockMvc.perform(get("/users/self").header(HttpHeaders.AUTHORIZATION, token))
         .andExpect(status().isForbidden());
   }
 
   @Test
-  @DisplayName("Token shouldn't work when username changed")
+  @DisplayName("Token shouldn't work when username has been changed")
   @Sql("/users-create.sql")
   void updatedUsername() throws Exception {
     var token = getAccessToken("First", "asd");
 
     var userUpdateDto = new UserUpdateDto();
     userUpdateDto.setUsername("NEW USERNAME");
-    var json = new ObjectMapper().writeValueAsString(userUpdateDto);
+    var json = objectMapper.writeValueAsString(userUpdateDto);
 
     mockMvc.perform(patch("/users/self").contentType(MediaType.APPLICATION_JSON).content(json)
-            .header("authorization", token))
+            .header(HttpHeaders.AUTHORIZATION, token))
         .andExpect(status().isOk());
 
-    mockMvc.perform(get("/users/self").header("authorization", token))
+    mockMvc.perform(get("/users/self").header(HttpHeaders.AUTHORIZATION, token))
         .andExpect(status().isForbidden());
   }
 
   @Test
-  @DisplayName("Token should work when username not changed")
+  @DisplayName("Token should work when username has`nt been changed")
   @Sql("/users-create.sql")
   void notUpdatedUsername() throws Exception {
     var token = getAccessToken("First", "asd");
 
     var userUpdateDto = new UserUpdateDto();
     userUpdateDto.setEmail("NEW EMAIL");
-    var json = new ObjectMapper().writeValueAsString(userUpdateDto);
+    var json = objectMapper.writeValueAsString(userUpdateDto);
 
     mockMvc.perform(patch("/users/self").contentType(MediaType.APPLICATION_JSON).content(json)
-            .header("authorization", token))
+            .header(HttpHeaders.AUTHORIZATION, token))
         .andExpect(status().isOk());
 
-    mockMvc.perform(get("/users/self").header("authorization", token))
+    mockMvc.perform(get("/users/self").header(HttpHeaders.AUTHORIZATION, token))
         .andExpect(status().isOk());
   }
 
   private String getAccessToken(String login, String password) throws Exception {
-    var mapper = new ObjectMapper();
     var requestBody = new AuthenticationRequest();
     requestBody.setLogin(login);
     requestBody.setPassword(password);
-    var jsonBody = mapper.writeValueAsString(requestBody);
+    var jsonBody = objectMapper.writeValueAsString(requestBody);
 
-    var response = mapper.readValue(mockMvc.perform(
+    var response = objectMapper.readValue(mockMvc.perform(
             post("/{url}/sign-in", url).contentType(MediaType.APPLICATION_JSON)
                 .content(jsonBody))
         .andExpect(status().isOk())
