@@ -3,6 +3,7 @@ package com.qunite.api.web;
 import com.auth0.jwt.exceptions.JWTDecodeException;
 import com.qunite.api.exception.EntityNotFoundException;
 import com.qunite.api.exception.ForbiddenAccessException;
+import com.qunite.api.exception.InvalidPasswordException;
 import com.qunite.api.exception.UserAlreadyExistsException;
 import com.qunite.api.web.dto.ExceptionResponse;
 import java.time.LocalDateTime;
@@ -33,7 +34,9 @@ public class ResponseEntityControllerAdvice {
         .body(exceptionResponse(exception.getMessage()));
   }
 
-  @ExceptionHandler(ForbiddenAccessException.class)
+  @ExceptionHandler({
+      ForbiddenAccessException.class,
+      InvalidPasswordException.class})
   public ResponseEntity<ExceptionResponse> handleForbidden(RuntimeException exception) {
     return ResponseEntity.status(HttpStatus.FORBIDDEN)
         .body(exceptionResponse(exception.getMessage()));
