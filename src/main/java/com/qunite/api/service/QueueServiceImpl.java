@@ -6,6 +6,7 @@ import com.qunite.api.data.UserRepository;
 import com.qunite.api.domain.Entry;
 import com.qunite.api.domain.EntryId;
 import com.qunite.api.domain.Queue;
+import com.qunite.api.domain.User;
 import com.qunite.api.exception.EntryNotFoundException;
 import com.qunite.api.exception.ForbiddenAccessException;
 import com.qunite.api.exception.QueueNotFoundException;
@@ -119,6 +120,12 @@ public class QueueServiceImpl implements QueueService {
       throw new QueueNotFoundException(
           "Could not find queue by id %d".formatted(queueId));
     }
+  }
+
+  @Override
+  @Transactional
+  public Optional<List<User>> getManagers(Long queueId) {
+    return queueRepository.findById(queueId).map(Queue::getManagers).map(List::copyOf);
   }
 
   @Override

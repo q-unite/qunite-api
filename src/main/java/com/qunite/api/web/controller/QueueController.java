@@ -133,9 +133,10 @@ public class QueueController {
       @ApiResponse(responseCode = "404", content = @Content())
   })
   public ResponseEntity<List<UserDto>> getManagers(@PathVariable Long id) {
-    return ResponseEntity.of(queueService.findById(id)
-        .map(found -> found.getManagers().stream()
-            .map(userMapper::toDto).toList()));
+    return ResponseEntity.of(
+        queueService.getManagers(id)
+            .map(list -> list.stream()
+                .map(userMapper::toDto).toList()));
   }
 
   @PostMapping("/{id}/managers/{managerId}")
