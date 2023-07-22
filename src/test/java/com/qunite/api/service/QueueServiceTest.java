@@ -280,7 +280,7 @@ class QueueServiceTest {
     var queueCreatorUsername = "First";
 
     queueService.addManager(managerId, queueId, queueCreatorUsername);
-    var managersList = userRepository.findAllByManagedQueuesId(queueId);
+    var managersList = queueService.getManagers(queueId).orElseThrow();
     var manager = JpaRepositoryUtils.getById(managerId, userRepository);
 
     assertThat(managersList).containsOnly(manager);
@@ -294,7 +294,7 @@ class QueueServiceTest {
     var queueCreatorUsername = "First";
 
     queueService.deleteManager(managerId, queueId, queueCreatorUsername);
-    var managersList = userRepository.findAllByManagedQueuesId(queueId);
+    var managersList = queueService.getManagers(queueId).orElseThrow();
     var manager = JpaRepositoryUtils.getById(managerId, userRepository);
 
     assertThat(managersList).doesNotContain(manager);

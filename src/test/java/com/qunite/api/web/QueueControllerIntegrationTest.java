@@ -183,7 +183,7 @@ class QueueControllerIntegrationTest {
 
     mockMvc.perform(post("/{url}/{id}/managers/{managerId}", url, queueId, managerId))
         .andExpect(status().isOk());
-    var managersList = userRepository.findAllByManagedQueuesId(queueId);
+    var managersList = queueService.getManagers(queueId).orElseThrow();
     var manager = JpaRepositoryUtils.getById(managerId, userRepository);
 
     assertThat(managersList).containsOnly(manager);
@@ -197,7 +197,7 @@ class QueueControllerIntegrationTest {
 
     mockMvc.perform(delete("/{url}/{id}/managers/{managerId}", url, queueId, managerId))
         .andExpect(status().isNoContent());
-    var managersList = userRepository.findAllByManagedQueuesId(queueId);
+    var managersList = queueService.getManagers(queueId).orElseThrow();
     var manager = JpaRepositoryUtils.getById(managerId, userRepository);
 
     assertThat(managersList).doesNotContain(manager);
