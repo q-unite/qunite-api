@@ -274,7 +274,7 @@ class QueueServiceTest {
 
   @Sql({"/users-create.sql", "/queues-create.sql"})
   @Test
-  void testAddingManager() {
+  void testAddingManagerByCreator() {
     var queueId = 1L;
     var managerId = 3L;
     var queueCreatorUsername = "First";
@@ -288,7 +288,7 @@ class QueueServiceTest {
 
   @Sql({"/users-create.sql", "/queues-create.sql", "/queues-managers-create.sql"})
   @Test
-  void testDeletingManager() {
+  void testDeletingManagerByCreator() {
     var queueId = 1L;
     var managerId = 3L;
     var queueCreatorUsername = "First";
@@ -298,5 +298,35 @@ class QueueServiceTest {
     var manager = JpaRepositoryUtils.getById(managerId, userRepository);
 
     assertThat(managersList).doesNotContain(manager);
+  }
+
+  @Sql({"/users-create.sql", "/queues-create.sql"})
+  @Test
+  void testAddingManagerByNotCreator() {
+    var queueId = 1L;
+    var managerId = 3L;
+    var notCreatorUsername = "Fifth";
+
+    assertThatThrownBy(() -> queueService.addManager(managerId, queueId, notCreatorUsername))
+        .isInstanceOf(ForbiddenAccessException.class);
+    var managersList = queueService.getManagers(queueId).orElseThrow();
+    var manager = JpaRepositoryUtils.getById(managerId, userRepository);
+
+    assertThat(managersList).doesNotContain(manager);
+  }
+
+  @Sql({"/users-create.sql", "/queues-create.sql", "/queues-managers-create.sql"})
+  @Test
+  void testDeletingManagerByNotCreator() {
+    var queueId = 1L;
+    var managerId = 3L;
+    var notCreatorUsername = "Fifth";
+
+    assertThatThrownBy(() -> queueService.deleteManager(managerId, queueId, notCreatorUsername))
+        .isInstanceOf(ForbiddenAccessException.class);
+    var managersList = queueService.getManagers(queueId).orElseThrow();
+    var manager = JpaRepositoryUtils.getById(managerId, userRepository);
+
+    assertThat(managersList).contains(manager);
   }
 }
