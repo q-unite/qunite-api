@@ -141,25 +141,27 @@ public class QueueController {
                 .map(userMapper::toDto).toList()));
   }
 
-  @PostMapping("/{id}/managers/{managerId}")
+  @PostMapping("/{id}/managers/{manager-id}")
   @Operation(summary = "Add manager to queue", responses = {
       @ApiResponse(responseCode = "200"),
       @ApiResponse(responseCode = "404",
           content = @Content(schema = @Schema(implementation = ExceptionResponse.class)))
   })
-  public ResponseEntity<Void> addManager(@PathVariable Long id, @PathVariable Long managerId,
+  public ResponseEntity<Void> addManager(@PathVariable Long id,
+                                         @PathVariable(value = "manager-id") Long managerId,
                                          Principal principal) {
     queueService.addManager(managerId, id, principal.getName());
     return ResponseEntity.ok().build();
   }
 
-  @DeleteMapping("/{id}/managers/{managerId}")
+  @DeleteMapping("/{id}/managers/{manager-id}")
   @Operation(summary = "Delete queue's manager", responses = {
       @ApiResponse(responseCode = "204"),
       @ApiResponse(responseCode = "404",
           content = @Content(schema = @Schema(implementation = ExceptionResponse.class)))
   })
-  public ResponseEntity<Void> deleteManager(@PathVariable Long id, @PathVariable Long managerId,
+  public ResponseEntity<Void> deleteManager(@PathVariable Long id,
+                                            @PathVariable(value = "manager-id") Long managerId,
                                             Principal principal) {
     queueService.deleteManager(managerId, id, principal.getName());
     return ResponseEntity.noContent().build();
