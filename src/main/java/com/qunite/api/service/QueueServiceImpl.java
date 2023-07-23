@@ -6,12 +6,14 @@ import com.qunite.api.data.UserRepository;
 import com.qunite.api.domain.Entry;
 import com.qunite.api.domain.EntryId;
 import com.qunite.api.domain.Queue;
+import com.qunite.api.domain.User;
 import com.qunite.api.exception.EntryNotFoundException;
 import com.qunite.api.exception.ForbiddenAccessException;
 import com.qunite.api.exception.QueueNotFoundException;
 import com.qunite.api.exception.UserNotFoundException;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.BiConsumer;
 import lombok.RequiredArgsConstructor;
 import one.util.streamex.StreamEx;
 import org.springframework.stereotype.Service;
@@ -118,6 +120,43 @@ public class QueueServiceImpl implements QueueService {
       }
     } else {
       throw new ForbiddenAccessException("User %s is not a creator".formatted(principalName));
+    }
+  }
+
+  @Override
+  @Transactional
+  public Optional<List<User>> getManagers(Long queueId) {
+    return queueRepository.findById(queueId).map(Queue::getManagers).map(List::copyOf);
+  }
+
+  @Override
+  @Transactional
+  public void addManager(Long managerId, Long queueId, String principalName) {
+    updateManagers(managerId, queueId, principalName, (queue, manager) -> {
+      if (queue.getCreator().getId().equals(managerId)) {
+        throw new ForbiddenAccessException("You do not need to specify yourself as a manager ;)");
+      }
+      queue.addManager(manager);
+    });
+  }
+
+  @Override
+  @Transactional
+  public void deleteManager(Long managerId, Long queueId, String principalName) {
+    updateManagers(managerId, queueId, principalName, Queue::removeManager);
+  }
+
+  private void updateManagers(Long managerId, Long queueId, String principalName,
+                              BiConsumer<Queue, User> consumer) {
+    var queue = findById(queueId).orElseThrow(
+        () -> new QueueNotFoundException("Could not find queue by id: %d".formatted(queueId)));
+    if (queue.getCreator().getUsername().equals(principalName)) {
+      var manager = userService.findOne(managerId).orElseThrow(
+          () -> new UserNotFoundException("No user exists by given id: %d".formatted(managerId))
+      );
+      consumer.accept(queue, manager);
+    } else {
+      throw new ForbiddenAccessException("You can not modify this queue");
     }
   }
 

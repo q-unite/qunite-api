@@ -73,7 +73,7 @@ public class UserController {
   }
 
   @GetMapping("/self")
-  @Operation(summary = "Get user by credentials", responses = {
+  @Operation(summary = "Get authorized user", responses = {
       @ApiResponse(responseCode = "200"),
       @ApiResponse(responseCode = "404", content = @Content())
   })
@@ -83,7 +83,7 @@ public class UserController {
   }
 
   @PatchMapping("/self")
-  @Operation(summary = "Update user by credentials", responses = {
+  @Operation(summary = "Update authorized user", responses = {
       @ApiResponse(responseCode = "200"),
       @ApiResponse(responseCode = "404", content = @Content())
   })
@@ -96,7 +96,7 @@ public class UserController {
   }
 
   @DeleteMapping("/self")
-  @Operation(summary = "Delete user by credentials", responses = @ApiResponse(responseCode = "204"))
+  @Operation(summary = "Delete authorized user", responses = @ApiResponse(responseCode = "204"))
   public ResponseEntity<Void> deleteSelf(Principal principal) {
     return userService.findByUsername(principal.getName())
         .map(user -> {

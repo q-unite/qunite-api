@@ -2,6 +2,7 @@ package com.qunite.api.web.controller;
 
 import com.qunite.api.domain.Queue;
 import com.qunite.api.service.QueueService;
+import com.qunite.api.web.dto.ExceptionResponse;
 import com.qunite.api.web.dto.entry.EntryDto;
 import com.qunite.api.web.dto.entry.EntryUpdateDto;
 import com.qunite.api.web.dto.queue.QueueCreationDto;
@@ -13,6 +14,7 @@ import com.qunite.api.web.mapper.QueueMapper;
 import com.qunite.api.web.mapper.UserMapper;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -131,12 +133,37 @@ public class QueueController {
       @ApiResponse(responseCode = "404", content = @Content())
   })
   public ResponseEntity<List<UserDto>> getManagers(@PathVariable Long id) {
-    return ResponseEntity.of(queueService.findById(id)
-        .map(found -> found.getManagers().stream()
-            .map(userMapper::toDto).toList()));
+    return ResponseEntity.of(
+        queueService.getManagers(id)
+            .map(list -> list.stream()
+                .map(userMapper::toDto).toList()));
   }
 
-  @GetMapping("/{id}/entries")
+  @PostMapping("/{id}/managers/{managerId}")
+  @Operation(summary = "Add manager to queue", responses = {
+      @ApiResponse(responseCode = "200"),
+      @ApiResponse(responseCode = "404",
+          content = @Content(schema = @Schema(implementation = ExceptionResponse.class)))
+  })
+  public ResponseEntity<Void> addManager(@PathVariable Long id, @PathVariable Long managerId,
+                                         Principal principal) {
+    queueService.addManager(managerId, id, principal.getName());
+    return ResponseEntity.ok().build();
+  }
+
+  @DeleteMapping("/{id}/managers/{managerId}")
+  @Operation(summary = "Delete queue's manager", responses = {
+      @ApiResponse(responseCode = "204"),
+      @ApiResponse(responseCode = "404",
+          content = @Content(schema = @Schema(implementation = ExceptionResponse.class)))
+  })
+  public ResponseEntity<Void> deleteManager(@PathVariable Long id, @PathVariable Long managerId,
+                                            Principal principal) {
+    queueService.deleteManager(managerId, id, principal.getName());
+    return ResponseEntity.noContent().build();
+  }
+
+  @GetMapping("/{id}/members")
   @Operation(summary = "Get queue's entries", responses = {
       @ApiResponse(responseCode = "200"),
       @ApiResponse(responseCode = "404", content = @Content())
