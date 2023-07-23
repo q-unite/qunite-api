@@ -85,7 +85,8 @@ public class QueueController {
   @PostMapping("/{id}/members")
   @Operation(summary = "Enroll member to queue", responses = {
       @ApiResponse(responseCode = "200"),
-      @ApiResponse(responseCode = "404", content = @Content())
+      @ApiResponse(responseCode = "404",
+          content = @Content(schema = @Schema(implementation = ExceptionResponse.class)))
   })
   public ResponseEntity<Void> enrollMember(@PathVariable Long id,
                                            Principal principal) {
@@ -96,7 +97,10 @@ public class QueueController {
   @DeleteMapping("/{id}/members/{member-id}")
   @Operation(summary = "Delete member from queue by id", responses = {
       @ApiResponse(responseCode = "204"),
-      @ApiResponse(responseCode = "404", content = @Content())
+      @ApiResponse(responseCode = "403",
+          content = @Content(schema = @Schema(implementation = ExceptionResponse.class))),
+      @ApiResponse(responseCode = "404",
+          content = @Content(schema = @Schema(implementation = ExceptionResponse.class)))
   })
   public ResponseEntity<Void> deleteMember(@PathVariable Long id,
                                            @PathVariable(value = "member-id") Long memberId,
@@ -108,7 +112,10 @@ public class QueueController {
   @PatchMapping("/{id}/members/{member-id}/entries")
   @Operation(summary = "Change member position in queue", responses = {
       @ApiResponse(responseCode = "200"),
-      @ApiResponse(responseCode = "404", content = @Content())
+      @ApiResponse(responseCode = "403",
+          content = @Content(schema = @Schema(implementation = ExceptionResponse.class))),
+      @ApiResponse(responseCode = "404",
+          content = @Content(schema = @Schema(implementation = ExceptionResponse.class)))
   })
   public ResponseEntity<Void> changeMemberPosition(@PathVariable Long id,
                                                    @PathVariable(value = "member-id") Long memberId,
@@ -144,6 +151,8 @@ public class QueueController {
   @PostMapping("/{id}/managers/{manager-id}")
   @Operation(summary = "Add manager to queue", responses = {
       @ApiResponse(responseCode = "200"),
+      @ApiResponse(responseCode = "403",
+          content = @Content(schema = @Schema(implementation = ExceptionResponse.class))),
       @ApiResponse(responseCode = "404",
           content = @Content(schema = @Schema(implementation = ExceptionResponse.class)))
   })
@@ -157,6 +166,8 @@ public class QueueController {
   @DeleteMapping("/{id}/managers/{manager-id}")
   @Operation(summary = "Delete queue's manager", responses = {
       @ApiResponse(responseCode = "204"),
+      @ApiResponse(responseCode = "403",
+          content = @Content(schema = @Schema(implementation = ExceptionResponse.class))),
       @ApiResponse(responseCode = "404",
           content = @Content(schema = @Schema(implementation = ExceptionResponse.class)))
   })
@@ -168,7 +179,7 @@ public class QueueController {
   }
 
   @GetMapping("/{id}/members")
-  @Operation(summary = "Get queue's entries", responses = {
+  @Operation(summary = "Get queue's entries(members list)", responses = {
       @ApiResponse(responseCode = "200"),
       @ApiResponse(responseCode = "404", content = @Content())
   })
@@ -179,7 +190,11 @@ public class QueueController {
   }
 
   @PostMapping
-  @Operation(summary = "Create queue", responses = @ApiResponse(responseCode = "201"))
+  @Operation(summary = "Create queue", responses = {
+      @ApiResponse(responseCode = "201"),
+      @ApiResponse(responseCode = "404",
+          content = @Content(schema = @Schema(implementation = ExceptionResponse.class)))
+  })
   public ResponseEntity<QueueDto> createQueue(
       @Valid @RequestBody QueueCreationDto queueCreationDto, Principal principal) {
     var created = queueService.create(queueMapper.toEntity(queueCreationDto), principal.getName());
@@ -189,6 +204,8 @@ public class QueueController {
   @PatchMapping("/{id}")
   @Operation(summary = "Update queue by id", responses = {
       @ApiResponse(responseCode = "200"),
+      @ApiResponse(responseCode = "403",
+          content = @Content(schema = @Schema(implementation = ExceptionResponse.class))),
       @ApiResponse(responseCode = "404", content = @Content())
   })
   public ResponseEntity<QueueDto> update(@PathVariable Long id,
@@ -201,7 +218,13 @@ public class QueueController {
   }
 
   @DeleteMapping("/{id}")
-  @Operation(summary = "Delete queue by id", responses = @ApiResponse(responseCode = "204"))
+  @Operation(summary = "Delete queue by id", responses = {
+      @ApiResponse(responseCode = "204"),
+      @ApiResponse(responseCode = "403",
+          content = @Content(schema = @Schema(implementation = ExceptionResponse.class))),
+      @ApiResponse(responseCode = "404",
+          content = @Content(schema = @Schema(implementation = ExceptionResponse.class)))
+  })
   public ResponseEntity<Void> deleteById(Principal principal, @PathVariable Long id) {
     queueService.deleteById(id, principal.getName());
     return ResponseEntity.noContent().build();

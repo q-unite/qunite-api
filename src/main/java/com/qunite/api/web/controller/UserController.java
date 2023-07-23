@@ -2,6 +2,7 @@ package com.qunite.api.web.controller;
 
 
 import com.qunite.api.service.UserService;
+import com.qunite.api.web.dto.ExceptionResponse;
 import com.qunite.api.web.dto.queue.QueueDto;
 import com.qunite.api.web.dto.user.UserDto;
 import com.qunite.api.web.dto.user.UserUpdateDto;
@@ -9,6 +10,7 @@ import com.qunite.api.web.mapper.QueueMapper;
 import com.qunite.api.web.mapper.UserMapper;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -87,6 +89,8 @@ public class UserController {
   @PatchMapping("/self")
   @Operation(summary = "Update authorized user", responses = {
       @ApiResponse(responseCode = "200"),
+      @ApiResponse(responseCode = "403",
+          content = @Content(schema = @Schema(implementation = ExceptionResponse.class))),
       @ApiResponse(responseCode = "404", content = @Content())
   })
   public ResponseEntity<UserDto> updateSelf(Principal principal,
@@ -98,7 +102,10 @@ public class UserController {
   }
 
   @DeleteMapping("/self")
-  @Operation(summary = "Delete authorized user", responses = @ApiResponse(responseCode = "204"))
+  @Operation(summary = "Delete authorized user", responses = {
+      @ApiResponse(responseCode = "204"),
+      @ApiResponse(responseCode = "404", content = @Content())
+  })
   public ResponseEntity<Void> deleteSelf(Principal principal) {
     return userService.findByUsername(principal.getName())
         .map(user -> {
