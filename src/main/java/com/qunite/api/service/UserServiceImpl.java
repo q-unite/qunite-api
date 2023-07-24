@@ -4,6 +4,7 @@ import com.auth0.jwt.interfaces.DecodedJWT;
 import com.qunite.api.data.UserRepository;
 import com.qunite.api.domain.Queue;
 import com.qunite.api.domain.User;
+import com.qunite.api.exception.InvalidPasswordException;
 import com.qunite.api.exception.UserAlreadyExistsException;
 import com.qunite.api.exception.UserNotFoundException;
 import com.qunite.api.security.JwtService;
@@ -88,12 +89,13 @@ public class UserServiceImpl implements UserService {
   @Override
   @Transactional
   public Optional<DecodedJWT> signIn(String login, String password) {
-    return jwtService.verifyAccessToken(
-        jwtService.createJwtToken(
-            userRepository.findByEmailOrUsername(login)
-                .filter(user -> passwordEncoder.matches(password, user.getPassword()))
-                .orElseThrow(() -> new UserNotFoundException(
-                    "Username with login %s does not exist".formatted(login)))));
+    var user = userRepository.findByEmailOrUsername(login)
+        .orElseThrow(() -> new UserNotFoundException(
+            "User with login %s does not exist".formatted(login)));
+    if (!passwordEncoder.matches(password, user.getPassword())) {
+      throw new InvalidPasswordException("Invalid password");
+    }
+    return jwtService.verifyAccessToken(jwtService.createJwtToken(user));
   }
 
   private boolean isUsernameInUse(User user) {
