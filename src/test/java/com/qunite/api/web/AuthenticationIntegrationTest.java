@@ -11,7 +11,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.qunite.api.annotation.IntegrationTest;
 import com.qunite.api.data.UserRepository;
-import com.qunite.api.domain.User;
 import com.qunite.api.security.JwtService;
 import com.qunite.api.service.UserService;
 import com.qunite.api.web.dto.auth.AuthenticationRequest;
@@ -29,7 +28,6 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.web.servlet.MockMvc;
 import org.testcontainers.shaded.com.fasterxml.jackson.databind.ObjectMapper;
