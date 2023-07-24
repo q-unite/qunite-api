@@ -51,8 +51,6 @@ class AuthenticationIntegrationTest {
   private JwtService jwtService;
 
   @Autowired
-  private PasswordEncoder passwordEncoder;
-  @Autowired
   private UserRepository userRepository;
 
   private final ObjectMapper objectMapper = new ObjectMapper();
@@ -179,7 +177,7 @@ class AuthenticationIntegrationTest {
   @DisplayName("Token shouldn't work when user has been deleted")
   @Sql("/users-create.sql")
   void deletedUser() throws Exception {
-    var token = getAccessToken("First", "asd");
+    var token = getAccessToken(1L);
 
     mockMvc.perform(delete("/users/self").header(HttpHeaders.AUTHORIZATION, token))
         .andExpect(status().isNoContent());
@@ -192,7 +190,7 @@ class AuthenticationIntegrationTest {
   @DisplayName("Token shouldn't work when username has been changed")
   @Sql("/users-create.sql")
   void updatedUsername() throws Exception {
-    var token = getAccessToken("First", "asd");
+    var token = getAccessToken(1L);
 
     var userUpdateDto = new UserUpdateDto();
     userUpdateDto.setUsername("NEW USERNAME");
@@ -210,7 +208,7 @@ class AuthenticationIntegrationTest {
   @DisplayName("Token should work when username hasn't been changed")
   @Sql("/users-create.sql")
   void notUpdatedUsername() throws Exception {
-    var token = getAccessToken("First", "asd");
+    var token = getAccessToken(1L);
 
     var userUpdateDto = new UserUpdateDto();
     userUpdateDto.setEmail("NEW EMAIL");
@@ -224,10 +222,8 @@ class AuthenticationIntegrationTest {
         .andExpect(status().isOk());
   }
 
-  private String getAccessToken(String login, String password) throws Exception {
-    var user = new User();
-    user.setUsername(login);
-    user.setPassword(passwordEncoder.encode(password));
+  private String getAccessToken(Long id) throws Exception {
+    var user = userService.findOne(id).orElseThrow();
 
     return "Bearer " + jwtService.createJwtToken(user);
   }
