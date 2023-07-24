@@ -13,7 +13,7 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
 @Component
-@RequiredArgsConstructor
+@RequiredArgsConstructor(onConstructor_ = {@Lazy})
 public class JwtService {
   @Value("${jwt.secret}")
   private String secret;
@@ -21,7 +21,6 @@ public class JwtService {
   @Value("${spring.application.name}")
   private String issuer;
 
-  @Lazy
   private final UserService userService;
 
   public String createJwtToken(User user) {

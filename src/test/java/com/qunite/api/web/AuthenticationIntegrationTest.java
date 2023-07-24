@@ -11,6 +11,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.qunite.api.annotation.IntegrationTest;
 import com.qunite.api.data.UserRepository;
+import com.qunite.api.domain.User;
+import com.qunite.api.security.JwtService;
 import com.qunite.api.service.UserService;
 import com.qunite.api.web.dto.auth.AuthenticationRequest;
 import com.qunite.api.web.dto.auth.AuthenticationResponse;
@@ -28,6 +30,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.web.servlet.MockMvc;
 import org.testcontainers.shaded.com.fasterxml.jackson.databind.ObjectMapper;
@@ -45,6 +48,11 @@ class AuthenticationIntegrationTest {
   @Autowired
   private UserService userService;
 
+  @Autowired
+  private JwtService jwtService;
+
+  @Autowired
+  private PasswordEncoder passwordEncoder;
   @Autowired
   private UserRepository userRepository;
 
@@ -191,7 +199,7 @@ class AuthenticationIntegrationTest {
   }
 
   @Test
-  @DisplayName("Token should work when username has`nt been changed")
+  @DisplayName("Token should work when username hasn't been changed")
   @Sql("/users-create.sql")
   void notUpdatedUsername() throws Exception {
     var token = getAccessToken("First", "asd");
@@ -209,17 +217,10 @@ class AuthenticationIntegrationTest {
   }
 
   private String getAccessToken(String login, String password) throws Exception {
-    var requestBody = new AuthenticationRequest();
-    requestBody.setLogin(login);
-    requestBody.setPassword(password);
-    var jsonBody = objectMapper.writeValueAsString(requestBody);
+    var user = new User();
+    user.setUsername(login);
+    user.setPassword(passwordEncoder.encode(password));
 
-    var response = objectMapper.readValue(mockMvc.perform(
-            post("/{url}/sign-in", url).contentType(MediaType.APPLICATION_JSON)
-                .content(jsonBody))
-        .andExpect(status().isOk())
-        .andReturn().getResponse().getContentAsString(), AuthenticationResponse.class);
-
-    return "Bearer " + response.getToken();
+    return "Bearer " + jwtService.createJwtToken(user);
   }
 }
