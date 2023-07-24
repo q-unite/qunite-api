@@ -34,7 +34,7 @@ public class AuthenticationController {
 
   @Operation(summary = "Sign up user", description = "Create user", responses = {
       @ApiResponse(responseCode = "200"),
-      @ApiResponse(responseCode = "400",
+      @ApiResponse(responseCode = "400", description = "User already exists",
           content = @Content(schema = @Schema(implementation = ExceptionResponse.class)))
   })
   @PostMapping("/sign-up")
@@ -45,9 +45,10 @@ public class AuthenticationController {
 
   @Operation(summary = "Sign in by user credentials", description = "Login", responses = {
       @ApiResponse(responseCode = "200"),
-      @ApiResponse(responseCode = "403",
+      @ApiResponse(responseCode = "403", description = "Invalid password",
           content = @Content(schema = @Schema(implementation = ExceptionResponse.class))),
-      @ApiResponse(responseCode = "404", content = @Content())
+      @ApiResponse(responseCode = "404", description = "User with given login does not exist",
+          content = @Content(schema = @Schema(implementation = ExceptionResponse.class)))
   })
   @PostMapping("/sign-in")
   public ResponseEntity<AuthenticationResponse> signIn(

@@ -89,7 +89,7 @@ public class UserController {
   @PatchMapping("/self")
   @Operation(summary = "Update authorized user", responses = {
       @ApiResponse(responseCode = "200"),
-      @ApiResponse(responseCode = "403",
+      @ApiResponse(responseCode = "400", description = "Username or email are already in use",
           content = @Content(schema = @Schema(implementation = ExceptionResponse.class))),
       @ApiResponse(responseCode = "404", content = @Content())
   })

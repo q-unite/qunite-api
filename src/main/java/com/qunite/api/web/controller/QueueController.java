@@ -85,7 +85,7 @@ public class QueueController {
   @PostMapping("/{id}/members")
   @Operation(summary = "Enroll member to queue", responses = {
       @ApiResponse(responseCode = "200"),
-      @ApiResponse(responseCode = "404",
+      @ApiResponse(responseCode = "404", description = "Could not find queue by id",
           content = @Content(schema = @Schema(implementation = ExceptionResponse.class)))
   })
   public ResponseEntity<Void> enrollMember(@PathVariable Long id,
@@ -97,9 +97,9 @@ public class QueueController {
   @DeleteMapping("/{id}/members/{member-id}")
   @Operation(summary = "Delete member from queue by id", responses = {
       @ApiResponse(responseCode = "204"),
-      @ApiResponse(responseCode = "403",
+      @ApiResponse(responseCode = "403", description = "User is not a creator or manager",
           content = @Content(schema = @Schema(implementation = ExceptionResponse.class))),
-      @ApiResponse(responseCode = "404",
+      @ApiResponse(responseCode = "404", description = "Could not find member in queue",
           content = @Content(schema = @Schema(implementation = ExceptionResponse.class)))
   })
   public ResponseEntity<Void> deleteMember(@PathVariable Long id,
@@ -112,9 +112,9 @@ public class QueueController {
   @PatchMapping("/{id}/members/{member-id}/entries")
   @Operation(summary = "Change member position in queue", responses = {
       @ApiResponse(responseCode = "200"),
-      @ApiResponse(responseCode = "403",
+      @ApiResponse(responseCode = "403", description = "User is not a creator or manager",
           content = @Content(schema = @Schema(implementation = ExceptionResponse.class))),
-      @ApiResponse(responseCode = "404",
+      @ApiResponse(responseCode = "404", description = "Could not find member in queue",
           content = @Content(schema = @Schema(implementation = ExceptionResponse.class)))
   })
   public ResponseEntity<Void> changeMemberPosition(@PathVariable Long id,
@@ -152,8 +152,9 @@ public class QueueController {
   @Operation(summary = "Add manager to queue", responses = {
       @ApiResponse(responseCode = "200"),
       @ApiResponse(responseCode = "403",
+          description = "User can not modify this queue or can not add himself",
           content = @Content(schema = @Schema(implementation = ExceptionResponse.class))),
-      @ApiResponse(responseCode = "404",
+      @ApiResponse(responseCode = "404", description = "Could not find queue or manager",
           content = @Content(schema = @Schema(implementation = ExceptionResponse.class)))
   })
   public ResponseEntity<Void> addManager(@PathVariable Long id,
@@ -166,9 +167,9 @@ public class QueueController {
   @DeleteMapping("/{id}/managers/{manager-id}")
   @Operation(summary = "Delete queue's manager", responses = {
       @ApiResponse(responseCode = "204"),
-      @ApiResponse(responseCode = "403",
+      @ApiResponse(responseCode = "403", description = "User can not modify this queue",
           content = @Content(schema = @Schema(implementation = ExceptionResponse.class))),
-      @ApiResponse(responseCode = "404",
+      @ApiResponse(responseCode = "404", description = "Could not find queue or manager",
           content = @Content(schema = @Schema(implementation = ExceptionResponse.class)))
   })
   public ResponseEntity<Void> deleteManager(@PathVariable Long id,
@@ -204,7 +205,7 @@ public class QueueController {
   @PatchMapping("/{id}")
   @Operation(summary = "Update queue by id", responses = {
       @ApiResponse(responseCode = "200"),
-      @ApiResponse(responseCode = "403",
+      @ApiResponse(responseCode = "403", description = "User is not a creator or manager",
           content = @Content(schema = @Schema(implementation = ExceptionResponse.class))),
       @ApiResponse(responseCode = "404", content = @Content())
   })
@@ -220,7 +221,7 @@ public class QueueController {
   @DeleteMapping("/{id}")
   @Operation(summary = "Delete queue by id", responses = {
       @ApiResponse(responseCode = "204"),
-      @ApiResponse(responseCode = "403",
+      @ApiResponse(responseCode = "403", description = "User is not a creator or manager",
           content = @Content(schema = @Schema(implementation = ExceptionResponse.class))),
       @ApiResponse(responseCode = "404",
           content = @Content(schema = @Schema(implementation = ExceptionResponse.class)))
