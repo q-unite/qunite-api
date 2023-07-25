@@ -57,7 +57,7 @@ public class QueueController {
   @GetMapping("/{id}")
   @Operation(summary = "Get queue by id", responses = {
       @ApiResponse(responseCode = "200"),
-      @ApiResponse(responseCode = "404", content = @Content())
+      @ApiResponse(responseCode = "404", content = @Content)
   })
   public ResponseEntity<QueueDto> getById(@PathVariable Long id) {
     return ResponseEntity.of(queueService.findById(id).map(queueMapper::toDto));
@@ -66,7 +66,7 @@ public class QueueController {
   @GetMapping("/{id}/members-amount")
   @Operation(summary = "Get members amount of queue", responses = {
       @ApiResponse(responseCode = "200"),
-      @ApiResponse(responseCode = "404", content = @Content())
+      @ApiResponse(responseCode = "404", content = @Content)
   })
   public ResponseEntity<Integer> membersAmount(@PathVariable Long id) {
     return ResponseEntity.of(queueService.getMembersAmount(id));
@@ -75,7 +75,7 @@ public class QueueController {
   @GetMapping("/{id}/members/{member-id}")
   @Operation(summary = "Get member's position in queue", responses = {
       @ApiResponse(responseCode = "200"),
-      @ApiResponse(responseCode = "404", content = @Content())
+      @ApiResponse(responseCode = "404", content = @Content)
   })
   public ResponseEntity<Integer> memberPosition(@PathVariable Long id,
                                                 @PathVariable(value = "member-id") Long memberId) {
@@ -128,7 +128,7 @@ public class QueueController {
   @GetMapping("/{id}/creator")
   @Operation(summary = "Get queue's creator", responses = {
       @ApiResponse(responseCode = "200"),
-      @ApiResponse(responseCode = "404", content = @Content())
+      @ApiResponse(responseCode = "404", content = @Content)
   })
   public ResponseEntity<UserDto> getCreator(@PathVariable Long id) {
     return ResponseEntity.of(queueService.findById(id)
@@ -139,7 +139,7 @@ public class QueueController {
   @GetMapping("/{id}/managers")
   @Operation(summary = "Get queue's managers", responses = {
       @ApiResponse(responseCode = "200"),
-      @ApiResponse(responseCode = "404", content = @Content())
+      @ApiResponse(responseCode = "404", content = @Content)
   })
   public ResponseEntity<List<UserDto>> getManagers(@PathVariable Long id) {
     return ResponseEntity.of(
@@ -182,7 +182,7 @@ public class QueueController {
   @GetMapping("/{id}/members")
   @Operation(summary = "Get queue's entries(members list)", responses = {
       @ApiResponse(responseCode = "200"),
-      @ApiResponse(responseCode = "404", content = @Content())
+      @ApiResponse(responseCode = "404", content = @Content)
   })
   public ResponseEntity<List<EntryDto>> getEntries(@PathVariable Long id) {
     return ResponseEntity.of(queueService.findById(id)
@@ -207,7 +207,7 @@ public class QueueController {
       @ApiResponse(responseCode = "200"),
       @ApiResponse(responseCode = "403", description = "User is not a creator or manager",
           content = @Content(schema = @Schema(implementation = ExceptionResponse.class))),
-      @ApiResponse(responseCode = "404", content = @Content())
+      @ApiResponse(responseCode = "404", content = @Content)
   })
   public ResponseEntity<QueueDto> update(@PathVariable Long id,
                                          @RequestBody QueueUpdateDto queueUpdateDto,

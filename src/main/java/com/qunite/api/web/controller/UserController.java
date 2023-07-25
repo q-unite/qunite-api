@@ -47,7 +47,7 @@ public class UserController {
   @GetMapping("/{id}")
   @Operation(summary = "Get user by id", responses = {
       @ApiResponse(responseCode = "200"),
-      @ApiResponse(responseCode = "404", content = @Content())
+      @ApiResponse(responseCode = "404", content = @Content)
   })
   public ResponseEntity<UserDto> getById(@PathVariable Long id) {
     return ResponseEntity.of(userService.findOne(id).map(userMapper::toDto));
@@ -56,7 +56,7 @@ public class UserController {
   @GetMapping("/{id}/managed-queues")
   @Operation(summary = "Get queues where user is manager", responses = {
       @ApiResponse(responseCode = "200"),
-      @ApiResponse(responseCode = "404", content = @Content())
+      @ApiResponse(responseCode = "404", content = @Content)
   })
   public ResponseEntity<List<QueueDto>> getManagedQueues(@PathVariable Long id) {
     return ResponseEntity.of(userService.getManagedQueues(id)
@@ -67,7 +67,7 @@ public class UserController {
   @GetMapping("/{id}/created-queues")
   @Operation(summary = "Get queues created by user", responses = {
       @ApiResponse(responseCode = "200"),
-      @ApiResponse(responseCode = "404", content = @Content())
+      @ApiResponse(responseCode = "404", content = @Content)
   })
   public ResponseEntity<List<QueueDto>> getCreatedQueues(@PathVariable Long id) {
     return ResponseEntity.of(
@@ -79,7 +79,7 @@ public class UserController {
   @GetMapping("/self")
   @Operation(summary = "Get authorized user", responses = {
       @ApiResponse(responseCode = "200"),
-      @ApiResponse(responseCode = "404", content = @Content())
+      @ApiResponse(responseCode = "404", content = @Content)
   })
   public ResponseEntity<UserDto> getSelf(Principal principal) {
     return ResponseEntity.of(userService.findByUsername(principal.getName())
@@ -91,7 +91,7 @@ public class UserController {
       @ApiResponse(responseCode = "200"),
       @ApiResponse(responseCode = "400", description = "Username or email are already in use",
           content = @Content(schema = @Schema(implementation = ExceptionResponse.class))),
-      @ApiResponse(responseCode = "404", content = @Content())
+      @ApiResponse(responseCode = "404", content = @Content)
   })
   public ResponseEntity<UserDto> updateSelf(Principal principal,
                                             @Valid @RequestBody UserUpdateDto userUpdateDto) {
@@ -104,7 +104,7 @@ public class UserController {
   @DeleteMapping("/self")
   @Operation(summary = "Delete authorized user", responses = {
       @ApiResponse(responseCode = "204"),
-      @ApiResponse(responseCode = "404", content = @Content())
+      @ApiResponse(responseCode = "404", content = @Content)
   })
   public ResponseEntity<Void> deleteSelf(Principal principal) {
     return userService.findByUsername(principal.getName())
