@@ -13,6 +13,7 @@ import com.qunite.api.annotation.IntegrationTest;
 import com.qunite.api.data.UserRepository;
 import com.qunite.api.security.JwtService;
 import com.qunite.api.service.UserService;
+import com.qunite.api.utils.JpaRepositoryUtils;
 import com.qunite.api.web.dto.auth.AuthenticationRequest;
 import com.qunite.api.web.dto.user.UserCreationDto;
 import com.qunite.api.web.dto.user.UserUpdateDto;
@@ -221,7 +222,7 @@ class AuthenticationIntegrationTest {
   }
 
   private String getAccessToken(Long id) throws Exception {
-    var user = userService.findOne(id).orElseThrow();
+    var user = JpaRepositoryUtils.getById(id, userRepository);
 
     return "Bearer " + jwtService.createJwtToken(user);
   }
