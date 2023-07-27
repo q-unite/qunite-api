@@ -99,7 +99,18 @@ public class QueueController {
   public ResponseEntity<Void> deleteMember(@PathVariable Long id,
                                            @PathVariable(value = "member-id") Long memberId,
                                            Principal principal) {
-    queueService.deleteMember(memberId, id, principal.getName());
+    queueService.deleteMemberByCreatorOrManager(memberId, id, principal.getName());
+    return ResponseEntity.noContent().build();
+  }
+
+  @DeleteMapping("/{id}/members")
+  @Operation(summary = "Leave member from queue", responses = {
+      @ApiResponse(responseCode = "204"),
+      @ApiResponse(responseCode = "404", content = @Content())
+  })
+  public ResponseEntity<Void> leave(@PathVariable Long id,
+                                    Principal principal) {
+    queueService.leaveByMember(id, principal.getName());
     return ResponseEntity.noContent().build();
   }
 
