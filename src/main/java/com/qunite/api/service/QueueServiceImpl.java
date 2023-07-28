@@ -106,10 +106,8 @@ public class QueueServiceImpl implements QueueService {
   @Override
   @Transactional(isolation = Isolation.REPEATABLE_READ)
   public void leaveByMember(Long queueId, String principalName) {
-    var user = userRepository.findByUsername(principalName)
-        .orElseThrow(() -> new UserNotFoundException(
-            "No user exists by given username: %s".formatted(principalName)));
-    deleteMember(user.getId(), queueId);
+    userRepository.findByUsername(principalName)
+        .ifPresent(user -> deleteMember(user.getId(), queueId));
   }
 
   private void deleteMember(Long memberId, Long queueId) {
