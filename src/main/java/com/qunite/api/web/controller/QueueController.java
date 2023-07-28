@@ -94,7 +94,6 @@ public class QueueController {
   @DeleteMapping("/{id}/members/{member-id}")
   @Operation(summary = "Delete member from queue by id", responses = {
       @ApiResponse(responseCode = "204"),
-      @ApiResponse(responseCode = "404", content = @Content()),
       @ApiResponse(responseCode = "409", content = @Content())
   })
   public ResponseEntity<Void> deleteMember(@PathVariable Long id,
@@ -107,7 +106,6 @@ public class QueueController {
   @DeleteMapping("/{id}/members")
   @Operation(summary = "Leave member from queue", responses = {
       @ApiResponse(responseCode = "204"),
-      @ApiResponse(responseCode = "404", content = @Content()),
       @ApiResponse(responseCode = "409", content = @Content())
   })
   public ResponseEntity<Void> leave(@PathVariable Long id,

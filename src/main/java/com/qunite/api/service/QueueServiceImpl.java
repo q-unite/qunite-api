@@ -111,12 +111,11 @@ public class QueueServiceImpl implements QueueService {
   }
 
   private void deleteMember(Long memberId, Long queueId) {
-    var entry = entryRepository.findById(new EntryId(memberId, queueId))
-        .orElseThrow(() -> new EntryNotFoundException(
-            "Could not find entry by memberId %s and queueId %s".formatted(memberId, queueId)));
-    entryRepository.deleteById(entry.getId());
-    entryRepository.updateEntryIndices(queueId, entry.getEntryIndex() + 1,
-        Integer.MAX_VALUE, -1);
+    entryRepository.findById(new EntryId(memberId, queueId)).ifPresent(entry -> {
+      entryRepository.deleteById(entry.getId());
+      entryRepository.updateEntryIndices(queueId, entry.getEntryIndex() + 1,
+          Integer.MAX_VALUE, -1);
+    });
   }
 
   @Override
