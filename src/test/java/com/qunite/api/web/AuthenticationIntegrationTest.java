@@ -62,7 +62,7 @@ class AuthenticationIntegrationTest {
     var username = "John";
     var user = new UserCreationDto();
     user.setUsername(username);
-    user.setPassword("asd");
+    user.setPassword("asdasd");
     user.setEmail("John@user.com");
 
     var json = new ObjectMapper().writeValueAsString(user);
