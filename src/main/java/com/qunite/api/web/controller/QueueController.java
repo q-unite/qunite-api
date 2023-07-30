@@ -110,7 +110,7 @@ public class QueueController {
   })
   public ResponseEntity<Void> changeMemberPosition(@PathVariable Long id,
                                                    @PathVariable(value = "member-id") Long memberId,
-                                                   @RequestBody EntryUpdateDto entryDto,
+                                                   @Valid @RequestBody EntryUpdateDto entryDto,
                                                    Principal principal) {
     queueService.changeMemberPosition(memberId, id, entryDto.getEntryIndex(), principal.getName());
     return ResponseEntity.ok().build();
@@ -190,7 +190,7 @@ public class QueueController {
       @ApiResponse(responseCode = "404", content = @Content())
   })
   public ResponseEntity<QueueDto> update(@PathVariable Long id,
-                                         @RequestBody QueueUpdateDto queueUpdateDto,
+                                         @Valid @RequestBody QueueUpdateDto queueUpdateDto,
                                          Principal principal) {
     return ResponseEntity.of(queueService.findById(id)
         .map(queue -> queueMapper.partialUpdate(queueUpdateDto, queue))
