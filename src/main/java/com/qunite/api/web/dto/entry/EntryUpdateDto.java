@@ -5,6 +5,6 @@ import lombok.Data;
 
 @Data
 public class EntryUpdateDto {
-  @PositiveOrZero(message = "Must be non-negative")
+  @PositiveOrZero(message = "Must not be negative")
   private Integer entryIndex;
 }

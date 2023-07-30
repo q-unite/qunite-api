@@ -7,6 +7,6 @@ import lombok.Data;
 public class AuthenticationRequest {
   @NotBlank(message = "Specify login")
   private String login;
-  @NotBlank(message = "Specify login")
+  @NotBlank(message = "Specify password")
   private String password;
 }
