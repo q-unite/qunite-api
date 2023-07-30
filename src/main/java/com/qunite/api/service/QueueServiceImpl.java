@@ -94,18 +94,28 @@ public class QueueServiceImpl implements QueueService {
 
   @Override
   @Transactional(isolation = Isolation.REPEATABLE_READ)
-  public void deleteMember(Long memberId, Long queueId, String principalName) {
+  public void deleteMemberByCreatorOrManager(Long memberId, Long queueId, String principalName) {
     if (isUserQueueCreatorOrManagerByCredentials(queueId, principalName)) {
-      var entry = entryRepository.findById(new EntryId(memberId, queueId))
-          .orElseThrow(() -> new EntryNotFoundException(
-              "Could not find entry by memberId %s and queueId %s".formatted(memberId, queueId)));
-      entryRepository.deleteById(entry.getId());
-      entryRepository.updateEntryIndices(queueId, entry.getEntryIndex() + 1,
-          Integer.MAX_VALUE, -1);
+      deleteMember(memberId, queueId);
     } else {
       throw new ForbiddenAccessException(
           "User %s is not a creator or manager".formatted(principalName));
     }
+  }
+
+  @Override
+  @Transactional(isolation = Isolation.REPEATABLE_READ)
+  public void leaveByMember(Long queueId, String principalName) {
+    userRepository.findByUsername(principalName)
+        .ifPresent(user -> deleteMember(user.getId(), queueId));
+  }
+
+  private void deleteMember(Long memberId, Long queueId) {
+    entryRepository.findById(new EntryId(memberId, queueId)).ifPresent(entry -> {
+      entryRepository.deleteById(entry.getId());
+      entryRepository.updateEntryIndices(queueId, entry.getEntryIndex() + 1,
+          Integer.MAX_VALUE, -1);
+    });
   }
 
   @Override
