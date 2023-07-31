@@ -12,6 +12,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Map;
 import java.util.stream.Collectors;
+import org.springframework.dao.CannotAcquireLockException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
@@ -51,6 +52,12 @@ public class ResponseEntityControllerAdvice {
       InvalidPasswordException.class})
   public ResponseEntity<ExceptionResponse> handleForbidden(RuntimeException exception) {
     return ResponseEntity.status(HttpStatus.FORBIDDEN)
+        .body(exceptionResponse(exception.getMessage()));
+  }
+
+  @ExceptionHandler(CannotAcquireLockException.class)
+  public ResponseEntity<ExceptionResponse> handleConflict(RuntimeException exception) {
+    return ResponseEntity.status(HttpStatus.CONFLICT)
         .body(exceptionResponse(exception.getMessage()));
   }
 
