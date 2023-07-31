@@ -16,6 +16,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import java.security.Principal;
@@ -98,7 +99,7 @@ public class QueueController {
       @ApiResponse(responseCode = "204"),
       @ApiResponse(responseCode = "403", description = "User is not a creator or manager",
           content = @Content(schema = @Schema(implementation = ExceptionResponse.class))),
-      @ApiResponse(responseCode = "404", description = "Could not find member in queue",
+      @ApiResponse(responseCode = "409", description = "Concurrency error",
           content = @Content(schema = @Schema(implementation = ExceptionResponse.class)))
   })
   public ResponseEntity<Void> deleteMember(@PathVariable Long id,
@@ -111,7 +112,8 @@ public class QueueController {
   @DeleteMapping("/{id}/members")
   @Operation(summary = "Leave member from queue", responses = {
       @ApiResponse(responseCode = "204"),
-      @ApiResponse(responseCode = "409", content = @Content())
+      @ApiResponse(responseCode = "409", description = "Concurrency error",
+          content = @Content(schema = @Schema(implementation = ExceptionResponse.class)))
   })
   public ResponseEntity<Void> leave(@PathVariable Long id,
                                     Principal principal) {
@@ -125,10 +127,10 @@ public class QueueController {
       @ApiResponse(responseCode = "403", description = "User is not a creator or manager",
           content = @Content(schema = @Schema(implementation = ExceptionResponse.class))),
       @ApiResponse(responseCode = "404", description = "Could not find member in queue",
+          content = @Content(schema = @Schema(implementation = ExceptionResponse.class))),
+      @ApiResponse(responseCode = "409", description = "Concurrency error",
           content = @Content(schema = @Schema(implementation = ExceptionResponse.class)))
-      @ApiResponse(responseCode = "404", content = @Content()),
-      @ApiResponse(responseCode = "409", content = @Content())
-  })//todo
+  })
   public ResponseEntity<Void> changeMemberPosition(@PathVariable Long id,
                                                    @PathVariable(value = "member-id") Long memberId,
                                                    @RequestBody EntryUpdateDto entryDto,
