@@ -73,22 +73,22 @@ public class QueueServiceImpl implements QueueService {
   @Transactional(isolation = Isolation.REPEATABLE_READ)
   public void changeMemberPosition(Long memberId, Long queueId,
                                    Integer newIndex, String principalName) {
-    if (isUserQueueCreatorOrManagerByCredentials(queueId, principalName)) {
-      var entry = entryRepository.findById(new EntryId(memberId, queueId))
-          .orElseThrow(() -> new EntryNotFoundException(
-              "Could not find entry by memberId %s and queueId %s".formatted(memberId, queueId)));
-      var currentIndex = entry.getEntryIndex();
-      if (!currentIndex.equals(newIndex)) {
-        int startIndex = Math.min(currentIndex, newIndex);
-        int endIndex = Math.max(currentIndex, newIndex);
-        int increment = currentIndex < newIndex ? -1 : 1;
-
-        entryRepository.updateEntryIndices(queueId, startIndex, endIndex, increment);
-        entry.setEntryIndex(newIndex);
-      }
-    } else {
+    if (!isUserQueueCreatorOrManagerByCredentials(queueId, principalName)) {
       throw new ForbiddenAccessException(
           "User %s is not a creator or manager".formatted(principalName));
+    }
+    var entry = entryRepository.findById(new EntryId(memberId, queueId))
+        .orElseThrow(() -> new EntryNotFoundException(
+            "Could not find entry by memberId %s and queueId %s".formatted(memberId, queueId)));
+
+    int currentIndex = entry.getEntryIndex();
+    int newIndexChecked = Math.min(newIndex, entry.getQueue().getEntries().size() - 1);
+    if (currentIndex != newIndexChecked) {
+      int startIndex = Math.min(currentIndex, newIndexChecked);
+      int endIndex = Math.max(currentIndex, newIndexChecked);
+      int increment = Integer.compare(currentIndex, newIndexChecked);
+      entryRepository.updateEntryIndices(queueId, startIndex, endIndex, increment);
+      entry.setEntryIndex(newIndexChecked);
     }
   }
 
