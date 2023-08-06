@@ -115,6 +115,25 @@ class QueueServiceTest {
 
   @Sql({"/users-create.sql", "/queues-create.sql", "/entries-create.sql"})
   @Test
+  void testChangingMemberPositionForwardWithGap() {
+    var queueId = 1L;
+    var expectedEntryIdList = List.of(
+        new EntryId(7L, queueId),
+        new EntryId(6L, queueId),
+        new EntryId(4L, queueId),
+        new EntryId(3L, queueId),
+        new EntryId(5L, queueId));
+
+    queueService.changeMemberPosition(5L, queueId, 50, "First");
+    var actualEntryIdList = entryRepository.findEntriesIdsByQueueId(queueId);
+
+    assertThat(actualEntryIdList)
+        .isEqualTo(expectedEntryIdList)
+        .doesNotContainNull();
+  }
+
+  @Sql({"/users-create.sql", "/queues-create.sql", "/entries-create.sql"})
+  @Test
   void testChangingMemberPositionBackward() {
     var queueId = 1L;
     var expectedEntryIdList = List.of(
