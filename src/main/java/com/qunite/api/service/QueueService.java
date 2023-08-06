@@ -15,7 +15,7 @@ public interface QueueService {
 
   Queue update(Queue queue, String username);
 
-  void enrollMember(String username, Long queueId);
+  Optional<Integer> enrollMember(String username, Long queueId);
 
   Optional<Integer> getMembersAmount(Long queueId);
 

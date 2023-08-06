@@ -31,6 +31,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -82,16 +83,15 @@ public class QueueController {
     return ResponseEntity.of(queueService.getMemberPosition(memberId, id));
   }
 
-  @PostMapping("/{id}/members")
+  @PutMapping("/{id}/members")
   @Operation(summary = "Enroll member to queue", responses = {
       @ApiResponse(responseCode = "200"),
-      @ApiResponse(responseCode = "404", description = "Could not find queue by id",
+      @ApiResponse(responseCode = "404", description = "Could not find queue or user",
           content = @Content(schema = @Schema(implementation = ExceptionResponse.class)))
   })
-  public ResponseEntity<Void> enrollMember(@PathVariable Long id,
-                                           Principal principal) {
-    queueService.enrollMember(principal.getName(), id);
-    return ResponseEntity.ok().build();
+  public ResponseEntity<Integer> enrollMember(@PathVariable Long id,
+                                              Principal principal) {
+    return ResponseEntity.of(queueService.enrollMember(principal.getName(), id));
   }
 
   @DeleteMapping("/{id}/members/{member-id}")
