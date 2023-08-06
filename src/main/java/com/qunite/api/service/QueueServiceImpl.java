@@ -48,12 +48,15 @@ public class QueueServiceImpl implements QueueService {
 
   @Override
   @Transactional
-  public void enrollMember(String username, Long queueId) {
+  public Optional<Integer> enrollMember(String username, Long queueId) {
     var queue = findById(queueId).orElseThrow(
         () -> new QueueNotFoundException("Could not find queue by id %d".formatted(queueId)));
-    userRepository.findByUsername(username)
-        .map(user -> new Entry(user, queue))
-        .ifPresent(entry -> entry.getQueue().addEntry(entry));
+    var user = userRepository.findByUsername(username).orElseThrow(
+        () -> new UserNotFoundException("Could not find user by username %s".formatted(username)));
+    if (!entryRepository.existsById(new EntryId(user.getId(), queueId))) {
+      queue.addEntry(new Entry(user, queue));
+    }
+    return getMemberPosition(user.getId(), queueId);
   }
 
   @Override
