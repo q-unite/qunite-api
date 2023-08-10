@@ -25,10 +25,10 @@ public class JwtService {
 
   public String createJwtToken(User user) {
     return JWT.create()
-        .withSubject(user.getUsername())
+        .withSubject(String.valueOf(user.getId()))
         .withIssuer(issuer)
-        .withJWTId(String.valueOf(user.getId()))
-        .withClaim("password", user.getPassword())
+        .withClaim("passwordHash", user.getPassword())
+        .withClaim("username", user.getUsername())
         .withIssuedAt(Instant.now())
         .sign(Algorithm.HMAC256(secret));
   }
@@ -42,9 +42,11 @@ public class JwtService {
   }
 
   private boolean isDataValid(DecodedJWT decodedJWT) {
-    return userService.findOne(Long.valueOf(decodedJWT.getId()))
-        .filter(found -> found.getUsername().equals(decodedJWT.getSubject()))
-        .filter(found -> found.getPassword().equals(decodedJWT.getClaim("password").asString()))
+    return userService.findOne(Long.valueOf(decodedJWT.getSubject()))
+        .filter(found -> found.getUsername().equals(decodedJWT.getClaim("username").asString()))
+        .filter(
+            found -> found.getPassword().hashCode() ==
+                (decodedJWT.getClaim("passwordHash").asInt()))
         .isPresent();
   }
 }
