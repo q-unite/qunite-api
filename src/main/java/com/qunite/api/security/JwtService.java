@@ -7,6 +7,7 @@ import com.qunite.api.domain.AccessToken;
 import com.qunite.api.domain.User;
 import com.qunite.api.service.TokenService;
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -28,6 +29,7 @@ public class JwtService {
         .withSubject(user.getUsername())
         .withIssuer(issuer)
         .withIssuedAt(Instant.now())
+        .withExpiresAt(Instant.now().plus(10, ChronoUnit.MINUTES))
         .sign(Algorithm.HMAC256(secret));
 
     AccessToken token = new AccessToken();
