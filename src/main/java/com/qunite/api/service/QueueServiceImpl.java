@@ -14,19 +14,30 @@ import com.qunite.api.exception.UserNotFoundException;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.BiConsumer;
-import lombok.RequiredArgsConstructor;
 import one.util.streamex.StreamEx;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-@RequiredArgsConstructor
 @Service
 public class QueueServiceImpl implements QueueService {
   private final QueueRepository queueRepository;
   private final UserRepository userRepository;
   private final EntryRepository entryRepository;
   private final UserService userService;
+  private final QueueServiceImpl self;
+
+  public QueueServiceImpl(QueueRepository queueRepository, UserRepository userRepository,
+                          EntryRepository entryRepository, UserService userService,
+                          @Lazy QueueServiceImpl self) {
+    this.queueRepository = queueRepository;
+    this.userRepository = userRepository;
+    this.entryRepository = entryRepository;
+    this.userService = userService;
+    this.self = self;
+  }
 
   @Override
   @Transactional
@@ -56,7 +67,7 @@ public class QueueServiceImpl implements QueueService {
     if (!entryRepository.existsById(new EntryId(user.getId(), queueId))) {
       queue.addEntry(new Entry(user, queue));
     }
-    return getMemberPosition(user.getId(), queueId);
+    return self.getMemberPosition(user.getId(), queueId);
   }
 
   @Override
@@ -66,7 +77,7 @@ public class QueueServiceImpl implements QueueService {
   }
 
   @Override
-  @Transactional
+  @Transactional(propagation = Propagation.REQUIRES_NEW)
   public Optional<Integer> getMemberPosition(Long memberId, Long queueId) {
     return entryRepository.findById(new EntryId(memberId, queueId))
         .map(entry -> entry.getEntryIndex() + 1);
