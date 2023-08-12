@@ -3,6 +3,7 @@ package com.qunite.api.service;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.qunite.api.domain.Queue;
 import com.qunite.api.domain.User;
+import com.qunite.api.web.dto.auth.AuthenticationResponse;
 import java.util.List;
 import java.util.Optional;
 
@@ -23,5 +24,5 @@ public interface UserService {
 
   Optional<List<Queue>> getManagedQueues(Long userId);
 
-  Optional<DecodedJWT> signIn(String login, String password);
+  AuthenticationResponse signIn(String login, String password);
 }

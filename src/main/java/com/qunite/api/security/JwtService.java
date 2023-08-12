@@ -24,12 +24,12 @@ public class JwtService {
 
   private final TokenService tokenService;
 
-  public String createJwtToken(User user) {
+  public String createJwtToken(User user, int expirationTime, ChronoUnit expirationTimeUnit) {
     String tokenValue = JWT.create()
         .withSubject(user.getUsername())
         .withIssuer(issuer)
         .withIssuedAt(Instant.now())
-        .withExpiresAt(Instant.now().plus(10, ChronoUnit.MINUTES))
+        .withExpiresAt(Instant.now().plus(expirationTime, expirationTimeUnit))
         .sign(Algorithm.HMAC256(secret));
 
     AccessToken token = new AccessToken();
@@ -45,4 +45,10 @@ public class JwtService {
             .verify(token))
         .filter(decodedJWT -> tokenService.isTokenValid(token));
   }
+    public String getAlgorithm() {
+      return "HS256";
+    }
+    public String getType() {
+    return "JWT";
+    }
 }

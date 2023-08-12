@@ -9,6 +9,8 @@ import com.qunite.api.exception.InvalidPasswordException;
 import com.qunite.api.exception.UserAlreadyExistsException;
 import com.qunite.api.exception.UserNotFoundException;
 import com.qunite.api.security.JwtService;
+import com.qunite.api.web.dto.auth.AuthenticationResponse;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
@@ -103,14 +105,16 @@ public class UserServiceImpl implements UserService {
 
   @Override
   @Transactional
-  public Optional<DecodedJWT> signIn(String login, String password) {
+  public AuthenticationResponse signIn(String login, String password) {
     var user = userRepository.findByEmailOrUsername(login)
         .orElseThrow(() -> new UserNotFoundException(
             "User with login %s does not exist".formatted(login)));
     if (!passwordEncoder.matches(password, user.getPassword())) {
       throw new InvalidPasswordException("Invalid password");
     }
-    return jwtService.verifyAccessToken(jwtService.createJwtToken(user));
+    String accessToken = jwtService.createJwtToken(user, 30, ChronoUnit.MINUTES);
+    String refreshToken = jwtService.createJwtToken(user, 7, ChronoUnit.DAYS);
+    return new AuthenticationResponse(accessToken, refreshToken, jwtService.getType(), jwtService.getAlgorithm());
   }
 
   private boolean isUsernameInUse(User user) {

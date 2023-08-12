@@ -53,7 +53,6 @@ public class AuthenticationController {
   @PostMapping("/sign-in")
   public ResponseEntity<AuthenticationResponse> signIn(
       @Valid @RequestBody AuthenticationRequest request) {
-    return ResponseEntity.of(userService.signIn(request.getLogin(), request.getPassword())
-        .map(responseMapper::toAuthResponse));
+    return ResponseEntity.ok(userService.signIn(request.getLogin(), request.getPassword()));
   }
 }
