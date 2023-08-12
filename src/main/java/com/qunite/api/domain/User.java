@@ -14,7 +14,6 @@ import jakarta.persistence.Table;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Objects;
@@ -66,7 +65,7 @@ public class User implements UserDetails {
   @ToString.Exclude
   @OrderBy("id asc")
   @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL, orphanRemoval = true)
-  List<AccessToken> accessTokens = new ArrayList<>();
+  List<Tokens> tokens = new ArrayList<>();
 
   public User(String username, String email, String password) {
     this.username = username;
@@ -104,14 +103,14 @@ public class User implements UserDetails {
     entry.setMember(null);
   }
 
-  public void addAccessToken(AccessToken token) {
-    accessTokens.add(token);
-    token.setOwner(this);
+  public void addTokens(Tokens tokens) {
+    this.tokens.add(tokens);
+    tokens.setOwner(this);
   }
 
-  public void removeAccessToken(AccessToken token) {
-    accessTokens.remove(token);
-    token.setOwner(null);
+  public void removeTokens(Tokens tokens) {
+    this.tokens.remove(tokens);
+    tokens.setOwner(null);
   }
 
   public List<Queue> getCreatedQueues() {
@@ -126,8 +125,8 @@ public class User implements UserDetails {
     return Collections.unmodifiableList(entries);
   }
 
-  public List<AccessToken> getAccessTokens() {
-    return Collections.unmodifiableList(accessTokens);
+  public List<Tokens> getTokens() {
+    return Collections.unmodifiableList(tokens);
   }
 
   @Override

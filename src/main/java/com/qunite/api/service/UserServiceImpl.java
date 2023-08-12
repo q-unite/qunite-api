@@ -1,24 +1,22 @@
 package com.qunite.api.service;
 
+import com.auth0.jwt.exceptions.JWTDecodeException;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.qunite.api.data.UserRepository;
-import com.qunite.api.domain.AccessToken;
 import com.qunite.api.domain.Queue;
 import com.qunite.api.domain.User;
 import com.qunite.api.exception.InvalidPasswordException;
 import com.qunite.api.exception.UserAlreadyExistsException;
 import com.qunite.api.exception.UserNotFoundException;
 import com.qunite.api.security.JwtService;
+import com.qunite.api.security.TokenType;
 import com.qunite.api.web.dto.auth.AuthenticationResponse;
-import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,7 +25,7 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
   private final UserRepository userRepository;
-  private final TokenService tokenService;
+  private final TokenService tokensService;
   private final PasswordEncoder passwordEncoder;
   private final JwtService jwtService;
   @Lazy
@@ -60,13 +58,11 @@ public class UserServiceImpl implements UserService {
     }
 
     if (self.hasUsernameChanged(newUser)) {
-      newUser.getAccessTokens().stream().filter(AccessToken::isValid)
-          .forEach(tokenService::invalidateToken);
+      newUser.getTokens().forEach(tokensService::invalidateTokens);
     }
 
     return newUser;
   }
-
 
   @Override
   @Transactional
@@ -102,7 +98,6 @@ public class UserServiceImpl implements UserService {
     return userRepository.findById(userId).map(User::getManagedQueues).map(List::copyOf);
   }
 
-
   @Override
   @Transactional
   public AuthenticationResponse signIn(String login, String password) {
@@ -112,9 +107,21 @@ public class UserServiceImpl implements UserService {
     if (!passwordEncoder.matches(password, user.getPassword())) {
       throw new InvalidPasswordException("Invalid password");
     }
-    String accessToken = jwtService.createJwtToken(user, 30, ChronoUnit.MINUTES);
-    String refreshToken = jwtService.createJwtToken(user, 7, ChronoUnit.DAYS);
-    return new AuthenticationResponse(accessToken, refreshToken, jwtService.getType(), jwtService.getAlgorithm());
+    return jwtService.createJwtTokens(user);
+  }
+
+  @Override
+  @Transactional
+  public AuthenticationResponse refreshTokens(String refreshToken) {
+    DecodedJWT decodedJWT = jwtService.verifyToken(refreshToken, TokenType.REFRESH_TOKEN)
+        .orElseThrow(() -> new JWTDecodeException("Invalid refresh token"));
+
+    User user =
+        findOne(Long.valueOf(decodedJWT.getSubject())).orElseThrow(() -> new UserNotFoundException(
+            "User with id %s does not exist".formatted(decodedJWT.getSubject())));
+    tokensService.deleteOne(refreshToken);
+
+    return jwtService.createJwtTokens(user);
   }
 
   private boolean isUsernameInUse(User user) {
@@ -126,7 +133,6 @@ public class UserServiceImpl implements UserService {
     return userRepository.findByEmailOrUsername(user.getEmail())
         .filter(found -> !found.getId().equals(user.getId())).isPresent();
   }
-
 
   @Transactional(propagation = Propagation.REQUIRES_NEW)
   public boolean hasUsernameChanged(User user) {

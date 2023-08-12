@@ -17,10 +17,10 @@ import lombok.ToString;
 @Getter
 @Setter
 @Entity
-@Table(name = "ACCESS_TOKENS")
+@Table(name = "TOKENS")
 @ToString
 @NoArgsConstructor
-public class AccessToken {
+public class Tokens {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   Long id;
@@ -29,11 +29,11 @@ public class AccessToken {
   @ManyToOne
   User owner;
 
-  @Column
-  String value;
+  @Column(name = "access_token")
+  String accessToken;
 
-  @Column(name = "is_valid")
-  boolean isValid = true;
+  @Column(name = "refresh_token")
+  String refreshToken;
 
   @Column(name = "created_at")
   Instant createdAt = Instant.now();

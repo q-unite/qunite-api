@@ -1,6 +1,5 @@
 package com.qunite.api.service;
 
-import com.auth0.jwt.interfaces.DecodedJWT;
 import com.qunite.api.domain.Queue;
 import com.qunite.api.domain.User;
 import com.qunite.api.web.dto.auth.AuthenticationResponse;
@@ -25,4 +24,6 @@ public interface UserService {
   Optional<List<Queue>> getManagedQueues(Long userId);
 
   AuthenticationResponse signIn(String login, String password);
+
+  AuthenticationResponse refreshTokens(String refreshToken);
 }

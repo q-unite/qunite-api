@@ -4,6 +4,7 @@ import com.qunite.api.service.UserService;
 import com.qunite.api.web.dto.ExceptionResponse;
 import com.qunite.api.web.dto.auth.AuthenticationRequest;
 import com.qunite.api.web.dto.auth.AuthenticationResponse;
+import com.qunite.api.web.dto.auth.RefreshRequest;
 import com.qunite.api.web.dto.user.UserCreationDto;
 import com.qunite.api.web.mapper.AuthResponseMapper;
 import com.qunite.api.web.mapper.UserMapper;
@@ -54,5 +55,11 @@ public class AuthenticationController {
   public ResponseEntity<AuthenticationResponse> signIn(
       @Valid @RequestBody AuthenticationRequest request) {
     return ResponseEntity.ok(userService.signIn(request.getLogin(), request.getPassword()));
+  }
+
+  @PostMapping("/refresh")
+  public ResponseEntity<AuthenticationResponse> refresh(
+      @Valid @RequestBody RefreshRequest refreshRequest) {
+    return ResponseEntity.ok(userService.refreshTokens(refreshRequest.getRefreshToken()));
   }
 }

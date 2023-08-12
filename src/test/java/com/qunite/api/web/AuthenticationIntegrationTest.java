@@ -12,12 +12,13 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import com.qunite.api.annotation.IntegrationTest;
 import com.qunite.api.data.UserRepository;
 import com.qunite.api.security.JwtService;
+import com.qunite.api.security.TokenType;
 import com.qunite.api.service.UserService;
 import com.qunite.api.utils.JpaRepositoryUtils;
 import com.qunite.api.web.dto.auth.AuthenticationRequest;
-import com.qunite.api.web.dto.auth.AuthenticationResponse;
 import com.qunite.api.web.dto.user.UserCreationDto;
 import com.qunite.api.web.dto.user.UserUpdateDto;
+import java.time.temporal.ChronoUnit;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
@@ -131,7 +132,7 @@ class AuthenticationIntegrationTest {
 
     resultActions
         .andExpect(status().isOk())
-        .andExpect(jsonPath("$.token", notNullValue()));
+        .andExpect(jsonPath("$.accessToken", notNullValue()));
   }
 
   private static Stream<Arguments> signInShouldReturnAccessToken() {
@@ -178,7 +179,7 @@ class AuthenticationIntegrationTest {
   @DisplayName("Token shouldn't work when user deleted")
   @Sql("/users-create.sql")
   void deletedToken() throws Exception {
-    var token = "Bearer " + getAccessToken(1L);
+    var token = getAccessToken(1L);
 
     mockMvc.perform(delete("/users/self").header("authorization", token))
         .andExpect(status().isNoContent());
@@ -194,7 +195,7 @@ class AuthenticationIntegrationTest {
     var token = getAccessToken(1L);
 
     var userUpdateDto = new UserUpdateDto();
-    userUpdateDto.setUsername("NEW USERNAME");
+    userUpdateDto.setUsername("NEWUSERNAME");
     var json = objectMapper.writeValueAsString(userUpdateDto);
 
     mockMvc.perform(patch("/users/self").contentType(MediaType.APPLICATION_JSON).content(json)
@@ -212,7 +213,7 @@ class AuthenticationIntegrationTest {
     var token = getAccessToken(1L);
 
     var userUpdateDto = new UserUpdateDto();
-    userUpdateDto.setEmail("NEW EMAIL");
+    userUpdateDto.setEmail("NEWEMAIL@email.com");
     var json = objectMapper.writeValueAsString(userUpdateDto);
 
     mockMvc.perform(patch("/users/self").contentType(MediaType.APPLICATION_JSON).content(json)
@@ -226,6 +227,6 @@ class AuthenticationIntegrationTest {
   private String getAccessToken(Long id) throws Exception {
     var user = JpaRepositoryUtils.getById(id, userRepository);
 
-    return "Bearer " + jwtService.createJwtToken(user);
+    return "Bearer " + jwtService.createJwtTokens(user).getAccessToken();
   }
 }

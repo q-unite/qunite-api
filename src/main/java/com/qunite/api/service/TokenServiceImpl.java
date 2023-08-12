@@ -1,8 +1,9 @@
 package com.qunite.api.service;
 
-import com.qunite.api.data.AccessTokenRepository;
-import com.qunite.api.domain.AccessToken;
-import lombok.AllArgsConstructor;
+import ch.qos.logback.core.subst.Token;
+import com.qunite.api.data.TokenRepository;
+import com.qunite.api.domain.Tokens;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -10,17 +11,27 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @RequiredArgsConstructor
 public class TokenServiceImpl implements TokenService {
-  private final AccessTokenRepository tokenRepository;
+  private final TokenRepository tokenRepository;
 
   @Override
   @Transactional
   public boolean isTokenValid(String tokenValue) {
-    return tokenRepository.findByValue(tokenValue).filter(AccessToken::isValid).isPresent();
+    return tokenRepository.existsByValue(tokenValue);
   }
 
   @Override
   @Transactional
-  public void invalidateToken(AccessToken token) {
-    token.setValid(false);
+  public void invalidateTokens(Tokens tokens) {
+    tokenRepository.delete(tokens);
     }
+
+  @Override
+  public void deleteOne(String tokenValue) {
+    tokenRepository.deleteByValue(tokenValue);
+  }
+
+  @Override
+  public Tokens createOne(Tokens tokens) {
+    return tokenRepository.save(tokens);
+  }
 }

@@ -13,4 +13,5 @@ public class AuthenticationResponse {
   private String refreshToken;
   private String type;
   private String algorithm;
+  private int expires;
 }
