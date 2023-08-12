@@ -1,9 +1,7 @@
 package com.qunite.api.service;
 
-import ch.qos.logback.core.subst.Token;
 import com.qunite.api.data.TokenRepository;
 import com.qunite.api.domain.Tokens;
-import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,12 +16,6 @@ public class TokenServiceImpl implements TokenService {
   public boolean isTokenValid(String tokenValue) {
     return tokenRepository.existsByValue(tokenValue);
   }
-
-  @Override
-  @Transactional
-  public void invalidateTokens(Tokens tokens) {
-    tokenRepository.delete(tokens);
-    }
 
   @Override
   public void deleteOne(String tokenValue) {

@@ -13,7 +13,6 @@ import java.time.temporal.ChronoUnit;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -74,8 +73,8 @@ public class JwtService {
   private boolean isDataValid(DecodedJWT decodedJWT) {
     return userRepository.findById(Long.valueOf(decodedJWT.getSubject()))
         .filter(found -> found.getUsername().equals(decodedJWT.getClaim("username").asString()))
-        .filter(found -> found.getPassword().hashCode() ==
-            (decodedJWT.getClaim("passwordHash").asInt()))
+        .filter(found -> found.getPassword().hashCode()
+            == (decodedJWT.getClaim("passwordHash").asInt()))
         .isPresent();
   }
 }

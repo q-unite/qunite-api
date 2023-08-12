@@ -16,10 +16,8 @@ import com.qunite.api.web.mapper.UserMapper;
 import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
@@ -57,8 +55,8 @@ public class UserServiceImpl implements UserService {
           "Email %s is already in use".formatted(userData.getEmail()));
     }
 
-    if (userData.getUsername() != null &&
-        !userByCredentials.getUsername().equals(userData.getUsername())) {
+    if (userData.getUsername() != null
+        && !userByCredentials.getUsername().equals(userData.getUsername())) {
       userByCredentials.clearTokens();
     }
 

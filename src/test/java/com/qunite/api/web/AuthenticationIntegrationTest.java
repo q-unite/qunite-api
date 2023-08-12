@@ -12,13 +12,11 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import com.qunite.api.annotation.IntegrationTest;
 import com.qunite.api.data.UserRepository;
 import com.qunite.api.security.JwtService;
-import com.qunite.api.security.TokenType;
 import com.qunite.api.service.UserService;
 import com.qunite.api.utils.JpaRepositoryUtils;
 import com.qunite.api.web.dto.auth.AuthenticationRequest;
 import com.qunite.api.web.dto.user.UserCreationDto;
 import com.qunite.api.web.dto.user.UserUpdateDto;
-import java.time.temporal.ChronoUnit;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
