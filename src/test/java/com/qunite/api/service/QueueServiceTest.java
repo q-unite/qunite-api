@@ -65,9 +65,10 @@ class QueueServiceTest {
   @Sql({"/users-create.sql", "/queues-create.sql"})
   @Test
   void testEnrollingUserToQueue() {
-    queueService.enrollMember("Second", 1L);
+    var position = queueService.enrollMember("Second", 1L);
 
     assertTrue(entryRepository.existsById(new EntryId(2L, 1L)));
+    assertThat(position).hasValue(1);
   }
 
   @Sql({"/users-create.sql", "/queues-create.sql"})
