@@ -1,6 +1,6 @@
 package com.qunite.api.web;
 
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
@@ -16,6 +16,7 @@ import com.qunite.api.data.EntryRepository;
 import com.qunite.api.data.QueueRepository;
 import com.qunite.api.data.UserRepository;
 import com.qunite.api.service.QueueService;
+import com.qunite.api.utils.JpaRepositoryUtils;
 import com.qunite.api.web.dto.queue.QueueCreationDto;
 import com.qunite.api.web.mapper.QueueMapper;
 import org.junit.jupiter.api.AfterEach;
@@ -130,7 +131,7 @@ class QueueControllerIntegrationTest {
   @Test
   @Sql({"/users-create.sql", "/queues-create.sql", "/entries-create.sql"})
   void retrieveQueueEntries() throws Exception {
-    var resultActions = mockMvc.perform(get("/{url}/{id}/entries", url, 1));
+    var resultActions = mockMvc.perform(get("/{url}/{id}/members", url, 1));
 
     resultActions.andExpect(status().isOk())
         .andExpect(jsonPath("$", hasSize(5)))
@@ -172,5 +173,33 @@ class QueueControllerIntegrationTest {
     mockMvc.perform(delete("/{url}/{id}", url, queueId))
         .andExpect(status().isNoContent());
     assertThat(queueService.findById(queueId)).isEmpty();
+  }
+
+  @Test
+  @Sql({"/users-create.sql", "/queues-create.sql"})
+  void addManager() throws Exception {
+    var queueId = 1L;
+    var managerId = 3L;
+
+    mockMvc.perform(post("/{url}/{id}/managers/{managerId}", url, queueId, managerId))
+        .andExpect(status().isOk());
+    var managersList = queueService.getManagers(queueId).orElseThrow();
+    var manager = JpaRepositoryUtils.getById(managerId, userRepository);
+
+    assertThat(managersList).containsOnly(manager);
+  }
+
+  @Test
+  @Sql({"/users-create.sql", "/queues-create.sql", "/queues-managers-create.sql"})
+  void deleteManager() throws Exception {
+    var queueId = 1L;
+    var managerId = 3L;
+
+    mockMvc.perform(delete("/{url}/{id}/managers/{managerId}", url, queueId, managerId))
+        .andExpect(status().isNoContent());
+    var managersList = queueService.getManagers(queueId).orElseThrow();
+    var manager = JpaRepositoryUtils.getById(managerId, userRepository);
+
+    assertThat(managersList).doesNotContain(manager);
   }
 }

@@ -6,12 +6,14 @@ import com.qunite.api.data.UserRepository;
 import com.qunite.api.domain.Entry;
 import com.qunite.api.domain.EntryId;
 import com.qunite.api.domain.Queue;
+import com.qunite.api.domain.User;
 import com.qunite.api.exception.EntryNotFoundException;
 import com.qunite.api.exception.ForbiddenAccessException;
 import com.qunite.api.exception.QueueNotFoundException;
 import com.qunite.api.exception.UserNotFoundException;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.BiConsumer;
 import lombok.RequiredArgsConstructor;
 import one.util.streamex.StreamEx;
 import org.springframework.stereotype.Service;
@@ -71,19 +73,30 @@ public class QueueServiceImpl implements QueueService {
   @Transactional(isolation = Isolation.REPEATABLE_READ)
   public void changeMemberPosition(Long memberId, Long queueId,
                                    Integer newIndex, String principalName) {
+    if (!isUserQueueCreatorOrManagerByCredentials(queueId, principalName)) {
+      throw new ForbiddenAccessException(
+          "User %s is not a creator or manager".formatted(principalName));
+    }
     var entry = entryRepository.findById(new EntryId(memberId, queueId))
         .orElseThrow(() -> new EntryNotFoundException(
             "Could not find entry by memberId %s and queueId %s".formatted(memberId, queueId)));
-    if (isUserQueueCreatorOrManagerByCredentials(queueId, principalName)) {
-      var currentIndex = entry.getEntryIndex();
-      if (!currentIndex.equals(newIndex)) {
-        int startIndex = Math.min(currentIndex, newIndex);
-        int endIndex = Math.max(currentIndex, newIndex);
-        int increment = currentIndex < newIndex ? -1 : 1;
 
-        entryRepository.updateEntryIndices(queueId, startIndex, endIndex, increment);
-        entry.setEntryIndex(newIndex);
-      }
+    int currentIndex = entry.getEntryIndex();
+    int newIndexChecked = Math.min(newIndex, entry.getQueue().getEntries().size() - 1);
+    if (currentIndex != newIndexChecked) {
+      int startIndex = Math.min(currentIndex, newIndexChecked);
+      int endIndex = Math.max(currentIndex, newIndexChecked);
+      int increment = Integer.compare(currentIndex, newIndexChecked);
+      entryRepository.updateEntryIndices(queueId, startIndex, endIndex, increment);
+      entry.setEntryIndex(newIndexChecked);
+    }
+  }
+
+  @Override
+  @Transactional(isolation = Isolation.REPEATABLE_READ)
+  public void deleteMemberByCreatorOrManager(Long memberId, Long queueId, String principalName) {
+    if (isUserQueueCreatorOrManagerByCredentials(queueId, principalName)) {
+      deleteMember(memberId, queueId);
     } else {
       throw new ForbiddenAccessException(
           "User %s is not a creator or manager".formatted(principalName));
@@ -92,32 +105,68 @@ public class QueueServiceImpl implements QueueService {
 
   @Override
   @Transactional(isolation = Isolation.REPEATABLE_READ)
-  public void deleteMember(Long memberId, Long queueId, String principalName) {
-    var entry = entryRepository.findById(new EntryId(memberId, queueId))
-        .orElseThrow(() -> new EntryNotFoundException(
-            "Could not find entry by memberId %s and queueId %s".formatted(memberId, queueId)));
-    if (isUserQueueCreatorOrManagerByCredentials(queueId, principalName)) {
+  public void leaveByMember(Long queueId, String principalName) {
+    userRepository.findByUsername(principalName)
+        .ifPresent(user -> deleteMember(user.getId(), queueId));
+  }
+
+  private void deleteMember(Long memberId, Long queueId) {
+    entryRepository.findById(new EntryId(memberId, queueId)).ifPresent(entry -> {
       entryRepository.deleteById(entry.getId());
       entryRepository.updateEntryIndices(queueId, entry.getEntryIndex() + 1,
           Integer.MAX_VALUE, -1);
-    } else {
-      throw new ForbiddenAccessException(
-          "User %s is not a creator or manager".formatted(principalName));
-    }
+    });
   }
 
   @Override
   @Transactional
   public void deleteById(Long queueId, String principalName) {
-    if (queueRepository.existsById(queueId)) {
-      if (isUserQueueCreatorByCredentials(queueId, principalName)) {
+    if (isUserQueueCreatorByCredentials(queueId, principalName)) {
+      if (queueRepository.existsById(queueId)) {
         queueRepository.deleteById(queueId);
       } else {
-        throw new ForbiddenAccessException("User %s is not a creator".formatted(principalName));
+        throw new QueueNotFoundException(
+            "Could not find queue by id %d".formatted(queueId));
       }
     } else {
-      throw new QueueNotFoundException(
-          "Could not find queue by id %d".formatted(queueId));
+      throw new ForbiddenAccessException("User %s is not a creator".formatted(principalName));
+    }
+  }
+
+  @Override
+  @Transactional
+  public Optional<List<User>> getManagers(Long queueId) {
+    return queueRepository.findById(queueId).map(Queue::getManagers).map(List::copyOf);
+  }
+
+  @Override
+  @Transactional
+  public void addManager(Long managerId, Long queueId, String principalName) {
+    updateManagers(managerId, queueId, principalName, (queue, manager) -> {
+      if (queue.getCreator().getId().equals(managerId)) {
+        throw new ForbiddenAccessException("You do not need to specify yourself as a manager ;)");
+      }
+      queue.addManager(manager);
+    });
+  }
+
+  @Override
+  @Transactional
+  public void deleteManager(Long managerId, Long queueId, String principalName) {
+    updateManagers(managerId, queueId, principalName, Queue::removeManager);
+  }
+
+  private void updateManagers(Long managerId, Long queueId, String principalName,
+                              BiConsumer<Queue, User> consumer) {
+    var queue = findById(queueId).orElseThrow(
+        () -> new QueueNotFoundException("Could not find queue by id: %d".formatted(queueId)));
+    if (queue.getCreator().getUsername().equals(principalName)) {
+      var manager = userService.findOne(managerId).orElseThrow(
+          () -> new UserNotFoundException("No user exists by given id: %d".formatted(managerId))
+      );
+      consumer.accept(queue, manager);
+    } else {
+      throw new ForbiddenAccessException("You can not modify this queue");
     }
   }
 

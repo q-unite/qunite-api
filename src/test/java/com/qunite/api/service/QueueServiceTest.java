@@ -19,6 +19,7 @@ import com.qunite.api.data.UserRepository;
 import com.qunite.api.domain.EntryId;
 import com.qunite.api.domain.Queue;
 import com.qunite.api.exception.ForbiddenAccessException;
+import com.qunite.api.utils.JpaRepositoryUtils;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -97,7 +98,7 @@ class QueueServiceTest {
 
   @Sql({"/users-create.sql", "/queues-create.sql", "/entries-create.sql"})
   @Test
-  void testChangeMemberPositionForward() {
+  void testChangingMemberPositionForward() {
     var queueId = 1L;
     var expectedEntryIdList = List.of(
         new EntryId(6L, queueId),
@@ -114,7 +115,26 @@ class QueueServiceTest {
 
   @Sql({"/users-create.sql", "/queues-create.sql", "/entries-create.sql"})
   @Test
-  void testChangeMemberPositionBackward() {
+  void testChangingMemberPositionForwardWithGap() {
+    var queueId = 1L;
+    var expectedEntryIdList = List.of(
+        new EntryId(7L, queueId),
+        new EntryId(6L, queueId),
+        new EntryId(4L, queueId),
+        new EntryId(3L, queueId),
+        new EntryId(5L, queueId));
+
+    queueService.changeMemberPosition(5L, queueId, 50, "First");
+    var actualEntryIdList = entryRepository.findEntriesIdsByQueueId(queueId);
+
+    assertThat(actualEntryIdList)
+        .isEqualTo(expectedEntryIdList)
+        .doesNotContainNull();
+  }
+
+  @Sql({"/users-create.sql", "/queues-create.sql", "/entries-create.sql"})
+  @Test
+  void testChangingMemberPositionBackward() {
     var queueId = 1L;
     var expectedEntryIdList = List.of(
         new EntryId(7L, queueId),
@@ -131,7 +151,7 @@ class QueueServiceTest {
 
   @Sql({"/users-create.sql", "/queues-create.sql", "/entries-create.sql"})
   @Test
-  void testChangeMemberPositionOnItself() {
+  void testChangingMemberPositionOnItself() {
     var queueId = 1L;
     var expectedEntryIdList = List.of(
         new EntryId(7L, queueId),
@@ -148,7 +168,7 @@ class QueueServiceTest {
 
   @Sql({"/users-create.sql", "/queues-create.sql", "/entries-create.sql"})
   @Test
-  void testChangeMemberPositionConcurrent() throws InterruptedException {
+  void testChangingMemberPositionConcurrent() throws InterruptedException {
     var queueId = 1L;
     var username = "First";
     ExecutorService executor = Executors.newFixedThreadPool(2);
@@ -173,7 +193,7 @@ class QueueServiceTest {
 
   @Sql({"/users-create.sql", "/queues-create.sql", "/entries-create.sql"})
   @Test
-  void testDeleteFirstMemberFromQueue() {
+  void testDeletingFirstMemberByCreatorOrManager() {
     var queueId = 1L;
     var expectedEntryIdList = List.of(
         new EntryId(6L, queueId),
@@ -181,16 +201,17 @@ class QueueServiceTest {
         new EntryId(4L, queueId),
         new EntryId(3L, queueId));
 
-    queueService.deleteMember(7L, queueId, "First");
+    queueService.deleteMemberByCreatorOrManager(7L, queueId, "First");
     var actualEntryIdList = entryRepository.findEntriesIdsByQueueId(queueId);
 
-    assertThat(actualEntryIdList).isEqualTo(expectedEntryIdList);
-    assertThat(actualEntryIdList).doesNotContainNull();
+    assertThat(actualEntryIdList)
+        .isEqualTo(expectedEntryIdList)
+        .doesNotContainNull();
   }
 
   @Sql({"/users-create.sql", "/queues-create.sql", "/entries-create.sql"})
   @Test
-  void testDeleteMiddleMemberFromQueue() {
+  void testDeletingMiddleMemberByCreatorOrManager() {
     var queueId = 1L;
     var expectedEntryIdList = List.of(
         new EntryId(7L, queueId),
@@ -198,16 +219,17 @@ class QueueServiceTest {
         new EntryId(4L, queueId),
         new EntryId(3L, queueId));
 
-    queueService.deleteMember(5L, queueId, "First");
+    queueService.deleteMemberByCreatorOrManager(5L, queueId, "First");
     var actualEntryIdList = entryRepository.findEntriesIdsByQueueId(queueId);
 
-    assertThat(actualEntryIdList).isEqualTo(expectedEntryIdList);
-    assertThat(actualEntryIdList).doesNotContainNull();
+    assertThat(actualEntryIdList)
+        .isEqualTo(expectedEntryIdList)
+        .doesNotContainNull();
   }
 
   @Sql({"/users-create.sql", "/queues-create.sql", "/entries-create.sql"})
   @Test
-  void testDeleteLastMemberFromQueue() {
+  void testDeletingLastMemberByCreatorOrManager() {
     var queueId = 1L;
     var expectedEntryIdList = List.of(
         new EntryId(7L, queueId),
@@ -215,16 +237,17 @@ class QueueServiceTest {
         new EntryId(5L, queueId),
         new EntryId(4L, queueId));
 
-    queueService.deleteMember(3L, queueId, "First");
+    queueService.deleteMemberByCreatorOrManager(3L, queueId, "First");
     var actualEntryIdList = entryRepository.findEntriesIdsByQueueId(queueId);
 
-    assertThat(actualEntryIdList).isEqualTo(expectedEntryIdList);
-    assertThat(actualEntryIdList).doesNotContainNull();
+    assertThat(actualEntryIdList)
+        .isEqualTo(expectedEntryIdList)
+        .doesNotContainNull();
   }
 
   @Sql({"/users-create.sql", "/queues-create.sql", "/entries-create.sql"})
   @Test
-  void testDeleteMemberFromQueueByNotAdminOrManager() {
+  void testDeletingMemberByNotAdminOrManager() {
     var queueId = 1L;
     var expectedEntryIdList = List.of(
         new EntryId(7L, queueId),
@@ -233,23 +256,24 @@ class QueueServiceTest {
         new EntryId(4L, queueId),
         new EntryId(3L, queueId));
 
-    assertThatThrownBy(() -> queueService.deleteMember(3L, queueId, "Fifth"))
+    assertThatThrownBy(() -> queueService.deleteMemberByCreatorOrManager(3L, queueId, "Fifth"))
         .isInstanceOf(ForbiddenAccessException.class);
 
     var actualEntryIdList = entryRepository.findEntriesIdsByQueueId(queueId);
 
-    assertThat(actualEntryIdList).isEqualTo(expectedEntryIdList);
-    assertThat(actualEntryIdList).doesNotContainNull();
+    assertThat(actualEntryIdList)
+        .isEqualTo(expectedEntryIdList)
+        .doesNotContainNull();
   }
 
   @Sql({"/users-create.sql", "/queues-create.sql", "/entries-create.sql"})
   @Test
-  void testDeleteMemberFromQueueConcurrent() throws InterruptedException {
+  void testDeletingMemberByCreatorOrManagerConcurrent() throws InterruptedException {
     var queueId = 1L;
     var username = "First";
     ExecutorService executor = Executors.newFixedThreadPool(2);
-    executor.execute(() -> queueService.deleteMember(7L, queueId, username));
-    executor.execute(() -> queueService.deleteMember(3L, queueId, username));
+    executor.execute(() -> queueService.deleteMemberByCreatorOrManager(7L, queueId, username));
+    executor.execute(() -> queueService.deleteMemberByCreatorOrManager(3L, queueId, username));
     executor.shutdown();
     executor.awaitTermination(1, TimeUnit.MINUTES);
 
@@ -269,5 +293,145 @@ class QueueServiceTest {
     } else {
       fail("unexpected actualEntryIdList size");
     }
+  }
+
+  @Sql({"/users-create.sql", "/queues-create.sql", "/entries-create.sql"})
+  @Test
+  void testLeavingFirstMember() {
+    var queueId = 1L;
+    var expectedEntryIdList = List.of(
+        new EntryId(6L, queueId),
+        new EntryId(5L, queueId),
+        new EntryId(4L, queueId),
+        new EntryId(3L, queueId));
+
+    queueService.leaveByMember(queueId, "Seventh");
+    var actualEntryIdList = entryRepository.findEntriesIdsByQueueId(queueId);
+
+    assertThat(actualEntryIdList)
+        .isEqualTo(expectedEntryIdList)
+        .doesNotContainNull();
+  }
+
+  @Sql({"/users-create.sql", "/queues-create.sql", "/entries-create.sql"})
+  @Test
+  void testLeavingMiddleMember() {
+    var queueId = 1L;
+    var expectedEntryIdList = List.of(
+        new EntryId(7L, queueId),
+        new EntryId(6L, queueId),
+        new EntryId(4L, queueId),
+        new EntryId(3L, queueId));
+
+    queueService.leaveByMember(queueId, "Fifth");
+    var actualEntryIdList = entryRepository.findEntriesIdsByQueueId(queueId);
+
+    assertThat(actualEntryIdList)
+        .isEqualTo(expectedEntryIdList)
+        .doesNotContainNull();
+  }
+
+  @Sql({"/users-create.sql", "/queues-create.sql", "/entries-create.sql"})
+  @Test
+  void testLeavingLastMember() {
+    var queueId = 1L;
+    var expectedEntryIdList = List.of(
+        new EntryId(7L, queueId),
+        new EntryId(6L, queueId),
+        new EntryId(5L, queueId),
+        new EntryId(4L, queueId));
+
+    queueService.leaveByMember(queueId, "Third");
+    var actualEntryIdList = entryRepository.findEntriesIdsByQueueId(queueId);
+
+    assertThat(actualEntryIdList)
+        .isEqualTo(expectedEntryIdList)
+        .doesNotContainNull();
+  }
+
+  @Sql({"/users-create.sql", "/queues-create.sql", "/entries-create.sql"})
+  @Test
+  void testLeavingMemberConcurrent() throws InterruptedException {
+    var queueId = 1L;
+    ExecutorService executor = Executors.newFixedThreadPool(2);
+    executor.execute(() -> queueService.leaveByMember(queueId, "Seventh"));
+    executor.execute(() -> queueService.leaveByMember(queueId, "Fifth"));
+    executor.shutdown();
+    executor.awaitTermination(1, TimeUnit.MINUTES);
+
+    var actualEntryIdList = entryRepository.findEntriesIdsByQueueId(queueId);
+    var actualEntryIdListSize = actualEntryIdList.size();
+    var firstMaybeDeletedEntryId = new EntryId(7L, queueId);
+    var secondMaybeDeletedEntryId = new EntryId(5L, queueId);
+
+    assertThat(actualEntryIdList).doesNotContainNull();
+    if (actualEntryIdListSize == 4) {
+      assertThat(actualEntryIdList,
+          either(not(contains(firstMaybeDeletedEntryId)))
+              .or(not(contains(secondMaybeDeletedEntryId))));
+    } else if (actualEntryIdListSize == 3) {
+      assertThat(actualEntryIdList,
+          not(contains(firstMaybeDeletedEntryId, secondMaybeDeletedEntryId)));
+    } else {
+      fail("unexpected actualEntryIdList size");
+    }
+  }
+
+  @Sql({"/users-create.sql", "/queues-create.sql"})
+  @Test
+  void testAddingManagerByCreator() {
+    var queueId = 1L;
+    var managerId = 3L;
+    var queueCreatorUsername = "First";
+
+    queueService.addManager(managerId, queueId, queueCreatorUsername);
+    var managersList = queueService.getManagers(queueId).orElseThrow();
+    var manager = JpaRepositoryUtils.getById(managerId, userRepository);
+
+    assertThat(managersList).containsOnly(manager);
+  }
+
+  @Sql({"/users-create.sql", "/queues-create.sql", "/queues-managers-create.sql"})
+  @Test
+  void testDeletingManagerByCreator() {
+    var queueId = 1L;
+    var managerId = 3L;
+    var queueCreatorUsername = "First";
+
+    queueService.deleteManager(managerId, queueId, queueCreatorUsername);
+    var managersList = queueService.getManagers(queueId).orElseThrow();
+    var manager = JpaRepositoryUtils.getById(managerId, userRepository);
+
+    assertThat(managersList).doesNotContain(manager);
+  }
+
+  @Sql({"/users-create.sql", "/queues-create.sql"})
+  @Test
+  void testAddingManagerByNotCreator() {
+    var queueId = 1L;
+    var managerId = 3L;
+    var notCreatorUsername = "Fifth";
+
+    assertThatThrownBy(() -> queueService.addManager(managerId, queueId, notCreatorUsername))
+        .isInstanceOf(ForbiddenAccessException.class);
+    var managersList = queueService.getManagers(queueId).orElseThrow();
+    var manager = JpaRepositoryUtils.getById(managerId, userRepository);
+
+    assertThat(managersList).doesNotContain(manager);
+  }
+
+  @Sql({"/users-create.sql", "/queues-create.sql", "/queues-managers-create.sql"})
+  @Test
+  void testDeletingManagerByNotCreator() {
+    var queueId = 1L;
+    var managerId = 3L;
+    var notCreatorUsername = "Fifth";
+
+    assertThatThrownBy(() -> queueService.deleteManager(managerId, queueId, notCreatorUsername))
+        .isInstanceOf(ForbiddenAccessException.class);
+    var managersList = queueService.getManagers(queueId).orElseThrow();
+    var manager = JpaRepositoryUtils.getById(managerId, userRepository);
+
+    assertThat(managersList).contains(manager);
   }
 }

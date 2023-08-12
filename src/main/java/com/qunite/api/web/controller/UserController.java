@@ -2,6 +2,7 @@ package com.qunite.api.web.controller;
 
 
 import com.qunite.api.service.UserService;
+import com.qunite.api.web.dto.ExceptionResponse;
 import com.qunite.api.web.dto.queue.QueueDto;
 import com.qunite.api.web.dto.user.UserDto;
 import com.qunite.api.web.dto.user.UserUpdateDto;
@@ -9,7 +10,9 @@ import com.qunite.api.web.mapper.QueueMapper;
 import com.qunite.api.web.mapper.UserMapper;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import java.security.Principal;
@@ -28,6 +31,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 @RequestMapping(path = "/users", produces = MediaType.APPLICATION_JSON_VALUE)
 @Tag(name = "User Controller")
+@SecurityRequirement(name = "bearer_token")
 @RestController
 public class UserController {
   private final UserService userService;
@@ -43,7 +47,7 @@ public class UserController {
   @GetMapping("/{id}")
   @Operation(summary = "Get user by id", responses = {
       @ApiResponse(responseCode = "200"),
-      @ApiResponse(responseCode = "404", content = @Content())
+      @ApiResponse(responseCode = "404", content = @Content)
   })
   public ResponseEntity<UserDto> getById(@PathVariable Long id) {
     return ResponseEntity.of(userService.findOne(id).map(userMapper::toDto));
@@ -52,7 +56,7 @@ public class UserController {
   @GetMapping("/{id}/managed-queues")
   @Operation(summary = "Get queues where user is manager", responses = {
       @ApiResponse(responseCode = "200"),
-      @ApiResponse(responseCode = "404", content = @Content())
+      @ApiResponse(responseCode = "404", content = @Content)
   })
   public ResponseEntity<List<QueueDto>> getManagedQueues(@PathVariable Long id) {
     return ResponseEntity.of(userService.getManagedQueues(id)
@@ -63,7 +67,7 @@ public class UserController {
   @GetMapping("/{id}/created-queues")
   @Operation(summary = "Get queues created by user", responses = {
       @ApiResponse(responseCode = "200"),
-      @ApiResponse(responseCode = "404", content = @Content())
+      @ApiResponse(responseCode = "404", content = @Content)
   })
   public ResponseEntity<List<QueueDto>> getCreatedQueues(@PathVariable Long id) {
     return ResponseEntity.of(
@@ -73,9 +77,9 @@ public class UserController {
   }
 
   @GetMapping("/self")
-  @Operation(summary = "Get user by credentials", responses = {
+  @Operation(summary = "Get authorized user", responses = {
       @ApiResponse(responseCode = "200"),
-      @ApiResponse(responseCode = "404", content = @Content())
+      @ApiResponse(responseCode = "404", content = @Content)
   })
   public ResponseEntity<UserDto> getSelf(Principal principal) {
     return ResponseEntity.of(userService.findByUsername(principal.getName())
@@ -83,9 +87,11 @@ public class UserController {
   }
 
   @PatchMapping("/self")
-  @Operation(summary = "Update user by credentials", responses = {
+  @Operation(summary = "Update authorized user", responses = {
       @ApiResponse(responseCode = "200"),
-      @ApiResponse(responseCode = "404", content = @Content())
+      @ApiResponse(responseCode = "400", description = "Username or email are already in use",
+          content = @Content(schema = @Schema(implementation = ExceptionResponse.class))),
+      @ApiResponse(responseCode = "404", content = @Content)
   })
   public ResponseEntity<UserDto> updateSelf(Principal principal,
                                             @Valid @RequestBody UserUpdateDto userUpdateDto) {
@@ -96,7 +102,10 @@ public class UserController {
   }
 
   @DeleteMapping("/self")
-  @Operation(summary = "Delete user by credentials", responses = @ApiResponse(responseCode = "204"))
+  @Operation(summary = "Delete authorized user", responses = {
+      @ApiResponse(responseCode = "204"),
+      @ApiResponse(responseCode = "404", content = @Content)
+  })
   public ResponseEntity<Void> deleteSelf(Principal principal) {
     return userService.findByUsername(principal.getName())
         .map(user -> {
