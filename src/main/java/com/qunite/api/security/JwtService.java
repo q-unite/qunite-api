@@ -46,6 +46,18 @@ public class JwtService {
     return new AuthenticationResponse(accessToken, refreshToken, "JWT", "HS256", 30 * 60);
   }
 
+  @Transactional
+  public Optional<DecodedJWT> verifyToken(String token, TokenType tokenType) {
+    return Optional.of(JWT.require(Algorithm.HMAC256(secret))
+            .withIssuer(issuer)
+            .build()
+            .verify(token))
+        .filter(decodedJWT -> tokenService.isTokenValid(decodedJWT.getToken()))
+        .filter(decodedJWT -> decodedJWT.getClaim("type").asString()
+            .equals(tokenType.getValue()))
+        .filter(this::isDataValid);
+  }
+
   private String generateJwtToken(User user, int expirationTime, ChronoUnit expirationTimeUnit,
                                   TokenType type) {
     return JWT.create()
@@ -57,18 +69,6 @@ public class JwtService {
         .withClaim("username", user.getUsername())
         .withClaim("passwordHash", user.getPassword().hashCode())
         .sign(Algorithm.HMAC256(secret));
-  }
-
-  @Transactional
-  public Optional<DecodedJWT> verifyToken(String token, TokenType tokenType) {
-    return Optional.of(JWT.require(Algorithm.HMAC256(secret))
-            .withIssuer(issuer)
-            .build()
-            .verify(token))
-        .filter(decodedJWT -> tokenService.isTokenValid(decodedJWT.getToken()))
-        .filter(this::isDataValid)
-        .filter(decodedJWT -> decodedJWT.getClaim("type").asString()
-            .equals(tokenType.getValue()));
   }
 
   private boolean isDataValid(DecodedJWT decodedJWT) {

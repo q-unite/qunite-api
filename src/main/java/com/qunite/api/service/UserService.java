@@ -3,13 +3,14 @@ package com.qunite.api.service;
 import com.qunite.api.domain.Queue;
 import com.qunite.api.domain.User;
 import com.qunite.api.web.dto.auth.AuthenticationResponse;
+import com.qunite.api.web.dto.user.UserUpdateDto;
 import java.util.List;
 import java.util.Optional;
 
 public interface UserService {
   User createOne(User user);
 
-  User updateOne(User newUser);
+  User updateOne(String username, UserUpdateDto userData);
 
   Optional<User> findOne(Long id);
 

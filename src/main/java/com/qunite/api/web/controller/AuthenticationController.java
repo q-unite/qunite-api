@@ -21,6 +21,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RequiredArgsConstructor
@@ -30,7 +31,6 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class AuthenticationController {
   private final UserService userService;
-  private final AuthResponseMapper responseMapper;
   private final UserMapper userMapper;
 
   @Operation(summary = "Sign up user", description = "Create user", responses = {
@@ -57,9 +57,16 @@ public class AuthenticationController {
     return ResponseEntity.ok(userService.signIn(request.getLogin(), request.getPassword()));
   }
 
-  @PostMapping("/refresh")
+  @Operation(summary = "Get new tokens by refresh token", description = "Refresh", responses = {
+      @ApiResponse(responseCode = "200"),
+      @ApiResponse(responseCode = "403", description = "Invalid refresh token",
+          content = @Content(schema = @Schema(implementation = ExceptionResponse.class))),
+      @ApiResponse(responseCode = "404", description = "User with given id does not exist",
+          content = @Content(schema = @Schema(implementation = ExceptionResponse.class)))
+  })
+  @PostMapping("/sign-in/refresh")
   public ResponseEntity<AuthenticationResponse> refresh(
-      @Valid @RequestBody RefreshRequest refreshRequest) {
-    return ResponseEntity.ok(userService.refreshTokens(refreshRequest.getRefreshToken()));
+      @Valid @RequestBody RefreshRequest request) {
+    return ResponseEntity.ok(userService.refreshTokens(request.getRefreshToken()));
   }
 }

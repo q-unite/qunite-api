@@ -108,9 +108,8 @@ public class User implements UserDetails {
     tokens.setOwner(this);
   }
 
-  public void removeTokens(Tokens tokens) {
-    this.tokens.remove(tokens);
-    tokens.setOwner(null);
+  public void clearTokens() {
+    this.tokens.clear();
   }
 
   public List<Queue> getCreatedQueues() {

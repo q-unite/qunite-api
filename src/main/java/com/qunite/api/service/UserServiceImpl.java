@@ -11,6 +11,8 @@ import com.qunite.api.exception.UserNotFoundException;
 import com.qunite.api.security.JwtService;
 import com.qunite.api.security.TokenType;
 import com.qunite.api.web.dto.auth.AuthenticationResponse;
+import com.qunite.api.web.dto.user.UserUpdateDto;
+import com.qunite.api.web.mapper.UserMapper;
 import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
@@ -21,15 +23,13 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
-@Lazy
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
   private final UserRepository userRepository;
   private final TokenService tokensService;
   private final PasswordEncoder passwordEncoder;
   private final JwtService jwtService;
-  @Lazy
-  private final UserServiceImpl self;
+  private final UserMapper userMapper;
 
   @Override
   @Transactional
@@ -44,24 +44,25 @@ public class UserServiceImpl implements UserService {
 
   @Override
   @Transactional
-  public User updateOne(User newUser) {
-    boolean isUsernameInUse = isUsernameInUse(newUser);
-    boolean isEmailInUse = isEmailInUse(newUser);
+  public User updateOne(String username, UserUpdateDto userData) {
+    User userByCredentials = findByUsername(username).orElseThrow(() -> new UserNotFoundException(
+        "User with login %s does not exist".formatted(username)));
 
-    if (isUsernameInUse) {
+    if (userData.getUsername() != null && isUsernameInUse(userData.getUsername())) {
       throw new UserAlreadyExistsException(
-          "Username %s is already in use".formatted(newUser.getUsername()));
+          "Username %s is already in use".formatted(userData.getUsername()));
     }
-    if (isEmailInUse) {
+    if (userData.getEmail() != null && isEmailInUse(userData.getEmail())) {
       throw new UserAlreadyExistsException(
-          "Email %s is already in use".formatted(newUser.getEmail()));
+          "Email %s is already in use".formatted(userData.getEmail()));
     }
 
-    if (self.hasUsernameChanged(newUser)) {
-      newUser.getTokens().forEach(tokensService::invalidateTokens);
+    if (userData.getUsername() != null &&
+        !userByCredentials.getUsername().equals(userData.getUsername())) {
+      userByCredentials.clearTokens();
     }
 
-    return newUser;
+    return userRepository.save(userMapper.partialUpdate(userData, userByCredentials));
   }
 
   @Override
@@ -124,19 +125,11 @@ public class UserServiceImpl implements UserService {
     return jwtService.createJwtTokens(user);
   }
 
-  private boolean isUsernameInUse(User user) {
-    return userRepository.findByUsername(user.getUsername())
-        .filter(found -> !found.getId().equals(user.getId())).isPresent();
+  private boolean isUsernameInUse(String username) {
+    return userRepository.findByUsername(username).isPresent();
   }
 
-  private boolean isEmailInUse(User user) {
-    return userRepository.findByEmailOrUsername(user.getEmail())
-        .filter(found -> !found.getId().equals(user.getId())).isPresent();
-  }
-
-  @Transactional(propagation = Propagation.REQUIRES_NEW)
-  public boolean hasUsernameChanged(User user) {
-    return userRepository.findById(user.getId())
-        .filter(found -> found.getUsername().equals(user.getUsername())).isEmpty();
+  private boolean isEmailInUse(String email) {
+    return userRepository.findByEmailOrUsername(email).isPresent();
   }
 }
