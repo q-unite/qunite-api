@@ -60,6 +60,12 @@ public class QueueServiceImpl implements QueueService {
   @Override
   @Transactional
   public Optional<Integer> enrollMember(String username, Long queueId) {
+    var user = self.saveEntry(username, queueId);
+    return self.getMemberPosition(user.getId(), queueId);
+  }
+
+  @Transactional(propagation = Propagation.REQUIRES_NEW)
+  public User saveEntry(String username, Long queueId) {
     var queue = findById(queueId).orElseThrow(
         () -> new QueueNotFoundException("Could not find queue by id %d".formatted(queueId)));
     var user = userRepository.findByUsername(username).orElseThrow(
@@ -67,7 +73,7 @@ public class QueueServiceImpl implements QueueService {
     if (!entryRepository.existsById(new EntryId(user.getId(), queueId))) {
       queue.addEntry(new Entry(user, queue));
     }
-    return self.getMemberPosition(user.getId(), queueId);
+    return user;
   }
 
   @Override
@@ -77,7 +83,7 @@ public class QueueServiceImpl implements QueueService {
   }
 
   @Override
-  @Transactional(propagation = Propagation.REQUIRES_NEW)
+  @Transactional
   public Optional<Integer> getMemberPosition(Long memberId, Long queueId) {
     return entryRepository.findById(new EntryId(memberId, queueId))
         .map(entry -> entry.getEntryIndex() + 1);
