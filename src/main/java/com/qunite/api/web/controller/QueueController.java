@@ -88,10 +88,10 @@ public class QueueController {
       @ApiResponse(responseCode = "404", description = "Could not find queue by id",
           content = @Content(schema = @Schema(implementation = ExceptionResponse.class)))
   })
-  public ResponseEntity<Void> enrollMember(@PathVariable Long id,
-                                           Principal principal) {
+  public ResponseEntity<Integer> enrollMember(@PathVariable Long id,
+                                              Principal principal) {
     queueService.enrollMember(principal.getName(), id);
-    return ResponseEntity.ok().build();
+    return ResponseEntity.of(queueService.getMemberPosition(principal.getName(), id));
   }
 
   @DeleteMapping("/{id}/members/{member-id}")

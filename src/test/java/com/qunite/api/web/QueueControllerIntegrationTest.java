@@ -202,4 +202,14 @@ class QueueControllerIntegrationTest {
 
     assertThat(managersList).doesNotContain(manager);
   }
+
+  @Test
+  @Sql({"/users-create.sql", "/queues-create.sql"})
+  void enrollMember() throws Exception {
+    mockMvc.perform(post("/{url}/{id}/members", url, 1L))
+        .andExpect(content().json("1"));
+
+    mockMvc.perform(post("/{url}/{id}/members", url, 1L))
+        .andExpect(content().json("1"));
+  }
 }

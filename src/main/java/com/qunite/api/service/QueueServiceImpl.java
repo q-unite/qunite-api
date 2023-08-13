@@ -18,6 +18,7 @@ import lombok.RequiredArgsConstructor;
 import one.util.streamex.StreamEx;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 @RequiredArgsConstructor
@@ -52,8 +53,9 @@ public class QueueServiceImpl implements QueueService {
     var queue = findById(queueId).orElseThrow(
         () -> new QueueNotFoundException("Could not find queue by id %d".formatted(queueId)));
     userRepository.findByUsername(username)
+        .filter(user -> !entryRepository.existsById(new EntryId(user.getId(), queueId)))
         .map(user -> new Entry(user, queue))
-        .ifPresent(entry -> entry.getQueue().addEntry(entry));
+        .ifPresent(queue::addEntry);
   }
 
   @Override
@@ -66,6 +68,14 @@ public class QueueServiceImpl implements QueueService {
   @Transactional
   public Optional<Integer> getMemberPosition(Long memberId, Long queueId) {
     return entryRepository.findById(new EntryId(memberId, queueId))
+        .map(entry -> entry.getEntryIndex() + 1);
+  }
+
+  @Override
+  @Transactional(readOnly = true, propagation = Propagation.NEVER)
+  public Optional<Integer> getMemberPosition(String username, Long queueId) {
+    return entryRepository.findById(new EntryId(
+            userService.findByUsername(username).map(User::getId).orElseThrow(), queueId))
         .map(entry -> entry.getEntryIndex() + 1);
   }
 

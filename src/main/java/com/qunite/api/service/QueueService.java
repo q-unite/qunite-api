@@ -21,6 +21,8 @@ public interface QueueService {
 
   Optional<Integer> getMemberPosition(Long memberId, Long queueId);
 
+  Optional<Integer> getMemberPosition(String username, Long queueId);
+
   void changeMemberPosition(Long memberId, Long queueId,
                             Integer newIndex, String principalName);
 
