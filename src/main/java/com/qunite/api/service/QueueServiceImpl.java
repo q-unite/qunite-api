@@ -74,8 +74,8 @@ public class QueueServiceImpl implements QueueService {
   @Override
   @Transactional(readOnly = true, propagation = Propagation.NEVER)
   public Optional<Integer> getMemberPosition(String username, Long queueId) {
-    return entryRepository.findById(new EntryId(
-            userService.findByUsername(username).map(User::getId).orElseThrow(), queueId))
+    var userId = userService.findByUsername(username).map(User::getId).orElse(null);
+    return entryRepository.findById(new EntryId(userId, queueId))
         .map(entry -> entry.getEntryIndex() + 1);
   }
 
