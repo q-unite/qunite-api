@@ -1,8 +1,8 @@
 package com.qunite.api.security;
 
 public enum TokenType {
-  ACCESS_TOKEN("ACCESS"),
-  REFRESH_TOKEN("REFRESH");
+  ACCESS("ACCESS"),
+  REFRESH("REFRESH");
   private final String value;
 
   TokenType(String value) {

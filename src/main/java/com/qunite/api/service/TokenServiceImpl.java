@@ -18,12 +18,14 @@ public class TokenServiceImpl implements TokenService {
   }
 
   @Override
-  public void deleteOne(String tokenValue) {
+  @Transactional
+  public void delete(String tokenValue) {
     tokenRepository.deleteByValue(tokenValue);
   }
 
   @Override
-  public Tokens createOne(Tokens tokens) {
+  @Transactional
+  public Tokens create(Tokens tokens) {
     return tokenRepository.save(tokens);
   }
 }

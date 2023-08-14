@@ -32,15 +32,15 @@ public class JwtService {
   @Transactional
   public AuthenticationResponse createJwtTokens(User user) {
     String accessToken = generateJwtToken(
-        user, 30, ChronoUnit.MINUTES, TokenType.ACCESS_TOKEN);
+        user, 30, ChronoUnit.MINUTES, TokenType.ACCESS);
     String refreshToken = generateJwtToken(
-        user, 7, ChronoUnit.DAYS, TokenType.REFRESH_TOKEN);
+        user, 7, ChronoUnit.DAYS, TokenType.REFRESH);
 
     Tokens tokens = new Tokens();
     tokens.setAccessToken(accessToken);
     tokens.setRefreshToken(refreshToken);
     tokens.setOwner(user);
-    tokenService.createOne(tokens);
+    tokenService.create(tokens);
 
     return new AuthenticationResponse(accessToken, refreshToken, "JWT", "HS256", 30 * 60);
   }

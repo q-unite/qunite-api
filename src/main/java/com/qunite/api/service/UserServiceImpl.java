@@ -112,13 +112,13 @@ public class UserServiceImpl implements UserService {
   @Override
   @Transactional
   public AuthenticationResponse refreshTokens(String refreshToken) {
-    DecodedJWT decodedJWT = jwtService.verifyToken(refreshToken, TokenType.REFRESH_TOKEN)
+    DecodedJWT decodedJWT = jwtService.verifyToken(refreshToken, TokenType.REFRESH)
         .orElseThrow(() -> new JWTDecodeException("Invalid refresh token"));
 
     User user =
         findOne(Long.valueOf(decodedJWT.getSubject())).orElseThrow(() -> new UserNotFoundException(
             "User with id %s does not exist".formatted(decodedJWT.getSubject())));
-    tokensService.deleteOne(refreshToken);
+    tokensService.delete(refreshToken);
 
     return jwtService.createJwtTokens(user);
   }

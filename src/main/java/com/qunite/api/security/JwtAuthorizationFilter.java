@@ -34,7 +34,7 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
       filterChain.doFilter(request, response);
       return;
     }
-    jwtService.verifyToken(authHeader.substring(7), TokenType.ACCESS_TOKEN)
+    jwtService.verifyToken(authHeader.substring(7), TokenType.ACCESS)
         .ifPresent(decodedJWT -> {
           var username = decodedJWT.getClaim("username").asString();
           var authToken = new UsernamePasswordAuthenticationToken(
