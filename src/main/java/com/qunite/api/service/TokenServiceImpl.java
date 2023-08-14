@@ -9,7 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
-@RequiredArgsConstructor(onConstructor_ ={@Lazy})
+@RequiredArgsConstructor(onConstructor_ = {@Lazy})
 public class TokenServiceImpl implements TokenService {
   private final TokenRepository tokenRepository;
   private final UserService userService;
@@ -22,7 +22,7 @@ public class TokenServiceImpl implements TokenService {
 
   @Override
   @Transactional
-  public void invalidate (String tokenValue) {
+  public void invalidate(String tokenValue) {
     tokenRepository.deleteByValue(tokenValue);
   }
 
