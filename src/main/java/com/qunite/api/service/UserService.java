@@ -1,16 +1,15 @@
 package com.qunite.api.service;
 
 import com.qunite.api.domain.Queue;
+import com.qunite.api.domain.Tokens;
 import com.qunite.api.domain.User;
-import com.qunite.api.web.dto.auth.AuthenticationResponse;
-import com.qunite.api.web.dto.user.UserUpdateDto;
 import java.util.List;
 import java.util.Optional;
 
 public interface UserService {
   User createOne(User user);
 
-  User updateOne(String username, UserUpdateDto userData);
+  User updateOne(String username, User newUser);
 
   Optional<User> findOne(Long id);
 
@@ -24,7 +23,7 @@ public interface UserService {
 
   Optional<List<Queue>> getManagedQueues(Long userId);
 
-  AuthenticationResponse signIn(String login, String password);
+  Tokens signIn(String login, String password);
 
-  AuthenticationResponse refreshTokens(String refreshToken);
+  Tokens refreshTokens(String refreshToken);
 }

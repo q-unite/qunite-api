@@ -13,3 +13,4 @@ testcontainers:
     docker-image: postgres:15-alpine
 jwt:
   secret: "test"
+  access-token-expiration-time: 1800

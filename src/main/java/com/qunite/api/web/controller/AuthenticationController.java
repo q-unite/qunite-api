@@ -6,6 +6,7 @@ import com.qunite.api.web.dto.auth.AuthenticationRequest;
 import com.qunite.api.web.dto.auth.AuthenticationResponse;
 import com.qunite.api.web.dto.auth.RefreshRequest;
 import com.qunite.api.web.dto.user.UserCreationDto;
+import com.qunite.api.web.mapper.AuthResponseMapper;
 import com.qunite.api.web.mapper.UserMapper;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -15,6 +16,7 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirements;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -30,6 +32,9 @@ import org.springframework.web.bind.annotation.RestController;
 public class AuthenticationController {
   private final UserService userService;
   private final UserMapper userMapper;
+  private final AuthResponseMapper authResponseMapper;
+  @Value("${jwt.access-token-expiration-time}")
+  private Integer jwtTokenExpirationTime;
 
   @Operation(summary = "Sign up user", description = "Create user", responses = {
       @ApiResponse(responseCode = "200"),
@@ -52,7 +57,11 @@ public class AuthenticationController {
   @PostMapping("/sign-in")
   public ResponseEntity<AuthenticationResponse> signIn(
       @Valid @RequestBody AuthenticationRequest request) {
-    return ResponseEntity.ok(userService.signIn(request.getLogin(), request.getPassword()));
+    AuthenticationResponse authenticationResponse = authResponseMapper.toAuthResponse(
+        userService.signIn(request.getLogin(), request.getPassword()));
+    authenticationResponse.setExpires(jwtTokenExpirationTime);
+
+    return ResponseEntity.ok(authenticationResponse);
   }
 
   @Operation(summary = "Get new tokens by refresh token", description = "Refresh", responses = {
@@ -65,6 +74,10 @@ public class AuthenticationController {
   @PostMapping("/sign-in/refresh")
   public ResponseEntity<AuthenticationResponse> refresh(
       @Valid @RequestBody RefreshRequest request) {
-    return ResponseEntity.ok(userService.refreshTokens(request.getRefreshToken()));
+    AuthenticationResponse authenticationResponse = authResponseMapper.toAuthResponse(
+        userService.refreshTokens(request.getRefreshToken()));
+    authenticationResponse.setExpires(jwtTokenExpirationTime);
+
+    return ResponseEntity.ok(authenticationResponse);
   }
 }

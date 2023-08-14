@@ -7,14 +7,12 @@ import com.qunite.api.data.UserRepository;
 import com.qunite.api.domain.Tokens;
 import com.qunite.api.domain.User;
 import com.qunite.api.service.TokenService;
-import com.qunite.api.web.dto.auth.AuthenticationResponse;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -29,10 +27,12 @@ public class JwtService {
 
   private final UserRepository userRepository;
 
-  @Transactional
-  public AuthenticationResponse createJwtTokens(User user) {
+  @Value("${jwt.access-token-expiration-time}")
+  private Integer expirationTime;
+
+  public Tokens createJwtTokens(User user) {
     String accessToken = generateJwtToken(
-        user, 30, ChronoUnit.MINUTES, TokenType.ACCESS);
+        user, expirationTime, ChronoUnit.SECONDS, TokenType.ACCESS);
     String refreshToken = generateJwtToken(
         user, 7, ChronoUnit.DAYS, TokenType.REFRESH);
 
@@ -40,12 +40,9 @@ public class JwtService {
     tokens.setAccessToken(accessToken);
     tokens.setRefreshToken(refreshToken);
     tokens.setOwner(user);
-    tokenService.create(tokens);
-
-    return new AuthenticationResponse(accessToken, refreshToken, "JWT", "HS256", 30 * 60);
+    return tokenService.create(tokens);
   }
 
-  @Transactional
   public Optional<DecodedJWT> verifyToken(String token, TokenType tokenType) {
     return Optional.of(JWT.require(Algorithm.HMAC256(secret))
             .withIssuer(issuer)
@@ -66,15 +63,14 @@ public class JwtService {
         .withExpiresAt(Instant.now().plus(expirationTime, expirationTimeUnit))
         .withClaim("type", type.getValue())
         .withClaim("username", user.getUsername())
-        .withClaim("passwordHash", user.getPassword().hashCode())
+        .withClaim("password", user.getPassword())
         .sign(Algorithm.HMAC256(secret));
   }
 
   private boolean isDataValid(DecodedJWT decodedJWT) {
     return userRepository.findById(Long.valueOf(decodedJWT.getSubject()))
         .filter(found -> found.getUsername().equals(decodedJWT.getClaim("username").asString()))
-        .filter(found -> found.getPassword().hashCode()
-            == (decodedJWT.getClaim("passwordHash").asInt()))
+        .filter(found -> found.getPassword().equals(decodedJWT.getClaim("password").asString()))
         .isPresent();
   }
 }

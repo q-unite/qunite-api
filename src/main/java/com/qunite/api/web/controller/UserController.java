@@ -95,8 +95,10 @@ public class UserController {
   })
   public ResponseEntity<UserDto> updateSelf(Principal principal,
                                             @Valid @RequestBody UserUpdateDto userUpdateDto) {
-    return ResponseEntity.ok(
-        userMapper.toDto(userService.updateOne(principal.getName(), userUpdateDto)));
+    return ResponseEntity.of(userService.findByUsername(principal.getName())
+        .map(found -> userMapper.partialUpdate(userUpdateDto, found))
+        .map(found -> userService.updateOne(principal.getName(), found))
+        .map(userMapper::toDto));
   }
 
   @DeleteMapping("/self")

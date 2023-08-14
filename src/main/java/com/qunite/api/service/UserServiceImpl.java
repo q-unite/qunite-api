@@ -4,15 +4,13 @@ import com.auth0.jwt.exceptions.JWTDecodeException;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.qunite.api.data.UserRepository;
 import com.qunite.api.domain.Queue;
+import com.qunite.api.domain.Tokens;
 import com.qunite.api.domain.User;
 import com.qunite.api.exception.InvalidPasswordException;
 import com.qunite.api.exception.UserAlreadyExistsException;
 import com.qunite.api.exception.UserNotFoundException;
 import com.qunite.api.security.JwtService;
 import com.qunite.api.security.TokenType;
-import com.qunite.api.web.dto.auth.AuthenticationResponse;
-import com.qunite.api.web.dto.user.UserUpdateDto;
-import com.qunite.api.web.mapper.UserMapper;
 import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
@@ -27,7 +25,6 @@ public class UserServiceImpl implements UserService {
   private final TokenService tokensService;
   private final PasswordEncoder passwordEncoder;
   private final JwtService jwtService;
-  private final UserMapper userMapper;
 
   @Override
   @Transactional
@@ -42,25 +39,24 @@ public class UserServiceImpl implements UserService {
 
   @Override
   @Transactional
-  public User updateOne(String username, UserUpdateDto userData) {
-    User userByCredentials = findByUsername(username).orElseThrow(() -> new UserNotFoundException(
-        "User with login %s does not exist".formatted(username)));
+  public User updateOne(String username, User newUser) {
+    boolean isUsernameInUse = isUsernameInUse(newUser);
+    boolean isEmailInUse = isEmailInUse(newUser);
 
-    if (userData.getUsername() != null && isUsernameInUse(userData.getUsername())) {
+    if (isUsernameInUse) {
       throw new UserAlreadyExistsException(
-          "Username %s is already in use".formatted(userData.getUsername()));
+          "Username %s is already in use".formatted(newUser.getUsername()));
     }
-    if (userData.getEmail() != null && isEmailInUse(userData.getEmail())) {
+    if (isEmailInUse) {
       throw new UserAlreadyExistsException(
-          "Email %s is already in use".formatted(userData.getEmail()));
+          "Email %s is already in use".formatted(newUser.getEmail()));
     }
 
-    if (userData.getUsername() != null
-        && !userByCredentials.getUsername().equals(userData.getUsername())) {
-      userByCredentials.clearTokens();
+    if (!newUser.getUsername().equals(username)) {
+      tokensService.invalidateUserTokens(newUser.getId());
     }
 
-    return userRepository.save(userMapper.partialUpdate(userData, userByCredentials));
+    return userRepository.save(newUser);
   }
 
   @Override
@@ -99,35 +95,38 @@ public class UserServiceImpl implements UserService {
 
   @Override
   @Transactional
-  public AuthenticationResponse signIn(String login, String password) {
+  public Tokens signIn(String login, String password) {
     var user = userRepository.findByEmailOrUsername(login)
         .orElseThrow(() -> new UserNotFoundException(
             "User with login %s does not exist".formatted(login)));
     if (!passwordEncoder.matches(password, user.getPassword())) {
       throw new InvalidPasswordException("Invalid password");
     }
+
     return jwtService.createJwtTokens(user);
   }
 
   @Override
   @Transactional
-  public AuthenticationResponse refreshTokens(String refreshToken) {
+  public Tokens refreshTokens(String refreshToken) {
     DecodedJWT decodedJWT = jwtService.verifyToken(refreshToken, TokenType.REFRESH)
         .orElseThrow(() -> new JWTDecodeException("Invalid refresh token"));
 
     User user =
         findOne(Long.valueOf(decodedJWT.getSubject())).orElseThrow(() -> new UserNotFoundException(
             "User with id %s does not exist".formatted(decodedJWT.getSubject())));
-    tokensService.delete(refreshToken);
+    tokensService.invalidate(refreshToken);
 
     return jwtService.createJwtTokens(user);
   }
 
-  private boolean isUsernameInUse(String username) {
-    return userRepository.findByUsername(username).isPresent();
+  private boolean isUsernameInUse(User user) {
+    return userRepository.findByUsername(user.getUsername())
+        .filter(found -> !found.getId().equals(user.getId())).isPresent();
   }
 
-  private boolean isEmailInUse(String email) {
-    return userRepository.findByEmailOrUsername(email).isPresent();
+  private boolean isEmailInUse(User user) {
+    return userRepository.findByEmailOrUsername(user.getEmail())
+        .filter(found -> !found.getId().equals(user.getId())).isPresent();
   }
 }

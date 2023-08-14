@@ -14,7 +14,6 @@ import com.qunite.api.domain.Queue;
 import com.qunite.api.domain.User;
 import com.qunite.api.exception.UserAlreadyExistsException;
 import com.qunite.api.utils.JpaRepositoryUtils;
-import com.qunite.api.web.dto.user.UserUpdateDto;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -55,10 +54,11 @@ class UserServiceTest {
   @DisplayName("UpdateShouldUpdateUserWithValidData")
   void testUpdate() {
     var username = "NewUsername";
-    var userData = new UserUpdateDto();
-    userData.setUsername(username);
 
-    userService.updateOne("First", userData);
+    var user = JpaRepositoryUtils.getById(1L, userRepository);
+    user.setUsername(username);
+
+    userService.updateOne("First", user);
 
     var actualUsername = JpaRepositoryUtils.getById(1L, userRepository).getUsername();
     assertThat(actualUsername).isEqualTo(username);
@@ -68,14 +68,16 @@ class UserServiceTest {
   @DisplayName("Update should not work with username or email in use")
   @Sql("/users-create.sql")
   void testUpdatingWithUsedLogin() {
-    var userData = new UserUpdateDto();
-    userData.setUsername("Second");
-    userData.setEmail("User2@user.com");
+    var username = "Second";
+    var user = JpaRepositoryUtils.getById(1L, userRepository);
+
+    user.setUsername(username);
+    user.setEmail("User2@user.com");
 
     assertThatThrownBy(() ->
-        userService.updateOne("First", userData))
+        userService.updateOne("First", user))
         .isInstanceOf(UserAlreadyExistsException.class)
-        .message().contains("Second");
+        .message().contains(username);
   }
 
   @Test

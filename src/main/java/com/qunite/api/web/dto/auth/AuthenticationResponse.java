@@ -9,9 +9,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class AuthenticationResponse {
   private String accessToken;
-
   private String refreshToken;
-  private String type;
-  private String algorithm;
   private int expires;
 }
