@@ -1,18 +1,18 @@
 package com.qunite.api.service;
 
 import com.qunite.api.data.TokenRepository;
-import com.qunite.api.domain.Tokens;
+import com.qunite.api.data.UserRepository;
+import com.qunite.api.domain.TokenPair;
 import com.qunite.api.domain.User;
 import lombok.RequiredArgsConstructor;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
-@RequiredArgsConstructor(onConstructor_ = {@Lazy})
+@RequiredArgsConstructor
 public class TokenServiceImpl implements TokenService {
   private final TokenRepository tokenRepository;
-  private final UserService userService;
+  private final UserRepository userRe;
 
   @Override
   @Transactional
@@ -28,12 +28,13 @@ public class TokenServiceImpl implements TokenService {
 
   @Override
   @Transactional
-  public Tokens create(Tokens tokens) {
-    return tokenRepository.save(tokens);
+  public TokenPair create(TokenPair tokenPair) {
+    return tokenRepository.save(tokenPair);
   }
 
   @Override
+  @Transactional
   public void invalidateUserTokens(Long userId) {
-    userService.findOne(userId).ifPresent(User::clearTokens);
+    userRe.findById(userId).ifPresent(User::clearTokens);
   }
 }

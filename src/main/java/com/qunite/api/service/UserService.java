@@ -1,7 +1,7 @@
 package com.qunite.api.service;
 
 import com.qunite.api.domain.Queue;
-import com.qunite.api.domain.Tokens;
+import com.qunite.api.domain.TokenPair;
 import com.qunite.api.domain.User;
 import java.util.List;
 import java.util.Optional;
@@ -23,7 +23,7 @@ public interface UserService {
 
   Optional<List<Queue>> getManagedQueues(Long userId);
 
-  Tokens signIn(String login, String password);
+  TokenPair signIn(String login, String password);
 
-  Tokens refreshTokens(String refreshToken);
+  TokenPair refreshTokens(String refreshToken);
 }

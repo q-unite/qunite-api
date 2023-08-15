@@ -4,7 +4,7 @@ import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.qunite.api.data.UserRepository;
-import com.qunite.api.domain.Tokens;
+import com.qunite.api.domain.TokenPair;
 import com.qunite.api.domain.User;
 import com.qunite.api.service.TokenService;
 import java.time.Instant;
@@ -30,47 +30,37 @@ public class JwtService {
   @Value("${jwt.access-token-expiration-time}")
   private Integer expirationTime;
 
-  public Tokens createJwtTokens(User user) {
+  public TokenPair createJwtTokens(User user) {
     String accessToken = generateJwtToken(
         user, expirationTime, ChronoUnit.SECONDS, TokenType.ACCESS);
     String refreshToken = generateJwtToken(
         user, 7, ChronoUnit.DAYS, TokenType.REFRESH);
 
-    Tokens tokens = new Tokens();
-    tokens.setAccessToken(accessToken);
-    tokens.setRefreshToken(refreshToken);
-    tokens.setOwner(user);
-    return tokenService.create(tokens);
+    TokenPair tokenPair = new TokenPair();
+    tokenPair.setAccessToken(accessToken);
+    tokenPair.setRefreshToken(refreshToken);
+    tokenPair.setOwner(user);
+    return tokenService.create(tokenPair);
   }
 
   public Optional<DecodedJWT> verifyToken(String token, TokenType tokenType) {
     return Optional.of(JWT.require(Algorithm.HMAC256(secret))
             .withIssuer(issuer)
+            .withClaim("type", tokenType.getValue())
             .build()
             .verify(token))
-        .filter(decodedJWT -> tokenService.isTokenValid(decodedJWT.getToken()))
-        .filter(decodedJWT -> decodedJWT.getClaim("type").asString()
-            .equals(tokenType.getValue()))
-        .filter(this::isDataValid);
+        .filter(decodedJWT -> tokenService.isTokenValid(decodedJWT.getToken()));
   }
 
   private String generateJwtToken(User user, int expirationTime, ChronoUnit expirationTimeUnit,
                                   TokenType type) {
     return JWT.create()
-        .withSubject(String.valueOf(user.getId()))
+        .withSubject(user.getId().toString())
         .withIssuer(issuer)
         .withIssuedAt(Instant.now())
         .withExpiresAt(Instant.now().plus(expirationTime, expirationTimeUnit))
         .withClaim("type", type.getValue())
         .withClaim("username", user.getUsername())
-        .withClaim("password", user.getPassword())
         .sign(Algorithm.HMAC256(secret));
-  }
-
-  private boolean isDataValid(DecodedJWT decodedJWT) {
-    return userRepository.findById(Long.valueOf(decodedJWT.getSubject()))
-        .filter(found -> found.getUsername().equals(decodedJWT.getClaim("username").asString()))
-        .filter(found -> found.getPassword().equals(decodedJWT.getClaim("password").asString()))
-        .isPresent();
   }
 }

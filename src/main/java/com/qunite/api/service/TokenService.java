@@ -1,13 +1,13 @@
 package com.qunite.api.service;
 
-import com.qunite.api.domain.Tokens;
+import com.qunite.api.domain.TokenPair;
 
 public interface TokenService {
   boolean isTokenValid(String tokenValue);
 
   void invalidate(String tokenValue);
 
-  Tokens create(Tokens token);
+  TokenPair create(TokenPair token);
 
   void invalidateUserTokens(Long userId);
 }

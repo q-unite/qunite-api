@@ -4,7 +4,7 @@ import com.auth0.jwt.exceptions.JWTDecodeException;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.qunite.api.data.UserRepository;
 import com.qunite.api.domain.Queue;
-import com.qunite.api.domain.Tokens;
+import com.qunite.api.domain.TokenPair;
 import com.qunite.api.domain.User;
 import com.qunite.api.exception.InvalidPasswordException;
 import com.qunite.api.exception.UserAlreadyExistsException;
@@ -95,7 +95,7 @@ public class UserServiceImpl implements UserService {
 
   @Override
   @Transactional
-  public Tokens signIn(String login, String password) {
+  public TokenPair signIn(String login, String password) {
     var user = userRepository.findByEmailOrUsername(login)
         .orElseThrow(() -> new UserNotFoundException(
             "User with login %s does not exist".formatted(login)));
@@ -108,7 +108,7 @@ public class UserServiceImpl implements UserService {
 
   @Override
   @Transactional
-  public Tokens refreshTokens(String refreshToken) {
+  public TokenPair refreshTokens(String refreshToken) {
     DecodedJWT decodedJWT = jwtService.verifyToken(refreshToken, TokenType.REFRESH)
         .orElseThrow(() -> new JWTDecodeException("Invalid refresh token"));
 

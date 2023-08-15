@@ -17,10 +17,10 @@ import lombok.ToString;
 @Getter
 @Setter
 @Entity
-@Table(name = "TOKENS")
+@Table(name = "token_pair")
 @ToString
 @NoArgsConstructor
-public class Tokens {
+public class TokenPair {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   Long id;
