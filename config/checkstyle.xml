@@ -57,7 +57,7 @@
     <module name="TreeWalker">
         <module name="OuterTypeFilename"/>
         <module name="IllegalTokenText">
-            <property name="tokenPair" value="STRING_LITERAL, CHAR_LITERAL"/>
+            <property name="tokens" value="STRING_LITERAL, CHAR_LITERAL"/>
             <property name="format"
                       value="\\u00(09|0(a|A)|0(c|C)|0(d|D)|22|27|5(C|c))|\\(0(10|11|12|14|15|42|47)|134)"/>
             <property name="message"
@@ -75,19 +75,19 @@
         </module>
         <module name="OneTopLevelClass"/>
         <module name="NoLineWrap">
-            <property name="tokenPair" value="PACKAGE_DEF, IMPORT, STATIC_IMPORT"/>
+            <property name="tokens" value="PACKAGE_DEF, IMPORT, STATIC_IMPORT"/>
         </module>
         <module name="EmptyBlock">
             <property name="option" value="TEXT"/>
-            <property name="tokenPair"
+            <property name="tokens"
                       value="LITERAL_TRY, LITERAL_FINALLY, LITERAL_IF, LITERAL_ELSE, LITERAL_SWITCH"/>
         </module>
         <module name="NeedBraces">
-            <property name="tokenPair"
+            <property name="tokens"
                       value="LITERAL_DO, LITERAL_ELSE, LITERAL_FOR, LITERAL_IF, LITERAL_WHILE"/>
         </module>
         <module name="LeftCurly">
-            <property name="tokenPair"
+            <property name="tokens"
                       value="ANNOTATION_DEF, CLASS_DEF, CTOR_DEF, ENUM_CONSTANT_DEF, ENUM_DEF,
                     INTERFACE_DEF, LAMBDA, LITERAL_CASE, LITERAL_CATCH, LITERAL_DEFAULT,
                     LITERAL_DO, LITERAL_ELSE, LITERAL_FINALLY, LITERAL_FOR, LITERAL_IF,
@@ -96,14 +96,14 @@
         </module>
         <module name="RightCurly">
             <property name="id" value="RightCurlySame"/>
-            <property name="tokenPair"
+            <property name="tokens"
                       value="LITERAL_TRY, LITERAL_CATCH, LITERAL_FINALLY, LITERAL_IF, LITERAL_ELSE,
                     LITERAL_DO"/>
         </module>
         <module name="RightCurly">
             <property name="id" value="RightCurlyAlone"/>
             <property name="option" value="alone"/>
-            <property name="tokenPair"
+            <property name="tokens"
                       value="CLASS_DEF, METHOD_DEF, CTOR_DEF, LITERAL_FOR, LITERAL_WHILE, STATIC_INIT,
                     INSTANCE_INIT, ANNOTATION_DEF, ENUM_DEF, INTERFACE_DEF, RECORD_DEF,
                     COMPACT_CTOR_DEF, LITERAL_SWITCH"/>
@@ -115,7 +115,7 @@
                                      or preceding-sibling::*[last()][self::LCURLY]]"/>
         </module>
         <module name="WhitespaceAfter">
-            <property name="tokenPair"
+            <property name="tokens"
                       value="COMMA, SEMI, TYPECAST, LITERAL_IF, LITERAL_ELSE, LITERAL_RETURN,
                     LITERAL_WHILE, LITERAL_DO, LITERAL_FOR, LITERAL_FINALLY, DO_WHILE, ELLIPSIS,
                     LITERAL_SWITCH, LITERAL_SYNCHRONIZED, LITERAL_TRY, LITERAL_CATCH, LAMBDA,
@@ -128,7 +128,7 @@
             <property name="allowEmptyTypes" value="true"/>
             <property name="allowEmptyLoops" value="true"/>
             <property name="ignoreEnhancedForColon" value="false"/>
-            <property name="tokenPair"
+            <property name="tokens"
                       value="ASSIGN, BAND, BAND_ASSIGN, BOR, BOR_ASSIGN, BSR, BSR_ASSIGN, BXOR,
                     BXOR_ASSIGN, COLON, DIV, DIV_ASSIGN, DO_WHILE, EQUAL, GE, GT, LAMBDA, LAND,
                     LCURLY, LE, LITERAL_CATCH, LITERAL_DO, LITERAL_ELSE, LITERAL_FINALLY,
@@ -150,7 +150,7 @@
         <module name="UpperEll"/>
         <module name="ModifierOrder"/>
         <module name="EmptyLineSeparator">
-            <property name="tokenPair"
+            <property name="tokens"
                       value="PACKAGE_DEF, IMPORT, STATIC_IMPORT, CLASS_DEF, INTERFACE_DEF, ENUM_DEF,
                     STATIC_INIT, INSTANCE_INIT, METHOD_DEF, CTOR_DEF, VARIABLE_DEF, RECORD_DEF,
                     COMPACT_CTOR_DEF"/>
@@ -158,29 +158,29 @@
         </module>
         <module name="SeparatorWrap">
             <property name="id" value="SeparatorWrapDot"/>
-            <property name="tokenPair" value="DOT"/>
+            <property name="tokens" value="DOT"/>
             <property name="option" value="nl"/>
         </module>
         <module name="SeparatorWrap">
             <property name="id" value="SeparatorWrapComma"/>
-            <property name="tokenPair" value="COMMA"/>
+            <property name="tokens" value="COMMA"/>
             <property name="option" value="EOL"/>
         </module>
         <module name="SeparatorWrap">
             <!-- ELLIPSIS is EOL until https://github.com/google/styleguide/issues/259 -->
             <property name="id" value="SeparatorWrapEllipsis"/>
-            <property name="tokenPair" value="ELLIPSIS"/>
+            <property name="tokens" value="ELLIPSIS"/>
             <property name="option" value="EOL"/>
         </module>
         <module name="SeparatorWrap">
             <!-- ARRAY_DECLARATOR is EOL until https://github.com/google/styleguide/issues/258 -->
             <property name="id" value="SeparatorWrapArrayDeclarator"/>
-            <property name="tokenPair" value="ARRAY_DECLARATOR"/>
+            <property name="tokens" value="ARRAY_DECLARATOR"/>
             <property name="option" value="EOL"/>
         </module>
         <module name="SeparatorWrap">
             <property name="id" value="SeparatorWrapMethodRef"/>
-            <property name="tokenPair" value="METHOD_REF"/>
+            <property name="tokens" value="METHOD_REF"/>
             <property name="option" value="nl"/>
         </module>
         <module name="PackageName">
@@ -189,7 +189,7 @@
                      value="Package name ''{0}'' must match pattern ''{1}''."/>
         </module>
         <module name="TypeName">
-            <property name="tokenPair" value="CLASS_DEF, INTERFACE_DEF, ENUM_DEF,
+            <property name="tokens" value="CLASS_DEF, INTERFACE_DEF, ENUM_DEF,
                     ANNOTATION_DEF, RECORD_DEF"/>
             <message key="name.invalidPattern"
                      value="Type name ''{0}'' must match pattern ''{1}''."/>
@@ -271,7 +271,7 @@
         <module name="AbbreviationAsWordInName">
             <property name="ignoreFinal" value="false"/>
             <property name="allowedAbbreviationLength" value="5"/>
-            <property name="tokenPair"
+            <property name="tokens"
                       value="CLASS_DEF, INTERFACE_DEF, ENUM_DEF, ANNOTATION_DEF, ANNOTATION_FIELD_DEF,
                     PARAMETER_DEF, VARIABLE_DEF, METHOD_DEF, PATTERN_VARIABLE_DEF, RECORD_DEF,
                     RECORD_COMPONENT_DEF"/>
@@ -283,21 +283,21 @@
             <property name="sortImportsInGroupAlphabetically" value="true"/>
             <property name="separateLineBetweenGroups" value="true"/>
             <property name="customImportOrderRules" value="STATIC###THIRD_PARTY_PACKAGE"/>
-            <property name="tokenPair" value="IMPORT, STATIC_IMPORT, PACKAGE_DEF"/>
+            <property name="tokens" value="IMPORT, STATIC_IMPORT, PACKAGE_DEF"/>
         </module>
         <module name="MethodParamPad">
-            <property name="tokenPair"
+            <property name="tokens"
                       value="CTOR_DEF, LITERAL_NEW, METHOD_CALL, METHOD_DEF,
                     SUPER_CTOR_CALL, ENUM_CONSTANT_DEF, RECORD_DEF"/>
         </module>
         <module name="NoWhitespaceBefore">
-            <property name="tokenPair"
+            <property name="tokens"
                       value="COMMA, SEMI, POST_INC, POST_DEC, DOT,
                     LABELED_STAT, METHOD_REF"/>
             <property name="allowLineBreaks" value="true"/>
         </module>
         <module name="ParenPad">
-            <property name="tokenPair"
+            <property name="tokens"
                       value="ANNOTATION, ANNOTATION_FIELD_DEF, CTOR_CALL, CTOR_DEF, DOT, ENUM_CONSTANT_DEF,
                     EXPR, LITERAL_CATCH, LITERAL_DO, LITERAL_FOR, LITERAL_IF, LITERAL_NEW,
                     LITERAL_SWITCH, LITERAL_SYNCHRONIZED, LITERAL_WHILE, METHOD_CALL,
@@ -306,20 +306,20 @@
         </module>
         <module name="OperatorWrap">
             <property name="option" value="NL"/>
-            <property name="tokenPair"
+            <property name="tokens"
                       value="BAND, BOR, BSR, BXOR, DIV, EQUAL, GE, GT, LAND, LE, LITERAL_INSTANCEOF, LOR,
                     LT, MINUS, MOD, NOT_EQUAL, PLUS, QUESTION, SL, SR, STAR, METHOD_REF,
                     TYPE_EXTENSION_AND "/>
         </module>
         <module name="AnnotationLocation">
             <property name="id" value="AnnotationLocationMostCases"/>
-            <property name="tokenPair"
+            <property name="tokens"
                       value="CLASS_DEF, INTERFACE_DEF, ENUM_DEF, METHOD_DEF, CTOR_DEF,
                       RECORD_DEF, COMPACT_CTOR_DEF"/>
         </module>
         <module name="AnnotationLocation">
             <property name="id" value="AnnotationLocationVariables"/>
-            <property name="tokenPair" value="VARIABLE_DEF"/>
+            <property name="tokens" value="VARIABLE_DEF"/>
             <property name="allowSamelineMultipleAnnotations" value="true"/>
         </module>
         <module name="NonEmptyAtclauseDescription"/>
@@ -342,7 +342,7 @@
             <property name="allowMissingParamTags" value="true"/>
             <property name="allowMissingReturnTag" value="true"/>
             <property name="allowedAnnotations" value="Override, Test"/>
-            <property name="tokenPair" value="METHOD_DEF, CTOR_DEF, ANNOTATION_FIELD_DEF, COMPACT_CTOR_DEF"/>
+            <property name="tokens" value="METHOD_DEF, CTOR_DEF, ANNOTATION_FIELD_DEF, COMPACT_CTOR_DEF"/>
         </module>
         <module name="MethodName">
             <property name="format" value="^[a-z][a-z0-9]\w*$"/>
@@ -354,7 +354,7 @@
             <property name="exceptionVariableName" value="expected"/>
         </module>
         <module name="CommentsIndentation">
-            <property name="tokenPair" value="SINGLE_LINE_COMMENT, BLOCK_COMMENT_BEGIN"/>
+            <property name="tokens" value="SINGLE_LINE_COMMENT, BLOCK_COMMENT_BEGIN"/>
         </module>
         <!-- https://checkstyle.org/config_filters.html#SuppressionXpathFilter -->
         <module name="SuppressionXpathFilter">
