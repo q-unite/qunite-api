@@ -3,7 +3,6 @@ package com.qunite.api.security;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.DecodedJWT;
-import com.qunite.api.data.UserRepository;
 import com.qunite.api.domain.TokenPair;
 import com.qunite.api.domain.User;
 import com.qunite.api.service.TokenService;
@@ -24,8 +23,6 @@ public class JwtService {
   private String issuer;
 
   private final TokenService tokenService;
-
-  private final UserRepository userRepository;
 
   @Value("${jwt.access-token-expiration-time}")
   private Integer expirationTime;

@@ -9,5 +9,5 @@ spring:
   # Flyway
   flyway:
     enabled: false
-  jwt:
+jwt:
   access-token-expiration-time: 1800

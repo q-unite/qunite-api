@@ -17,7 +17,7 @@ import lombok.ToString;
 @Getter
 @Setter
 @Entity
-@Table(name = "token_pair")
+@Table(name = "token_pairs")
 @ToString
 @NoArgsConstructor
 public class TokenPair {
