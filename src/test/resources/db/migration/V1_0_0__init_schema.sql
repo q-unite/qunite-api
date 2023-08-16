@@ -38,6 +38,7 @@ CREATE TABLE token_pairs
     owner_id BIGINT NOT NULL,
     access_token VARCHAR(1340),
     refresh_token VARCHAR(1340),
+    is_valid boolean,
     created_at  TIMESTAMP WITHOUT TIME ZONE,
     CONSTRAINT pk_tokens PRIMARY KEY (id)
 );

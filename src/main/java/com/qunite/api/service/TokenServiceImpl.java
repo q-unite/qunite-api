@@ -3,7 +3,6 @@ package com.qunite.api.service;
 import com.qunite.api.data.TokenRepository;
 import com.qunite.api.data.UserRepository;
 import com.qunite.api.domain.TokenPair;
-import com.qunite.api.domain.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -12,18 +11,18 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class TokenServiceImpl implements TokenService {
   private final TokenRepository tokenRepository;
-  private final UserRepository userRe;
+  private final UserRepository userRepository;
 
   @Override
   @Transactional
   public boolean isTokenValid(String tokenValue) {
-    return tokenRepository.existsByValue(tokenValue);
+    return tokenRepository.findByValue(tokenValue).filter(TokenPair::isValid).isPresent();
   }
 
   @Override
   @Transactional
   public void invalidate(String tokenValue) {
-    tokenRepository.deleteByValue(tokenValue);
+    tokenRepository.findByValue(tokenValue).ifPresent(tokenPair -> tokenPair.setValid(false));
   }
 
   @Override
@@ -35,6 +34,8 @@ public class TokenServiceImpl implements TokenService {
   @Override
   @Transactional
   public void invalidateUserTokens(Long userId) {
-    userRe.findById(userId).ifPresent(User::clearTokens);
+    userRepository.findById(userId).ifPresent(user -> user.getTokenPairs().forEach(
+        tokenPair -> tokenPair.setValid(false)
+    ));
   }
 }

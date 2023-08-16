@@ -35,6 +35,8 @@ public class TokenPair {
   @Column(name = "refresh_token")
   String refreshToken;
 
+  @Column(name = "is_valid")
+  boolean isValid = true;
   @Column(name = "created_at")
   Instant createdAt = Instant.now();
 }
