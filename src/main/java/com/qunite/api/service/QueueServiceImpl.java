@@ -14,6 +14,7 @@ import com.qunite.api.exception.UserNotFoundException;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.BiConsumer;
+import lombok.RequiredArgsConstructor;
 import one.util.streamex.StreamEx;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
@@ -22,22 +23,13 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
+@RequiredArgsConstructor(onConstructor_ = {@Lazy})
 public class QueueServiceImpl implements QueueService {
   private final QueueRepository queueRepository;
   private final UserRepository userRepository;
   private final EntryRepository entryRepository;
   private final UserService userService;
   private final QueueServiceImpl self;
-
-  public QueueServiceImpl(QueueRepository queueRepository, UserRepository userRepository,
-                          EntryRepository entryRepository, UserService userService,
-                          @Lazy QueueServiceImpl self) {
-    this.queueRepository = queueRepository;
-    this.userRepository = userRepository;
-    this.entryRepository = entryRepository;
-    this.userService = userService;
-    this.self = self;
-  }
 
   @Override
   @Transactional
@@ -60,12 +52,12 @@ public class QueueServiceImpl implements QueueService {
   @Override
   @Transactional
   public Optional<Integer> enrollMember(String username, Long queueId) {
-    var user = self.saveEntry(username, queueId);
-    return self.getMemberPosition(user.getId(), queueId);
+    self.saveEntry(username, queueId);
+    return self.getMemberPosition(username, queueId);
   }
 
   @Transactional(propagation = Propagation.REQUIRES_NEW)
-  public User saveEntry(String username, Long queueId) {
+  public void saveEntry(String username, Long queueId) {
     var queue = findById(queueId).orElseThrow(
         () -> new QueueNotFoundException("Could not find queue by id %d".formatted(queueId)));
     var user = userRepository.findByUsername(username).orElseThrow(
@@ -73,7 +65,6 @@ public class QueueServiceImpl implements QueueService {
     if (!entryRepository.existsById(new EntryId(user.getId(), queueId))) {
       queue.addEntry(new Entry(user, queue));
     }
-    return user;
   }
 
   @Override
@@ -84,9 +75,10 @@ public class QueueServiceImpl implements QueueService {
 
   @Override
   @Transactional
-  public Optional<Integer> getMemberPosition(Long memberId, Long queueId) {
-    return entryRepository.findById(new EntryId(memberId, queueId))
-        .map(entry -> entry.getEntryIndex() + 1);
+  public Optional<Integer> getMemberPosition(String username, Long queueId) {
+    return userRepository.findByUsername(username)
+        .flatMap(user -> entryRepository.findById(new EntryId(user.getId(), queueId))
+            .map(entry -> entry.getEntryIndex() + 1));
   }
 
   @Override

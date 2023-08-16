@@ -73,14 +73,14 @@ public class QueueController {
     return ResponseEntity.of(queueService.getMembersAmount(id));
   }
 
-  @GetMapping("/{id}/members/{member-id}")
+  @GetMapping("/{id}/members/{username}")
   @Operation(summary = "Get member's position in queue", responses = {
       @ApiResponse(responseCode = "200"),
       @ApiResponse(responseCode = "404", content = @Content)
   })
   public ResponseEntity<Integer> memberPosition(@PathVariable Long id,
-                                                @PathVariable(value = "member-id") Long memberId) {
-    return ResponseEntity.of(queueService.getMemberPosition(memberId, id));
+                                                @PathVariable String username) {
+    return ResponseEntity.of(queueService.getMemberPosition(username, id));
   }
 
   @PutMapping("/{id}/members")

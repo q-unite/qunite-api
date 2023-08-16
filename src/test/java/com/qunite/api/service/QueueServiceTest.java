@@ -92,7 +92,7 @@ class QueueServiceTest {
   @Sql({"/users-create.sql", "/queues-create.sql", "/entries-create.sql"})
   @Test
   void testGettingMemberPositionInQueue() {
-    var memberPosition = queueService.getMemberPosition(3L, 1L);
+    var memberPosition = queueService.getMemberPosition("Third", 1L);
 
     assertThat(memberPosition).hasValue(5);
   }
