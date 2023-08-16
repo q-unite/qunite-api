@@ -13,3 +13,6 @@ testcontainers:
     docker-image: postgres:15-alpine
 jwt:
   secret: "test"
+client:
+  web:
+    url: "http://localhost:5173"
