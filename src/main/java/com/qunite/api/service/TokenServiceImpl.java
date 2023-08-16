@@ -3,6 +3,7 @@ package com.qunite.api.service;
 import com.qunite.api.data.TokenRepository;
 import com.qunite.api.data.UserRepository;
 import com.qunite.api.domain.TokenPair;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -12,6 +13,11 @@ import org.springframework.transaction.annotation.Transactional;
 public class TokenServiceImpl implements TokenService {
   private final TokenRepository tokenRepository;
   private final UserRepository userRepository;
+
+  @Override
+  public Optional<TokenPair> findByValue(String tokenValue) {
+    return tokenRepository.findByValue(tokenValue);
+  }
 
   @Override
   @Transactional

@@ -9,6 +9,8 @@ import com.qunite.api.service.TokenService;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Optional;
+import java.util.Random;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -27,10 +29,10 @@ public class JwtService {
   @Value("${jwt.access-token-expiration-time}")
   private Integer expirationTime;
 
-  public TokenPair createJwtTokens(User user) {
-    String accessToken = generateJwtToken(
+  public TokenPair createJwt(User user) {
+    String accessToken = generateJwt(
         user, expirationTime, ChronoUnit.SECONDS, TokenType.ACCESS);
-    String refreshToken = generateJwtToken(
+    String refreshToken = generateJwt(
         user, 7, ChronoUnit.DAYS, TokenType.REFRESH);
 
     TokenPair tokenPair = new TokenPair();
@@ -40,7 +42,7 @@ public class JwtService {
     return tokenService.create(tokenPair);
   }
 
-  public Optional<DecodedJWT> verifyToken(String token, TokenType tokenType) {
+  public Optional<DecodedJWT> verifyJwt(String token, TokenType tokenType) {
     return Optional.of(JWT.require(Algorithm.HMAC256(secret))
             .withIssuer(issuer)
             .withClaim("type", tokenType.getValue())
@@ -49,8 +51,8 @@ public class JwtService {
         .filter(decodedJWT -> tokenService.isTokenValid(decodedJWT.getToken()));
   }
 
-  private String generateJwtToken(User user, int expirationTime, ChronoUnit expirationTimeUnit,
-                                  TokenType type) {
+  private String generateJwt(User user, int expirationTime, ChronoUnit expirationTimeUnit,
+                             TokenType type) {
     return JWT.create()
         .withSubject(user.getId().toString())
         .withIssuer(issuer)
@@ -58,6 +60,7 @@ public class JwtService {
         .withExpiresAt(Instant.now().plus(expirationTime, expirationTimeUnit))
         .withClaim("type", type.getValue())
         .withClaim("username", user.getUsername())
+        .withJWTId(UUID.randomUUID().toString())
         .sign(Algorithm.HMAC256(secret));
   }
 }

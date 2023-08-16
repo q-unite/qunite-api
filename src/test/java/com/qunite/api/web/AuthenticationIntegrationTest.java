@@ -33,7 +33,6 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.web.servlet.MockMvc;
-import org.testcontainers.shaded.com.fasterxml.jackson.core.JsonProcessingException;
 import org.testcontainers.shaded.com.fasterxml.jackson.databind.ObjectMapper;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -224,24 +223,38 @@ class AuthenticationIntegrationTest {
     mockMvc.perform(get("/users/self").header(HttpHeaders.AUTHORIZATION, token))
         .andExpect(status().isOk());
   }
+
   @Test
   @DisplayName("Tokens should be invalidated when request token is used twice")
   @Sql("/users-create.sql")
   void refreshUse() throws Exception {
     var firstTokenPair = getTokenPair(1L);
     var secondTokenPair = getTokenPair(1L);
-
     var body = new RefreshRequest();
     body.setRefreshToken(firstTokenPair.getRefreshToken());
     var json = objectMapper.writeValueAsString(body);
 
-    mockMvc.perform(post("/{url}/sign-in/refresh", url).contentType(MediaType.APPLICATION_JSON).content(json))
+    mockMvc.perform(
+            post("/{url}/sign-in/refresh", url).contentType(MediaType.APPLICATION_JSON).content(json))
         .andExpect(status().isOk());
-    mockMvc.perform(post("/{url}/sign-in/refresh", url).contentType(MediaType.APPLICATION_JSON).content(json))
+    mockMvc.perform(
+            post("/{url}/sign-in/refresh", url).contentType(MediaType.APPLICATION_JSON).content(json))
         .andExpect(status().isForbidden());
 
-    mockMvc.perform(get("/users/self").header(HttpHeaders.AUTHORIZATION, secondTokenPair.getAccessToken()))
+    mockMvc.perform(
+            get("/users/self").header(HttpHeaders.AUTHORIZATION, secondTokenPair.getAccessToken()))
         .andExpect(status().isForbidden());
+  }
+
+  @Test
+  @DisplayName("Tokens should be unique")
+  @Sql("/users-create.sql")
+  void uniqueTokenCheck() {
+    var firstTokenPair = getTokenPair(1L);
+    var secondTokenPair = getTokenPair(1L);
+
+    assertThat(firstTokenPair.getRefreshToken()).isNotEqualTo(secondTokenPair.getRefreshToken());
+    assertThat(firstTokenPair.getAccessToken()).isNotEqualTo(secondTokenPair.getAccessToken());
   }
 
   private String getAccessToken(Long id) throws Exception {
@@ -251,6 +264,6 @@ class AuthenticationIntegrationTest {
   private TokenPair getTokenPair(Long id) {
     var user = JpaRepositoryUtils.getById(id, userRepository);
 
-    return jwtService.createJwtTokens(user);
+    return jwtService.createJwt(user);
   }
 }
