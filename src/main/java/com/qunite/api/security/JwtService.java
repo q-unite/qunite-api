@@ -25,12 +25,9 @@ public class JwtService {
 
   private final TokenService tokenService;
 
-  @Value("${jwt.access-token-expiration-time}")
-  private Integer expirationTime;
-
   public TokenPair createJwt(User user) {
     String accessToken = generateJwt(
-        user, expirationTime, ChronoUnit.SECONDS, TokenType.ACCESS);
+        user, TokenPair.expirationTime, ChronoUnit.SECONDS, TokenType.ACCESS);
     String refreshToken = generateJwt(
         user, 7, ChronoUnit.DAYS, TokenType.REFRESH);
 

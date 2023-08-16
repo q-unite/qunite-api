@@ -13,6 +13,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import org.springframework.data.annotation.Transient;
 
 @Getter
 @Setter
@@ -37,6 +38,10 @@ public class TokenPair {
 
   @Column(name = "is_valid")
   boolean isValid = true;
+
+  @Transient
+  public static final int expirationTime = 1800;
+
   @Column(name = "created_at")
   Instant createdAt = Instant.now();
 }

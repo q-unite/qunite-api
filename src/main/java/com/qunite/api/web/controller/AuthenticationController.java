@@ -1,5 +1,6 @@
 package com.qunite.api.web.controller;
 
+import com.qunite.api.domain.TokenPair;
 import com.qunite.api.service.UserService;
 import com.qunite.api.web.dto.ExceptionResponse;
 import com.qunite.api.web.dto.auth.AuthenticationRequest;
@@ -16,7 +17,6 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirements;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -33,8 +33,6 @@ public class AuthenticationController {
   private final UserService userService;
   private final UserMapper userMapper;
   private final AuthResponseMapper authResponseMapper;
-  @Value("${jwt.access-token-expiration-time}")
-  private Integer jwtTokenExpirationTime;
 
   @Operation(summary = "Sign up user", description = "Create user", responses = {
       @ApiResponse(responseCode = "200"),
@@ -59,7 +57,7 @@ public class AuthenticationController {
       @Valid @RequestBody AuthenticationRequest request) {
     AuthenticationResponse authenticationResponse = authResponseMapper.toAuthResponse(
         userService.signIn(request.getLogin(), request.getPassword()));
-    authenticationResponse.setExpires(jwtTokenExpirationTime);
+    authenticationResponse.setExpires(TokenPair.expirationTime);
 
     return ResponseEntity.ok(authenticationResponse);
   }
@@ -76,7 +74,7 @@ public class AuthenticationController {
       @Valid @RequestBody RefreshRequest request) {
     AuthenticationResponse authenticationResponse = authResponseMapper.toAuthResponse(
         userService.refreshTokens(request.getRefreshToken()));
-    authenticationResponse.setExpires(jwtTokenExpirationTime);
+    authenticationResponse.setExpires(TokenPair.expirationTime);
 
     return ResponseEntity.ok(authenticationResponse);
   }
