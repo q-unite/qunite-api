@@ -15,6 +15,7 @@ public class TokenServiceImpl implements TokenService {
   private final UserRepository userRepository;
 
   @Override
+  @Transactional
   public Optional<TokenPair> findByValue(String tokenValue) {
     return tokenRepository.findByValue(tokenValue);
   }

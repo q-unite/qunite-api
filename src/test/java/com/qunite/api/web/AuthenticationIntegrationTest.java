@@ -198,8 +198,8 @@ class AuthenticationIntegrationTest {
     userUpdateDto.setUsername("NEWUSERNAME");
     var json = objectMapper.writeValueAsString(userUpdateDto);
 
-    mockMvc.perform(patch("/users/self").contentType(MediaType.APPLICATION_JSON).content(json)
-            .header(HttpHeaders.AUTHORIZATION, token))
+    mockMvc.perform(patch("/users/self").contentType(MediaType.APPLICATION_JSON)
+            .content(json).header(HttpHeaders.AUTHORIZATION, token))
         .andExpect(status().isOk());
 
     mockMvc.perform(get("/users/self").header(HttpHeaders.AUTHORIZATION, token))
@@ -216,8 +216,8 @@ class AuthenticationIntegrationTest {
     userUpdateDto.setEmail("NEWEMAIL@email.com");
     var json = objectMapper.writeValueAsString(userUpdateDto);
 
-    mockMvc.perform(patch("/users/self").contentType(MediaType.APPLICATION_JSON).content(json)
-            .header(HttpHeaders.AUTHORIZATION, token))
+    mockMvc.perform(patch("/users/self").contentType(MediaType.APPLICATION_JSON)
+            .content(json).header(HttpHeaders.AUTHORIZATION, token))
         .andExpect(status().isOk());
 
     mockMvc.perform(get("/users/self").header(HttpHeaders.AUTHORIZATION, token))
@@ -228,21 +228,24 @@ class AuthenticationIntegrationTest {
   @DisplayName("Tokens should be invalidated when request token is used twice")
   @Sql("/users-create.sql")
   void refreshUse() throws Exception {
-    var firstTokenPair = getTokenPair(1L);
-    var secondTokenPair = getTokenPair(1L);
+    final var firstTokenPair = getTokenPair(1L);
+    final var secondTokenPair = getTokenPair(1L);
     var body = new RefreshRequest();
     body.setRefreshToken(firstTokenPair.getRefreshToken());
     var json = objectMapper.writeValueAsString(body);
 
     mockMvc.perform(
-            post("/{url}/sign-in/refresh", url).contentType(MediaType.APPLICATION_JSON).content(json))
+            post("/{url}/sign-in/refresh", url).contentType(MediaType.APPLICATION_JSON)
+                .content(json))
         .andExpect(status().isOk());
     mockMvc.perform(
-            post("/{url}/sign-in/refresh", url).contentType(MediaType.APPLICATION_JSON).content(json))
+            post("/{url}/sign-in/refresh", url).contentType(MediaType.APPLICATION_JSON)
+                .content(json))
         .andExpect(status().isForbidden());
 
     mockMvc.perform(
-            get("/users/self").header(HttpHeaders.AUTHORIZATION, secondTokenPair.getAccessToken()))
+            get("/users/self")
+                .header(HttpHeaders.AUTHORIZATION, secondTokenPair.getAccessToken()))
         .andExpect(status().isForbidden());
   }
 
@@ -250,8 +253,8 @@ class AuthenticationIntegrationTest {
   @DisplayName("Tokens should be unique")
   @Sql("/users-create.sql")
   void uniqueTokenCheck() {
-    var firstTokenPair = getTokenPair(1L);
-    var secondTokenPair = getTokenPair(1L);
+    final var firstTokenPair = getTokenPair(1L);
+    final var secondTokenPair = getTokenPair(1L);
 
     assertThat(firstTokenPair.getRefreshToken()).isNotEqualTo(secondTokenPair.getRefreshToken());
     assertThat(firstTokenPair.getAccessToken()).isNotEqualTo(secondTokenPair.getAccessToken());
