@@ -11,10 +11,12 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.qunite.api.annotation.IntegrationTest;
 import com.qunite.api.data.UserRepository;
+import com.qunite.api.domain.TokenPair;
 import com.qunite.api.security.JwtService;
 import com.qunite.api.service.UserService;
 import com.qunite.api.utils.JpaRepositoryUtils;
 import com.qunite.api.web.dto.auth.AuthenticationRequest;
+import com.qunite.api.web.dto.auth.RefreshRequest;
 import com.qunite.api.web.dto.user.UserCreationDto;
 import com.qunite.api.web.dto.user.UserUpdateDto;
 import java.util.stream.Stream;
@@ -31,6 +33,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.web.servlet.MockMvc;
+import org.testcontainers.shaded.com.fasterxml.jackson.core.JsonProcessingException;
 import org.testcontainers.shaded.com.fasterxml.jackson.databind.ObjectMapper;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -221,10 +224,33 @@ class AuthenticationIntegrationTest {
     mockMvc.perform(get("/users/self").header(HttpHeaders.AUTHORIZATION, token))
         .andExpect(status().isOk());
   }
+  @Test
+  @DisplayName("Tokens should be invalidated when request token is used twice")
+  @Sql("/users-create.sql")
+  void refreshUse() throws Exception {
+    var firstTokenPair = getTokenPair(1L);
+    var secondTokenPair = getTokenPair(1L);
+
+    var body = new RefreshRequest();
+    body.setRefreshToken(firstTokenPair.getRefreshToken());
+    var json = objectMapper.writeValueAsString(body);
+
+    mockMvc.perform(post("/{url}/sign-in/refresh", url).contentType(MediaType.APPLICATION_JSON).content(json))
+        .andExpect(status().isOk());
+    mockMvc.perform(post("/{url}/sign-in/refresh", url).contentType(MediaType.APPLICATION_JSON).content(json))
+        .andExpect(status().isForbidden());
+
+    mockMvc.perform(get("/users/self").header(HttpHeaders.AUTHORIZATION, secondTokenPair.getAccessToken()))
+        .andExpect(status().isForbidden());
+  }
 
   private String getAccessToken(Long id) throws Exception {
+    return "Bearer " + getTokenPair(id).getAccessToken();
+  }
+
+  private TokenPair getTokenPair(Long id) {
     var user = JpaRepositoryUtils.getById(id, userRepository);
 
-    return "Bearer " + jwtService.createJwtTokens(user).getAccessToken();
+    return jwtService.createJwtTokens(user);
   }
 }
