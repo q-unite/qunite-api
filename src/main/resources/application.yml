@@ -9,3 +9,6 @@ spring:
   # Flyway
   flyway:
     enabled: false
+client:
+  web:
+    url: "http://localhost:5173"
