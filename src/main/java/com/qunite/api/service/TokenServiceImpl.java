@@ -6,6 +6,7 @@ import com.qunite.api.domain.TokenPair;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
@@ -39,10 +40,9 @@ public class TokenServiceImpl implements TokenService {
   }
 
   @Override
-  @Transactional
+  @Transactional(propagation = Propagation.REQUIRES_NEW)
   public void invalidateUserTokens(Long userId) {
     userRepository.findById(userId).ifPresent(user -> user.getTokenPairs().forEach(
-        tokenPair -> tokenPair.setValid(false)
-    ));
+        tokenPair -> tokenPair.setValid(false)));
   }
 }

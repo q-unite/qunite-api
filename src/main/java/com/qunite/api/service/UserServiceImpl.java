@@ -7,7 +7,7 @@ import com.qunite.api.domain.Queue;
 import com.qunite.api.domain.TokenPair;
 import com.qunite.api.domain.User;
 import com.qunite.api.exception.InvalidPasswordException;
-import com.qunite.api.exception.RefreshTokenUsedTwiceException;
+import com.qunite.api.exception.InvalidRefreshTokenException;
 import com.qunite.api.exception.UserAlreadyExistsException;
 import com.qunite.api.exception.UserNotFoundException;
 import com.qunite.api.security.JwtService;
@@ -110,17 +110,16 @@ public class UserServiceImpl implements UserService {
   @Override
   @Transactional
   public TokenPair refreshTokens(String refreshToken) {
+
+    tokensService.findByValue(refreshToken).filter(tokenPair -> !tokenPair.isValid()).ifPresent(
+        tokenPair -> {
+            tokensService.invalidateUserTokens(tokenPair.getOwner().getId());
+            throw new InvalidRefreshTokenException(
+                "This refresh token has already been used");
+        });
+
     DecodedJWT decodedJWT = jwtService.verifyJwt(refreshToken, TokenType.REFRESH)
         .orElseThrow(() -> new JWTDecodeException("Invalid refresh token"));
-
-    tokensService.findByValue(refreshToken).ifPresent(
-        tokenPair -> {
-          if (!tokenPair.isValid()) {
-            tokensService.invalidateUserTokens(Long.valueOf(decodedJWT.getSubject()));
-            throw new RefreshTokenUsedTwiceException(
-                "This refresh token has already been used");
-          }
-        });
 
     User user = findOne(Long.valueOf(decodedJWT.getSubject()))
         .orElseThrow(() -> new UserNotFoundException(

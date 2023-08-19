@@ -23,11 +23,14 @@ public class JwtService {
   @Value("${spring.application.name}")
   private String issuer;
 
+  @Value("${jwt.access-token-expiration-time}")
+  private Integer expirationTime;
+
   private final TokenService tokenService;
 
   public TokenPair createJwt(User user) {
     String accessToken = generateJwt(
-        user, TokenPair.expirationTime, ChronoUnit.SECONDS, TokenType.ACCESS);
+        user, expirationTime, ChronoUnit.SECONDS, TokenType.ACCESS);
     String refreshToken = generateJwt(
         user, 7, ChronoUnit.DAYS, TokenType.REFRESH);
 
