@@ -108,7 +108,7 @@ public class User implements UserDetails {
     tokenPair.setOwner(this);
   }
 
-  public void clearTokens() {
+  public void clearTokenPairs() {
     this.tokenPairs.clear();
   }
 
