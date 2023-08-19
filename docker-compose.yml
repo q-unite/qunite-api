@@ -13,6 +13,7 @@ services:
       SPRING_APPLICATION_NAME: q-unite-api
       JWT_SECRET: Sup4rSecr0t!2
       JWT_ACCESS_TOKEN_EXPIRATION_TIME: 1800
+      CLIENT_WEB_URL: http://localhost:5173
     ports:
       - '8080:8080'
     depends_on:
