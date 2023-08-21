@@ -97,10 +97,10 @@ class QueueControllerIntegrationTest {
   @Sql({"/users-create.sql", "/queues-create.sql", "/entries-create.sql"})
   void retrieveMemberPositionInQueue() throws Exception {
     var queueId = 1;
-    var memberId = 3;
+    var username = "Third";
 
-    var resultActions = mockMvc.perform(get("/{url}/{queueId}/members/{memberId}",
-        url, queueId, memberId));
+    var resultActions = mockMvc.perform(get("/{url}/{queueId}/members/{username}",
+        url, queueId, username));
 
     resultActions.andExpect(status().isOk())
         .andExpect(content().string(is("5")));

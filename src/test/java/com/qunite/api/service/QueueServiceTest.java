@@ -65,9 +65,10 @@ class QueueServiceTest {
   @Sql({"/users-create.sql", "/queues-create.sql"})
   @Test
   void testEnrollingUserToQueue() {
-    queueService.enrollMember("Second", 1L);
+    var position = queueService.enrollMember("Second", 1L);
 
     assertTrue(entryRepository.existsById(new EntryId(2L, 1L)));
+    assertThat(position).hasValue(1);
   }
 
   @Sql({"/users-create.sql", "/queues-create.sql"})
@@ -91,7 +92,7 @@ class QueueServiceTest {
   @Sql({"/users-create.sql", "/queues-create.sql", "/entries-create.sql"})
   @Test
   void testGettingMemberPositionInQueue() {
-    var memberPosition = queueService.getMemberPosition(3L, 1L);
+    var memberPosition = queueService.getMemberPosition("Third", 1L);
 
     assertThat(memberPosition).hasValue(5);
   }

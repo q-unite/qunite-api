@@ -16,17 +16,20 @@ import java.util.Optional;
 import java.util.function.BiConsumer;
 import lombok.RequiredArgsConstructor;
 import one.util.streamex.StreamEx;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-@RequiredArgsConstructor
 @Service
+@RequiredArgsConstructor(onConstructor_ = {@Lazy})
 public class QueueServiceImpl implements QueueService {
   private final QueueRepository queueRepository;
   private final UserRepository userRepository;
   private final EntryRepository entryRepository;
   private final UserService userService;
+  private final QueueServiceImpl self;
 
   @Override
   @Transactional
@@ -48,12 +51,20 @@ public class QueueServiceImpl implements QueueService {
 
   @Override
   @Transactional
-  public void enrollMember(String username, Long queueId) {
+  public Optional<Integer> enrollMember(String username, Long queueId) {
+    self.saveEntry(username, queueId);
+    return self.getMemberPosition(username, queueId);
+  }
+
+  @Transactional(propagation = Propagation.REQUIRES_NEW)
+  public void saveEntry(String username, Long queueId) {
     var queue = findById(queueId).orElseThrow(
         () -> new QueueNotFoundException("Could not find queue by id %d".formatted(queueId)));
-    userRepository.findByUsername(username)
-        .map(user -> new Entry(user, queue))
-        .ifPresent(entry -> entry.getQueue().addEntry(entry));
+    var user = userRepository.findByUsername(username).orElseThrow(
+        () -> new UserNotFoundException("Could not find user by username %s".formatted(username)));
+    if (!entryRepository.existsById(new EntryId(user.getId(), queueId))) {
+      queue.addEntry(new Entry(user, queue));
+    }
   }
 
   @Override
@@ -64,9 +75,10 @@ public class QueueServiceImpl implements QueueService {
 
   @Override
   @Transactional
-  public Optional<Integer> getMemberPosition(Long memberId, Long queueId) {
-    return entryRepository.findById(new EntryId(memberId, queueId))
-        .map(entry -> entry.getEntryIndex() + 1);
+  public Optional<Integer> getMemberPosition(String username, Long queueId) {
+    return userRepository.findByUsername(username)
+        .flatMap(user -> entryRepository.findById(new EntryId(user.getId(), queueId))
+            .map(entry -> entry.getEntryIndex() + 1));
   }
 
   @Override
