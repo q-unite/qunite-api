@@ -225,7 +225,7 @@ class AuthenticationIntegrationTest {
   }
 
   @Test
-  @DisplayName("Tokens should be invalidated when request token is used twice")
+  @DisplayName("Tokens should be invalidated when refresh token is used twice")
   @Sql("/users-create.sql")
   void refreshUse() throws Exception {
     final var firstTokenPair = getTokenPair(1L);

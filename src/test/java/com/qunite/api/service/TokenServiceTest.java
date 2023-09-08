@@ -57,7 +57,7 @@ public class TokenServiceTest {
 
   @Sql({"/users-create.sql", "/token-pairs-create.sql"})
   @Test
-  @DisplayName("Is token valid should check the validity of token")
+  @DisplayName("Should check the validity of token")
   void isTokenValid() {
     var validTokenPair = JpaRepositoryUtils.getById(1L, tokenRepository);
     var invalidTokenPair = JpaRepositoryUtils.getById(3L, tokenRepository);

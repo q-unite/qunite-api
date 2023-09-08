@@ -77,7 +77,6 @@ public class AuthenticationController {
   @PostMapping("/sign-in/refresh")
   public ResponseEntity<AuthenticationResponse> refresh(
       @Valid @RequestBody RefreshRequest request) {
-    System.out.println("asd" + request.getRefreshToken());
     AuthenticationResponse authenticationResponse = authResponseMapper.toAuthResponse(
         userService.refreshTokens(request.getRefreshToken()));
     authenticationResponse.setExpires(expirationTime);
