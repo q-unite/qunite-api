@@ -9,7 +9,6 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Collections;
 import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -46,14 +45,14 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
       return;
     }
     try {
-    jwtService.verifyJwt(authHeader.substring(7), TokenType.ACCESS)
-        .ifPresent(decodedJWT -> {
-          var username = decodedJWT.getClaim("username").asString();
-          var authToken = new UsernamePasswordAuthenticationToken(
-              username, null, Collections.emptyList()
-          );
-          SecurityContextHolder.getContext().setAuthentication(authToken);
-        });
+      jwtService.verifyJwt(authHeader.substring(7), TokenType.ACCESS)
+          .ifPresent(decodedJWT -> {
+            var username = decodedJWT.getClaim("username").asString();
+            var authToken = new UsernamePasswordAuthenticationToken(
+                username, null, Collections.emptyList()
+            );
+            SecurityContextHolder.getContext().setAuthentication(authToken);
+          });
     } catch (RuntimeException exception) {
       resolver.resolveException(request, response, null, exception);
       return;
