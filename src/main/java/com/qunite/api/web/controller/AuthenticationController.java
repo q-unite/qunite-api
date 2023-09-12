@@ -16,7 +16,6 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirements;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -35,9 +34,6 @@ public class AuthenticationController {
   private final UserService userService;
   private final UserMapper userMapper;
   private final AuthResponseMapper authResponseMapper;
-
-  @Value("${jwt.access-token-expiration-time}")
-  private Integer expirationTime;
 
   @Operation(summary = "Sign up user", description = "Create user", responses = {
       @ApiResponse(responseCode = "200"),
@@ -62,7 +58,6 @@ public class AuthenticationController {
       @Valid @RequestBody AuthenticationRequest request) {
     AuthenticationResponse authenticationResponse = authResponseMapper.toAuthResponse(
         userService.signIn(request.getLogin(), request.getPassword()));
-    authenticationResponse.setExpires(expirationTime);
 
     return ResponseEntity.ok(authenticationResponse);
   }
@@ -79,7 +74,6 @@ public class AuthenticationController {
       @Valid @RequestBody RefreshRequest request) {
     AuthenticationResponse authenticationResponse = authResponseMapper.toAuthResponse(
         userService.refreshTokens(request.getRefreshToken()));
-    authenticationResponse.setExpires(expirationTime);
 
     return ResponseEntity.ok(authenticationResponse);
   }
