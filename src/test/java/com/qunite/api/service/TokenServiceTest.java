@@ -20,7 +20,7 @@ import org.springframework.test.context.jdbc.Sql;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @IntegrationTest
-public class TokenServiceTest {
+class TokenServiceTest {
   @Autowired
   private UserRepository userRepository;
 
