@@ -10,8 +10,6 @@ import com.qunite.api.exception.UserNotFoundException;
 import com.qunite.api.web.dto.ExceptionResponse;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Collection;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -41,16 +39,12 @@ public class ResponseEntityControllerAdvice {
   }
 
   @ExceptionHandler(MethodArgumentNotValidException.class)
-  public ResponseEntity<Map<String, Collection<String>>> handleValidationError(
+  public ResponseEntity<Map<String, List<String>>> handleValidationError(
       MethodArgumentNotValidException exception) {
-    Map<String, Collection<String>> errors = exception.getFieldErrors().stream()
+    var errors = exception.getFieldErrors().stream()
         .filter(fe -> fe.getDefaultMessage() != null)
-        .collect(Collectors.toMap(FieldError::getField, fe -> List.of(fe.getDefaultMessage()),
-            (l1, l2) -> {
-              List<String> list = new LinkedList<>(l1);
-              list.addAll(l2);
-              return list;
-            }));
+        .collect(Collectors.groupingBy(FieldError::getField,
+            Collectors.mapping(FieldError::getDefaultMessage, Collectors.toList())));
     return ResponseEntity.badRequest().body(errors);
   }
 
