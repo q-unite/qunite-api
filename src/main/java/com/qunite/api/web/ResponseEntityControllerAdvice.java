@@ -13,6 +13,7 @@ import com.qunite.api.exception.UserNotFoundException;
 import com.qunite.api.web.dto.ExceptionResponse;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import org.springframework.dao.CannotAcquireLockException;
@@ -41,11 +42,12 @@ public class ResponseEntityControllerAdvice {
   }
 
   @ExceptionHandler(MethodArgumentNotValidException.class)
-  public ResponseEntity<Map<String, String>> handleValidationError(
+  public ResponseEntity<Map<String, List<String>>> handleValidationError(
       MethodArgumentNotValidException exception) {
-    Map<String, String> errors = exception.getFieldErrors().stream()
+    var errors = exception.getFieldErrors().stream()
         .filter(fe -> fe.getDefaultMessage() != null)
-        .collect(Collectors.toMap(FieldError::getField, FieldError::getDefaultMessage));
+        .collect(Collectors.groupingBy(FieldError::getField,
+            Collectors.mapping(FieldError::getDefaultMessage, Collectors.toList())));
     return ResponseEntity.badRequest().body(errors);
   }
 
