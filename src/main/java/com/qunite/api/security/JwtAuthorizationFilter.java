@@ -1,5 +1,6 @@
 package com.qunite.api.security;
 
+import com.auth0.jwt.exceptions.JWTVerificationException;
 import io.swagger.v3.oas.annotations.enums.SecuritySchemeType;
 import io.swagger.v3.oas.annotations.security.SecurityScheme;
 import jakarta.servlet.FilterChain;
@@ -53,7 +54,7 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
             );
             SecurityContextHolder.getContext().setAuthentication(authToken);
           });
-    } catch (RuntimeException exception) {
+    } catch (JWTVerificationException exception) {
       resolver.resolveException(request, response, null, exception);
       return;
     }
