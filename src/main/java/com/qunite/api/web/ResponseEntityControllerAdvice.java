@@ -53,9 +53,7 @@ public class ResponseEntityControllerAdvice {
 
   @ExceptionHandler({
       ForbiddenAccessException.class,
-      JWTDecodeException.class,
       InvalidPasswordException.class,
-      TokenExpiredException.class,
       InvalidRefreshTokenException.class,
       JWTVerificationException.class})
   public ResponseEntity<ExceptionResponse> handleForbidden(RuntimeException exception) {
