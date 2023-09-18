@@ -64,7 +64,8 @@ public class AuthenticationController {
       @ApiResponse(responseCode = "200"),
       @ApiResponse(responseCode = "403", description = "Invalid refresh token",
           content = @Content(schema = @Schema(implementation = ExceptionResponse.class))),
-      @ApiResponse(responseCode = "404", description = "No user associated with given refresh token",
+      @ApiResponse(responseCode = "404",
+          description = "No user associated with given refresh token",
           content = @Content(schema = @Schema(implementation = ExceptionResponse.class)))
   })
   @PostMapping("/sign-in/refresh")
