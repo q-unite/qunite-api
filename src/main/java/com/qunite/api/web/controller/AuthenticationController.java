@@ -60,11 +60,11 @@ public class AuthenticationController {
     return ResponseEntity.ok(authenticationResponse);
   }
 
-  @Operation(summary = "Get new tokens by refresh token", description = "Refresh", responses = {
+  @Operation(summary = "Get new tokens by refresh token", responses = {
       @ApiResponse(responseCode = "200"),
       @ApiResponse(responseCode = "403", description = "Invalid refresh token",
           content = @Content(schema = @Schema(implementation = ExceptionResponse.class))),
-      @ApiResponse(responseCode = "404", description = "User with given id does not exist",
+      @ApiResponse(responseCode = "404", description = "No user associated with given refresh token",
           content = @Content(schema = @Schema(implementation = ExceptionResponse.class)))
   })
   @PostMapping("/sign-in/refresh")
