@@ -4,7 +4,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -18,7 +17,6 @@ import com.qunite.api.utils.JpaRepositoryUtils;
 import com.qunite.api.web.dto.auth.AuthenticationRequest;
 import com.qunite.api.web.dto.auth.RefreshRequest;
 import com.qunite.api.web.dto.user.UserCreationDto;
-import com.qunite.api.web.dto.user.UserUpdateDto;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
@@ -189,42 +187,6 @@ class AuthenticationIntegrationTest {
   }
 
   @Test
-  @DisplayName("Token shouldn't work when username has been changed")
-  @Sql("/users-create.sql")
-  void updatedUsername() throws Exception {
-    var token = getAccessToken(1L);
-
-    var userUpdateDto = new UserUpdateDto();
-    userUpdateDto.setUsername("NEWUSERNAME");
-    var json = objectMapper.writeValueAsString(userUpdateDto);
-
-    mockMvc.perform(patch("/users/self").contentType(MediaType.APPLICATION_JSON)
-            .content(json).header(HttpHeaders.AUTHORIZATION, token))
-        .andExpect(status().isOk());
-
-    mockMvc.perform(get("/users/self").header(HttpHeaders.AUTHORIZATION, token))
-        .andExpect(status().isForbidden());
-  }
-
-  @Test
-  @DisplayName("Token should work when username hasn't been changed")
-  @Sql("/users-create.sql")
-  void notUpdatedUsername() throws Exception {
-    var token = getAccessToken(1L);
-
-    var userUpdateDto = new UserUpdateDto();
-    userUpdateDto.setEmail("NEWEMAIL@email.com");
-    var json = objectMapper.writeValueAsString(userUpdateDto);
-
-    mockMvc.perform(patch("/users/self").contentType(MediaType.APPLICATION_JSON)
-            .content(json).header(HttpHeaders.AUTHORIZATION, token))
-        .andExpect(status().isOk());
-
-    mockMvc.perform(get("/users/self").header(HttpHeaders.AUTHORIZATION, token))
-        .andExpect(status().isOk());
-  }
-
-  @Test
   @DisplayName("Tokens should be invalidated when refresh token is used twice")
   @Sql("/users-create.sql")
   void refreshUse() throws Exception {
@@ -260,7 +222,7 @@ class AuthenticationIntegrationTest {
     assertThat(firstTokenPair.getAccessToken()).isNotEqualTo(secondTokenPair.getAccessToken());
   }
 
-  private String getAccessToken(Long id) throws Exception {
+  private String getAccessToken(Long id) {
     return "Bearer " + getTokenPair(id).getAccessToken();
   }
 

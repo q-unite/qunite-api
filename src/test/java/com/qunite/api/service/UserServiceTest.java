@@ -51,14 +51,14 @@ class UserServiceTest {
 
   @Test
   @Sql("/users-create.sql")
-  @DisplayName("UpdateShouldUpdateUserWithValidData")
+  @DisplayName("Update should update user with valid data")
   void testUpdate() {
     var username = "NewUsername";
 
     var user = JpaRepositoryUtils.getById(1L, userRepository);
     user.setUsername(username);
 
-    userService.updateOne("First", user);
+    userService.updateOne(user);
 
     var actualUsername = JpaRepositoryUtils.getById(1L, userRepository).getUsername();
     assertThat(actualUsername).isEqualTo(username);
@@ -75,7 +75,7 @@ class UserServiceTest {
     user.setEmail("User2@user.com");
 
     assertThatThrownBy(() ->
-        userService.updateOne("First", user))
+        userService.updateOne(user))
         .isInstanceOf(UserAlreadyExistsException.class)
         .message().contains(username);
   }

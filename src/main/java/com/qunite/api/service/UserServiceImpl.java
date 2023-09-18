@@ -40,7 +40,7 @@ public class UserServiceImpl implements UserService {
 
   @Override
   @Transactional
-  public User updateOne(String username, User newUser) {
+  public User updateOne(User newUser) {
     boolean isUsernameInUse = isUsernameInUse(newUser);
     boolean isEmailInUse = isEmailInUse(newUser);
 
@@ -51,10 +51,6 @@ public class UserServiceImpl implements UserService {
     if (isEmailInUse) {
       throw new UserAlreadyExistsException(
           "Email %s is already in use".formatted(newUser.getEmail()));
-    }
-
-    if (!newUser.getUsername().equals(username)) {
-      tokensService.invalidateUserTokens(newUser.getId());
     }
 
     return userRepository.save(newUser);
@@ -74,6 +70,7 @@ public class UserServiceImpl implements UserService {
   @Override
   @Transactional
   public void deleteOne(Long userId) {
+    tokensService.invalidateUserTokens(userId);
     userRepository.deleteById(userId);
   }
 
@@ -113,9 +110,9 @@ public class UserServiceImpl implements UserService {
 
     tokensService.findByValue(refreshToken).filter(tokenPair -> !tokenPair.isValid()).ifPresent(
         tokenPair -> {
-            tokensService.invalidateUserTokens(tokenPair.getOwner().getId());
-            throw new InvalidRefreshTokenException(
-                "This refresh token has already been used");
+          tokensService.invalidateUserTokens(tokenPair.getOwner().getId());
+          throw new InvalidRefreshTokenException(
+              "This refresh token has already been used");
         });
 
     DecodedJWT decodedJWT = jwtService.verifyJwt(refreshToken, TokenType.REFRESH)
