@@ -4,6 +4,7 @@ import com.qunite.api.service.UserService;
 import com.qunite.api.web.dto.ExceptionResponse;
 import com.qunite.api.web.dto.auth.AuthenticationRequest;
 import com.qunite.api.web.dto.auth.AuthenticationResponse;
+import com.qunite.api.web.dto.auth.RefreshRequest;
 import com.qunite.api.web.dto.user.UserCreationDto;
 import com.qunite.api.web.mapper.AuthResponseMapper;
 import com.qunite.api.web.mapper.UserMapper;
@@ -29,8 +30,8 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class AuthenticationController {
   private final UserService userService;
-  private final AuthResponseMapper responseMapper;
   private final UserMapper userMapper;
+  private final AuthResponseMapper authResponseMapper;
 
   @Operation(summary = "Sign up user", description = "Create user", responses = {
       @ApiResponse(responseCode = "200"),
@@ -53,7 +54,26 @@ public class AuthenticationController {
   @PostMapping("/sign-in")
   public ResponseEntity<AuthenticationResponse> signIn(
       @Valid @RequestBody AuthenticationRequest request) {
-    return ResponseEntity.of(userService.signIn(request.getLogin(), request.getPassword())
-        .map(responseMapper::toAuthResponse));
+    AuthenticationResponse authenticationResponse = authResponseMapper.toAuthResponse(
+        userService.signIn(request.getLogin(), request.getPassword()));
+
+    return ResponseEntity.ok(authenticationResponse);
+  }
+
+  @Operation(summary = "Get new tokens by refresh token", responses = {
+      @ApiResponse(responseCode = "200"),
+      @ApiResponse(responseCode = "403", description = "Invalid refresh token",
+          content = @Content(schema = @Schema(implementation = ExceptionResponse.class))),
+      @ApiResponse(responseCode = "404",
+          description = "No user associated with given refresh token",
+          content = @Content(schema = @Schema(implementation = ExceptionResponse.class)))
+  })
+  @PostMapping("/sign-in/refresh")
+  public ResponseEntity<AuthenticationResponse> refresh(
+      @Valid @RequestBody RefreshRequest request) {
+    AuthenticationResponse authenticationResponse = authResponseMapper.toAuthResponse(
+        userService.refreshTokens(request.getRefreshToken()));
+
+    return ResponseEntity.ok(authenticationResponse);
   }
 }

@@ -9,6 +9,9 @@ spring:
   # Flyway
   flyway:
     enabled: false
+jwt:
+  secret: "topSecret"
+  access-token-expiration-time: 1800
 client:
   web:
-    url: "http://localhost:5173"
+    url: http://localhost:5173

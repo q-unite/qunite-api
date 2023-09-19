@@ -1,9 +1,10 @@
 package com.qunite.api.web;
 
-import com.auth0.jwt.exceptions.JWTDecodeException;
+import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.qunite.api.exception.EntryNotFoundException;
 import com.qunite.api.exception.ForbiddenAccessException;
 import com.qunite.api.exception.InvalidPasswordException;
+import com.qunite.api.exception.InvalidRefreshTokenException;
 import com.qunite.api.exception.QueueNotFoundException;
 import com.qunite.api.exception.UserAlreadyExistsException;
 import com.qunite.api.exception.UserNotFoundException;
@@ -50,8 +51,9 @@ public class ResponseEntityControllerAdvice {
 
   @ExceptionHandler({
       ForbiddenAccessException.class,
-      JWTDecodeException.class,
-      InvalidPasswordException.class})
+      InvalidPasswordException.class,
+      InvalidRefreshTokenException.class,
+      JWTVerificationException.class})
   public ResponseEntity<ExceptionResponse> handleForbidden(RuntimeException exception) {
     return ResponseEntity.status(HttpStatus.FORBIDDEN)
         .body(exceptionResponse(exception.getMessage()));

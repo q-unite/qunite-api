@@ -51,7 +51,7 @@ class UserServiceTest {
 
   @Test
   @Sql("/users-create.sql")
-  @DisplayName("UpdateShouldUpdateUserWithValidData")
+  @DisplayName("Update should update user with valid data")
   void testUpdate() {
     var username = "NewUsername";
 
@@ -68,14 +68,16 @@ class UserServiceTest {
   @DisplayName("Update should not work with username or email in use")
   @Sql("/users-create.sql")
   void testUpdatingWithUsedLogin() {
-    var user = userService.findOne(1L).orElseThrow();
-    user.setUsername("Second");
+    var username = "Second";
+    var user = JpaRepositoryUtils.getById(1L, userRepository);
+
+    user.setUsername(username);
     user.setEmail("User2@user.com");
 
     assertThatThrownBy(() ->
         userService.updateOne(user))
         .isInstanceOf(UserAlreadyExistsException.class)
-        .message().contains("Second");
+        .message().contains(username);
   }
 
   @Test

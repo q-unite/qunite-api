@@ -61,6 +61,12 @@ public class User implements UserDetails {
   @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
   List<Entry> entries = new ArrayList<>();
 
+  @Access(AccessType.FIELD)
+  @ToString.Exclude
+  @OrderBy("id asc")
+  @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL, orphanRemoval = true)
+  List<TokenPair> tokenPairs = new ArrayList<>();
+
   public User(String username, String email, String password) {
     this.username = username;
     this.email = email;
@@ -97,6 +103,15 @@ public class User implements UserDetails {
     entry.setMember(null);
   }
 
+  public void addTokenPair(TokenPair tokenPair) {
+    this.tokenPairs.add(tokenPair);
+    tokenPair.setOwner(this);
+  }
+
+  public void clearTokenPairs() {
+    this.tokenPairs.clear();
+  }
+
   public List<Queue> getCreatedQueues() {
     return Collections.unmodifiableList(createdQueues);
   }
@@ -107,6 +122,10 @@ public class User implements UserDetails {
 
   public List<Entry> getEntries() {
     return Collections.unmodifiableList(entries);
+  }
+
+  public List<TokenPair> getTokenPairs() {
+    return Collections.unmodifiableList(tokenPairs);
   }
 
   @Override

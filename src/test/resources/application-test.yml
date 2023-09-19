@@ -13,6 +13,7 @@ testcontainers:
     docker-image: postgres:15-alpine
 jwt:
   secret: "test"
+  access-token-expiration-time: 1800
 client:
   web:
     url: "http://localhost:5173"
